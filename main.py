@@ -1,8 +1,10 @@
 import os
 from dotenv import load_dotenv
+from openai import OpenAI
 import pandas as pd
 import json
 from pathlib import Path
+from typing import Callable
 
 
 '''
@@ -27,6 +29,7 @@ with open(base / "recipe_templates.json", "r", encoding="utf-8") as f:
 '''
     Zamieniam dane na dict, żeby łatwiej było z nich korzystać w dalszej części
 '''
+
 diet_policy_by_concept = diet_policy.set_index("concept_id").to_dict(orient="index")
 
 nutrients_by_concept = nutrients.set_index("concept_id")[
@@ -56,6 +59,7 @@ else:
 '''
     Funkcje pomocnicze do sprawdzania zgodności diety i preferencji oraz do orkiestracji przepisów
 '''
+
 PREF_TO_DIET = {
     "none": None,
     "vege": "vegetarian",
@@ -87,6 +91,7 @@ def recipe_matches_user_pref(recipe: dict, user_pref: str) -> bool:
 '''
     orkiestracja przepisów i składanie rekomendacji
 '''
+
 def choose_sku(concept_id: str, user_pref: str, nutrition_goal: str):
     if concept_id not in rules_by_concept:
         return None
@@ -243,14 +248,174 @@ def get_recommendations(user_pref="none", nutrition_goal="standard", top_n=3, ca
     }
 
 '''
-    Sprawdzam, czy klucz API jest poprawnie wczytany
+    Normalizacja i walidacja (pod LLM)
 '''
-# Ta funkcja szuka pliku .env i ładuje jego zawartość do środowiska
+
+def safe_round(value, ndigits=1):
+    return round(value, ndigits) if isinstance(value, (int, float)) else value
+
+def safe_str(value) -> str:
+    return str(value).strip() if value is not None else ""
+
+def normalize_ingredient(ingredient: dict) -> dict:
+    return {
+        "concept_id": ingredient.get("concept_id"),
+        "name_pl": safe_str(ingredient.get("name_pl")),
+        "grams_total": safe_round(ingredient.get("grams_total"), 0),
+        "grams_per_serving": safe_round(ingredient.get("grams_per_serving"), 0),
+    }
+
+def normalize_nutrition(nutrition: dict) -> dict:
+    nutrition = nutrition or {}
+    return {
+        "kcal": safe_round(nutrition.get("kcal"), 1),
+        "protein": safe_round(nutrition.get("protein"), 1),
+        "fat": safe_round(nutrition.get("fat"), 1),
+        "carbs": safe_round(nutrition.get("carbs"), 1),
+    }
+
+def normalize_steps(steps) -> list[str]:
+    return [safe_str(step) for step in steps if safe_str(step)] if isinstance(steps, list) else []
+
+def normalize_recipe(recipe: dict) -> dict:
+    return {
+        "rank": recipe.get("rank"),
+        "recipe_id": recipe.get("recipe_id"),
+        "title_pl": safe_str(recipe.get("title_pl")),
+        "category": safe_str(recipe.get("category")),
+        "dish_type": safe_str(recipe.get("dish_type")),
+        "time_min": recipe.get("time_min"),
+        "servings": recipe.get("servings"),
+        "nutrition_per_serving": normalize_nutrition(recipe.get("nutrition_per_serving")),
+        "nutrition_total": normalize_nutrition(recipe.get("nutrition_total")),
+        "used_skus": recipe.get("used_skus", []),
+        "ingredients": [normalize_ingredient(ing) for ing in recipe.get("ingredients", [])],
+        "steps_pl": normalize_steps(recipe.get("steps_pl")),
+    }
+
+def normalize_recommendations_output(raw_data: dict) -> dict:
+    raw_query = raw_data.get("query", {})
+    return {
+        "query": {
+            "user_pref": safe_str(raw_query.get("user_pref")),
+            "nutrition_goal": safe_str(raw_query.get("nutrition_goal")),
+            "category": safe_str(raw_query.get("category")),
+            "time_max": raw_query.get("time_max"),
+            "top_n": raw_query.get("top_n"),
+        },
+        "recommendations": [normalize_recipe(r) for r in raw_data.get("recommendations", [])]
+    }
+
+def validate_recommendations_output(data: dict) -> list[str]:
+    errors = []
+    if not isinstance(data, dict): return ["Dane wejściowe nie są słownikiem (dict)."]
+    if "query" not in data: errors.append("Brak pola 'query'.")
+    if "recommendations" not in data:
+        errors.append("Brak pola 'recommendations'.")
+        return errors
+    if not isinstance(data["recommendations"], list):
+        errors.append("'recommendations' nie jest listą.")
+        return errors
+
+    for idx, recipe in enumerate(data["recommendations"], start=1):
+        if not recipe.get("recipe_id"): errors.append(f"Rekomendacja #{idx}: brak 'recipe_id'.")
+        if not recipe.get("title_pl"): errors.append(f"Rekomendacja #{idx}: brak 'title_pl'.")
+        if "nutrition_per_serving" not in recipe: errors.append(f"Rekomendacja #{idx}: brak 'nutrition_per_serving'.")
+        if "nutrition_total" not in recipe: errors.append(f"Rekomendacja #{idx}: brak 'nutrition_total'.")
+    return errors
+
+'''
+    Integracja z LLM - przygotowanie promptu i wywołanie API + Sprawdzam, czy klucz API jest poprawnie wczytany
+'''
+# Ta funkcja szuka pliku .env i ładuje jego zawartość
 load_dotenv()
-# Próbujemy pobrać klucz
+# Próbuję pobrać klucz
 api_key = os.environ.get("OPENAI_API_KEY")
-#Sprawdzam czy klucz jest ok
-if api_key:
-    print("Sukces! Twój klucz API jest poprawnie wczytany (jest bezpieczny, nie wyświetlamy go).")
-else:
-    print("Coś poszło nie tak. Upewnij się, że klucz jest zapisany w pliku .env jako OPENAI_API_KEY=...")
+client = OpenAI(api_key=api_key)
+
+def build_llm_messages(data: dict) -> list[dict]:
+    system = (
+        "Jesteś asystentem żywieniowym. Odpowiadasz po polsku.\n"
+        "Twoim zadaniem jest WYŁĄCZNIE przygotowanie odpowiedzi dla użytkownika na podstawie danych wejściowych w JSON.\n\n"
+        "ZASADY:\n"
+        "1) Traktuj JSON jako jedyne źródło prawdy.\n"
+        "2) NIE wymyślaj żadnych dodatkowych informacji.\n"
+        "3) NIE dodawaj składników, produktów, kroków ani wartości odżywczych, których nie ma w JSON.\n"
+        "4) NIE przeliczaj, NIE zaokrąglaj i NIE zmieniaj liczb. Zachowaj wartości dokładnie tak, jak występują w JSON.\n"
+        "5) Jeśli 'used_skus' zawiera produkty, pokaż je jako sekcję 'Promowane produkty'.\n"
+        "6) Jeśli 'used_skus' jest puste, napisz: 'Brak promowanych produktów w tej propozycji.'\n"
+        "7) Jeśli w przepisie brak 'steps_pl' lub lista jest pusta, pomiń sekcję kroków.\n"
+        "8) Zachowaj zgodność z preferencją użytkownika z pola 'query.user_pref'.\n"
+        "9) Odpowiedź ma być krótka, czytelna i w Markdown.\n"
+        "10) Nie używaj tabel.\n"
+        "11) Nie dodawaj porad, interpretacji ani wskazówek, które nie wynikają wprost z JSON.\n"
+    )
+    user = (
+        "Na podstawie poniższego JSON przygotuj odpowiedź dla użytkownika.\n\n"
+        "Wymagany format odpowiedzi:\n"
+        "- Krótkie wprowadzenie: 2–3 zdania dopasowane do query.\n"
+        "- Następnie lista TOP rekomendacji.\n"
+        "- Dla każdej rekomendacji podaj:\n"
+        "  * tytuł,\n"
+        "  * czas przygotowania,\n"
+        "  * typ dania,\n"
+        "  * makro na porcję: kcal | B | T | W,\n"
+        "  * promowane produkty,\n"
+        "  * składniki: nazwa + grams_per_serving, a w nawiasie grams_total,\n"
+        "  * kroki: tylko jeśli istnieją w 'steps_pl'.\n"
+        "JSON:\n"
+        f"{json.dumps(data, ensure_ascii=False, indent=2)}"
+    )
+    return [{"role": "system", "content": system}, {"role": "user", "content": user}]
+
+def openai_call_fn(messages: list[dict]) -> str:
+    response = client.chat.completions.create(
+        model="gpt-4o-mini", # Poprawiona nazwa modelu (w colabie było "gpt-4.1-mini", co nie istnieje)
+        messages=messages,
+        temperature=0.1
+    )
+    return response.choices[0].message.content
+
+def run_recommendation_pipeline(
+    user_pref: str,
+    nutrition_goal: str,
+    top_n: int,
+    category: str,
+    llm_call_fn: Callable[[list[dict]], str]
+) -> dict:
+    
+    raw_data = get_recommendations(user_pref, nutrition_goal, top_n, category)
+    data = normalize_recommendations_output(raw_data)
+    errors = validate_recommendations_output(data)
+
+    if errors:
+        return {"ok": False, "errors": errors, "data": data, "messages": None, "answer": None}
+
+    if not data.get("recommendations"):
+        return {
+            "ok": True, "errors": [], "data": data, "messages": None,
+            "answer": "Nie znalazłam pasujących propozycji dla podanych kryteriów."
+        }
+
+    messages = build_llm_messages(data)
+    answer = llm_call_fn(messages).strip()
+
+    return {"ok": True, "errors": [], "data": data, "messages": messages, "answer": answer}
+
+'''
+    Uruchamiam pipeline rekomendacji 
+'''
+
+if __name__ == "__main__":
+    # Pamiętaj, aby przed odpaleniem w konsoli ustawić zmienną środowiskową:
+    # np. w terminalu: export OPENAI_API_KEY="sk-proj-..."
+    
+    result = run_recommendation_pipeline(
+        user_pref="vegan",
+        nutrition_goal="low_kcal",
+        top_n=3,
+        category="kolacja",
+        llm_call_fn=openai_call_fn
+    )
+    print(result["answer"])
+    pass
