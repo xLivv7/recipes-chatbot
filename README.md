@@ -1,6 +1,6 @@
 # Branded Recipe Chatbot SaaS
 
-# This README is going to be changing, since the projects is **in progress**. Some elements may change, especially the Tech Stack
+# This README is going to be changing, since the project is **in progress**. Some elements may change, especially the Tech Stack
 
 ## 📖 Overview
 
