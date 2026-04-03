@@ -5,6 +5,7 @@ import pandas as pd
 import json
 from pathlib import Path
 from typing import Callable
+from core.llm_tools import RECIPE_TOOLS
 
 
 '''
@@ -333,89 +334,91 @@ load_dotenv()
 api_key = os.environ.get("OPENAI_API_KEY")
 client = OpenAI(api_key=api_key)
 
-def build_llm_messages(data: dict) -> list[dict]:
-    system = (
-        "Jesteś asystentem żywieniowym. Odpowiadasz po polsku.\n"
-        "Twoim zadaniem jest WYŁĄCZNIE przygotowanie odpowiedzi dla użytkownika na podstawie danych wejściowych w JSON.\n\n"
-        "ZASADY:\n"
-        "1) Traktuj JSON jako jedyne źródło prawdy.\n"
-        "2) NIE wymyślaj żadnych dodatkowych informacji.\n"
-        "3) NIE dodawaj składników, produktów, kroków ani wartości odżywczych, których nie ma w JSON.\n"
-        "4) NIE przeliczaj, NIE zaokrąglaj i NIE zmieniaj liczb. Zachowaj wartości dokładnie tak, jak występują w JSON.\n"
-        "5) Jeśli 'used_skus' zawiera produkty, pokaż je jako sekcję 'Promowane produkty'.\n"
-        "6) Jeśli 'used_skus' jest puste, napisz: 'Brak promowanych produktów w tej propozycji.'\n"
-        "7) Jeśli w przepisie brak 'steps_pl' lub lista jest pusta, pomiń sekcję kroków.\n"
-        "8) Zachowaj zgodność z preferencją użytkownika z pola 'query.user_pref'.\n"
-        "9) Odpowiedź ma być krótka, czytelna i w Markdown.\n"
-        "10) Nie używaj tabel.\n"
-        "11) Nie dodawaj porad, interpretacji ani wskazówek, które nie wynikają wprost z JSON.\n"
+def chat_with_bot(user_message: str) -> str:
+    # 1. Inicjalizacja konwersacji
+    system_prompt = (
+        "Jesteś kulinarnym asystentem. Twoim zadaniem jest pomaganie użytkownikom w znalezieniu "
+        "idealnego posiłku. Zawsze używaj narzędzia 'get_recommendations', aby wyszukać przepisy w bazie. "
+        "Gdy otrzymasz wyniki z narzędzia, przedstaw je w czytelny, apetyczny sposób w Markdown. "
+        "Zawsze podawaj czas przygotowania, kalorie i makroskładniki na porcję (kcal | B | T | W). "
+        "Jeśli w wynikach są 'used_skus', zaprezentuj je jako 'Promowane produkty'. "
+        "Nie zmyślaj przepisów ani składników spoza dostarczonych wyników."
     )
-    user = (
-        "Na podstawie poniższego JSON przygotuj odpowiedź dla użytkownika.\n\n"
-        "Wymagany format odpowiedzi:\n"
-        "- Krótkie wprowadzenie: 2–3 zdania dopasowane do query.\n"
-        "- Następnie lista TOP rekomendacji.\n"
-        "- Dla każdej rekomendacji podaj:\n"
-        "  * tytuł,\n"
-        "  * czas przygotowania,\n"
-        "  * typ dania,\n"
-        "  * makro na porcję: kcal | B | T | W,\n"
-        "  * promowane produkty,\n"
-        "  * składniki: nazwa + grams_per_serving, a w nawiasie grams_total,\n"
-        "  * kroki: tylko jeśli istnieją w 'steps_pl'.\n"
-        "JSON:\n"
-        f"{json.dumps(data, ensure_ascii=False, indent=2)}"
-    )
-    return [{"role": "system", "content": system}, {"role": "user", "content": user}]
+    
+    messages = [
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": user_message}
+    ]
 
-def openai_call_fn(messages: list[dict]) -> str:
+    # 2. wiadomość usera idzie do modelu i on decyduje co robi dakej
     response = client.chat.completions.create(
-        model="gpt-4o-mini", # Poprawiona nazwa modelu (w colabie było "gpt-4.1-mini", co nie istnieje)
+        model="gpt-4o-mini",
         messages=messages,
+        tools=RECIPE_TOOLS,
+        tool_choice="auto", # decyzja modelu czy użyć naredzia
         temperature=0.1
     )
-    return response.choices[0].message.content
-
-def run_recommendation_pipeline(
-    user_pref: str,
-    nutrition_goal: str,
-    top_n: int,
-    category: str,
-    llm_call_fn: Callable[[list[dict]], str]
-) -> dict:
     
-    raw_data = get_recommendations(user_pref, nutrition_goal, top_n, category)
-    data = normalize_recommendations_output(raw_data)
-    errors = validate_recommendations_output(data)
+    response_message = response.choices[0].message
+    
+    # 3. Sprawdzam czy model użył toola
+    if response_message.tool_calls:
+        tool_call = response_message.tool_calls[0]
+        function_name = tool_call.function.name
+        # Pobieramy parametry, które LLM zextractował z zapytania użytkownika
+        function_args = json.loads(tool_call.function.arguments)
+        
+        print(f"🔧 [DEBUG] Model wywołuje Pythonową funkcję '{function_name}' z argumentami: {function_args}")
+        
+        # Uruchamiam twardą logikę w Pythonie
+        if function_name == "get_recommendations":
+            raw_data = get_recommendations(
+                user_pref=function_args.get("user_pref", "none"),
+                nutrition_goal=function_args.get("nutrition_goal", "standard"),
+                category=function_args.get("category", "kolacja"),
+                time_max=function_args.get("time_max"),
+                top_n=function_args.get("top_n", 3)
+            )
+            # Normalizacja JSON'a pod model
+            function_result = normalize_recommendations_output(raw_data)
+        else:
+            function_result = {"error": "Nieznana funkcja"}
 
-    if errors:
-        return {"ok": False, "errors": errors, "data": data, "messages": None, "answer": None}
+        # 4. Zwracam wyniki działania Pythonowej funkcji z powrotem do LLM
+        # Trzeba dodać do historii to, co model wysłał w kroku 2
+        messages.append(response_message)
+        
+        # Dorzucam odpowiedź narzędzia(wygenerowany JSON)
+        messages.append({
+            "role": "tool",
+            "tool_call_id": tool_call.id,
+            "name": function_name,
+            "content": json.dumps(function_result, ensure_ascii=False)
+        })
+        
+        # 5. Ostatnie wywołanie;model ma już JSON'a i redaguje dla nas ładną odpowiedź
+        final_response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=messages,
+            temperature=0.2
+        )
+        
+        return final_response.choices[0].message.content
+        
+    else:
+        # jeśli nie ma wywołania narzędzia, return samej odpowiedzi/komunikatu 
+        return response_message.content
+    
 
-    if not data.get("recommendations"):
-        return {
-            "ok": True, "errors": [], "data": data, "messages": None,
-            "answer": "Nie znalazłam pasujących propozycji dla podanych kryteriów."
-        }
-
-    messages = build_llm_messages(data)
-    answer = llm_call_fn(messages).strip()
-
-    return {"ok": True, "errors": [], "data": data, "messages": messages, "answer": answer}
 
 '''
     Uruchamiam pipeline rekomendacji 
 '''
 
 if __name__ == "__main__":
-    # Pamiętaj, aby przed odpaleniem w konsoli ustawić zmienną środowiskową:
-    # np. w terminalu: export OPENAI_API_KEY="sk-proj-..."
+    user_input = "Cześć! Szukam czegoś szybkiego, przepisu na kolację, który ma mniej niż 400 kcal na porcję. Masz coś dla mnie?"
+    print(f"👤 Użytkownik: {user_input}\n")
     
-    result = run_recommendation_pipeline(
-        user_pref="vegan",
-        nutrition_goal="low_kcal",
-        top_n=3,
-        category="kolacja",
-        llm_call_fn=openai_call_fn
-    )
-    print(result["answer"])
-    pass
+    answer = chat_with_bot(user_input)
+    print("\n🤖 Asystent:\n")
+    print(answer)
