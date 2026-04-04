@@ -66,6 +66,7 @@ PREF_TO_DIET = {
     "vege": "vegetarian",
     "vegetarian": "vegetarian",
     "vegan": "vegan",
+    "meat": "meat",
 }
 
 def concept_allows_diet(concept_id: str, diet: str | None) -> bool:
@@ -73,7 +74,7 @@ def concept_allows_diet(concept_id: str, diet: str | None) -> bool:
         return True
     row = diet_policy_by_concept.get(concept_id)
     if row is None:
-        return True # Fallback bezpieczeństwa
+        return True 
     if diet == "vegetarian":
         return int(row["is_vegetarian_ok"]) == 1
     if diet == "vegan":
@@ -84,9 +85,21 @@ def recipe_matches_user_pref(recipe: dict, user_pref: str) -> bool:
     diet = PREF_TO_DIET.get(user_pref, None)
     if diet is None:
         return True
+        
+    # miesko
+    if diet == "meat":
+        # Danie z mięsem to takie, które zawiera przynajmniej jeden NIE-wegetariański składnik
+        for ing in recipe.get("ingredients", []):
+            row = diet_policy_by_concept.get(ing["concept_id"])
+            if row is not None and int(row.get("is_vegetarian_ok", 1)) == 0:
+                return True # Znaleźliśmy mięso, przepis pasuje!
+        return False # Przeszukaliśmy wszystko i nie ma mięsa, odrzucamy przepis
+
+    # Dla wegetariańskich i wegańskich preferencji
     for ing in recipe.get("ingredients", []):
         if not concept_allows_diet(ing["concept_id"], diet):
             return False
+            
     return True
 
 '''
@@ -334,17 +347,21 @@ load_dotenv()
 api_key = os.environ.get("OPENAI_API_KEY")
 client = OpenAI(api_key=api_key)
 
-def chat_with_bot(user_message: str) -> str:
+def chat_with_bot(user_message: str, brand_name: str) -> str:
     # 1. Inicjalizacja konwersacji
     system_prompt = (
         "Jesteś kulinarnym asystentem. Twoim zadaniem jest pomaganie użytkownikom w znalezieniu "
         "idealnego posiłku. Zawsze używaj narzędzia 'get_recommendations', aby wyszukać przepisy w bazie. "
-        "Gdy otrzymasz wyniki z narzędzia, przedstaw je w czytelny, apetyczny sposób w Markdown. "
-        "Zawsze podawaj czas przygotowania, kalorie i makroskładniki na porcję (kcal | B | T | W). "
-        "Jeśli w wynikach są 'used_skus', zaprezentuj je jako 'Promowane produkty'. "
-        "Nie zmyślaj przepisów ani składników spoza dostarczonych wyników."
+        "Gdy otrzymasz wyniki z narzędzia, przedstaw je w czytelny, apetyczny sposób w Markdown.\n\n"
+        "ZASADY FORMATOWANIA:\n"
+        "1. Zawsze podawaj czas przygotowania, kalorie i makro na porcję (kcal | B | T | W).\n"
+        "2. Nie zmyślaj przepisów, składników ani wartości odżywczych spoza dostarczonych wyników.\n"
+        "3. ZABRONIONE jest generowanie jakichkolwiek linków (URL) w odpowiedzi.\n"
+        "4. Jeśli w wynikach w polu 'used_skus' znajdują się produkty, dodaj pod przepisem naturalną poradę. "
+        f"WAŻNE: Pracujesz dla marki {brand_name}. Zawsze płynnie dodaj słowo '{brand_name}' do nazwy promowanego produktu. "
+        "Zignoruj i usuń techniczne dopiski z nazwy w nawiasach, takie jak '(butelka)' czy '(słoik)'."
     )
-    
+
     messages = [
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": user_message}
@@ -416,9 +433,9 @@ def chat_with_bot(user_message: str) -> str:
 '''
 
 if __name__ == "__main__":
-    user_input = "Cześć! Szukam czegoś szybkiego, przepisu na kolację, który ma mniej niż 400 kcal na porcję. Masz coś dla mnie?"
+    user_input = "Siema!! zaproponuj mi coś na kolację, koniecznie z mięskiem"
+
     print(f"👤 Użytkownik: {user_input}\n")
-    
-    answer = chat_with_bot(user_input)
+    answer = chat_with_bot(user_input, brand_name="Winiary")
     print("\n🤖 Asystent:\n")
     print(answer)
