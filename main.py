@@ -67,6 +67,7 @@ PREF_TO_DIET = {
     "vegetarian": "vegetarian",
     "vegan": "vegan",
     "meat": "meat",
+    "fish": "fish"
 }
 
 def concept_allows_diet(concept_id: str, diet: str | None) -> bool:
@@ -92,8 +93,20 @@ def recipe_matches_user_pref(recipe: dict, user_pref: str) -> bool:
         for ing in recipe.get("ingredients", []):
             row = diet_policy_by_concept.get(ing["concept_id"])
             if row is not None and int(row.get("is_vegetarian_ok", 1)) == 0:
-                return True # Znaleźliśmy mięso, przepis pasuje!
-        return False # Przeszukaliśmy wszystko i nie ma mięsa, odrzucamy przepis
+                return True 
+        return False
+    
+    # rybka
+    if diet == "fish":
+        has_fish = False
+        for ing in recipe.get("ingredients", []):
+            row = diet_policy_by_concept.get(ing["concept_id"])
+            if row is not None:
+                # trzeba dodać w csv diet_policy kolumnę "is_fish" (0/1) i oznaczyć tam wszystkie składniki będące rybami
+                if int(row.get("is_fish", 0)) == 1:
+                    has_fish = True
+                    break 
+        return has_fish # Zwraca True tylko, jeśli znalazł rybę
 
     # Dla wegetariańskich i wegańskich preferencji
     for ing in recipe.get("ingredients", []):

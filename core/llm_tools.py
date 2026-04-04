@@ -11,7 +11,7 @@ RECIPE_TOOLS = [
                 "properties": {
                     "user_pref": {
                         "type": "string",
-                        "enum": ["none", "vege", "vegetarian", "vegan", "meat"],
+                        "enum": ["none", "vege", "vegetarian", "vegan", "meat", "fish"],
                         "description": "Preferencja dietetyczna użytkownika. Jeśli użytkownik nic nie wspomina o diecie, użyj 'none'."
                     },
                     "nutrition_goal": {
