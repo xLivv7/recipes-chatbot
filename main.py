@@ -67,7 +67,8 @@ PREF_TO_DIET = {
     "vegetarian": "vegetarian",
     "vegan": "vegan",
     "meat": "meat",
-    "fish": "fish"
+    "fish": "fish",
+    "pescetarian": "pescetarian",
 }
 
 def concept_allows_diet(concept_id: str, diet: str | None) -> bool:
@@ -87,26 +88,33 @@ def recipe_matches_user_pref(recipe: dict, user_pref: str) -> bool:
     if diet is None:
         return True
         
-    # miesko
+    # LOGIKA DLA MIĘSA
     if diet == "meat":
-        # Danie z mięsem to takie, które zawiera przynajmniej jeden NIE-wegetariański składnik
         for ing in recipe.get("ingredients", []):
             row = diet_policy_by_concept.get(ing["concept_id"])
-            if row is not None and int(row.get("is_vegetarian_ok", 1)) == 0:
-                return True 
+            # Proste i twarde sprawdzenie: czy to jest mięso?
+            if row is not None and int(row.get("is_meat", 0)) == 1:
+                return True
         return False
-    
-    # rybka
+
+    # LOGIKA DLA RYB
     if diet == "fish":
-        has_fish = False
         for ing in recipe.get("ingredients", []):
             row = diet_policy_by_concept.get(ing["concept_id"])
-            if row is not None:
-                # trzeba dodać w csv diet_policy kolumnę "is_fish" (0/1) i oznaczyć tam wszystkie składniki będące rybami
-                if int(row.get("is_fish", 0)) == 1:
-                    has_fish = True
-                    break 
-        return has_fish # Zwraca True tylko, jeśli znalazł rybę
+            # Proste sprawdzenie: czy to jest ryba/owoce morza?
+            if row is not None and int(row.get("is_fish", 0)) == 1:
+                return True
+        return False
+
+    # LOGIKA DLA PESCETARIAN
+    if diet == "pescetarian":
+        for ing in recipe.get("ingredients", []):
+            row = diet_policy_by_concept.get(ing["concept_id"])
+            # Odrzucamy przepis od razu, jeśli jakikolwiek składnik ma flagę mięsa
+            if row is not None and int(row.get("is_meat", 0)) == 1:
+                return False
+        # Jeśli przeszliśmy pętlę i nie było mięsa - przepis jest bezpieczny
+        return True
 
     # Dla wegetariańskich i wegańskich preferencji
     for ing in recipe.get("ingredients", []):
@@ -446,7 +454,7 @@ def chat_with_bot(user_message: str, brand_name: str) -> str:
 '''
 
 if __name__ == "__main__":
-    user_input = "Siema!! zaproponuj mi coś na kolację, koniecznie z mięskiem"
+    user_input = "Zaproponuj mi kolację z rybą"
 
     print(f"👤 Użytkownik: {user_input}\n")
     answer = chat_with_bot(user_input, brand_name="Winiary")
