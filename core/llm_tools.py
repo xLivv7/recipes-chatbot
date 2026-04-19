@@ -16,8 +16,8 @@ RECIPE_TOOLS = [
                     },
                     "nutrition_goal": {
                         "type": "string",
-                        "enum": ["standard", "low_kcal", "high_protein"],
-                        "description": "Cel sylwetkowy/żywieniowy. Jeśli użytkownik prosi o coś lekkiego/na redukcję użyj 'low_kcal'. Dla dużej ilości białka użyj 'high_protein'. Jeśli brak wytycznych, użyj 'standard'."
+                        "enum": ["standard", "low_kcal", "high_protein", "keto"],
+                        "description": "Cel sylwetkowy/żywieniowy. Jeśli użytkownik prosi o coś lekkiego/na redukcję użyj 'low_kcal'. Dla dużej ilości białka użyj 'high_protein'. Dla diety ketogenicznej użyj 'keto'. Jeśli brak wytycznych, użyj 'standard'."
                     },
                     "category": {
                         "type": "string",

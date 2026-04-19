@@ -200,9 +200,12 @@ def score_recipe(result: dict, nutrition_goal: str = "standard"):
     used = len(result["used_skus"])
     kcal = float(result["nutrition_per_serving"]["kcal"])
     protein = float(result["nutrition_per_serving"]["protein"])
+    fat = float(result["nutrition_per_serving"]["fat"])
+    carbs = float(result["nutrition_per_serving"]["carbs"])
 
     if nutrition_goal == "low_kcal": return (-kcal, protein, used)
     if nutrition_goal == "high_protein": return (protein, -kcal, used)
+    if nutrition_goal == "keto": return (-carbs, fat, used)
     return (used, -kcal, protein)
 
 def orchestrate_top_n(user_pref="none", nutrition_goal="standard", top_n=3, category="kolacja", time_max=None):
@@ -214,6 +217,9 @@ def orchestrate_top_n(user_pref="none", nutrition_goal="standard", top_n=3, cate
         
         try:
             res = orchestrate_recipe(r["recipe_id"], user_pref=user_pref, nutrition_goal=nutrition_goal)
+            #filtr dla di8ety keto
+            if nutrition_goal == "keto" and float(res["nutrition_per_serving"]["carbs"]) > 15.0:
+                continue 
             if "dish_type" not in res:
                 res["dish_type"] = r.get("dish_type", "unknown")
             results.append(res)
@@ -454,7 +460,7 @@ def chat_with_bot(user_message: str, brand_name: str) -> str:
 '''
 
 if __name__ == "__main__":
-    user_input = "Zaproponuj mi kolację z rybą"
+    user_input = "Zaproponuj mi 3 przepisy na kolację keto"
 
     print(f"👤 Użytkownik: {user_input}\n")
     answer = chat_with_bot(user_input, brand_name="Winiary")
