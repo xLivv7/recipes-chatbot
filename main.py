@@ -6,56 +6,90 @@ import json
 from pathlib import Path
 from typing import Callable
 from core.llm_tools import RECIPE_TOOLS
+from core.database import SessionLocal, Recipe, Ingredient, Nutrient, DietPolicy, ClientSku, SkuSelectionRule
 
+db = SessionLocal()
 
-'''
-    Wczytuję dane 
-'''
-#ścieżka bazowa do danych
-base = Path("data/raw")
-# CSV (bezpośrednio w data/raw)
-concepts = pd.read_csv(base / "ingredient_concepts.csv")
-nutrients = pd.read_csv(base / "global_ingredients_nutrients.csv")
-diet_policy = pd.read_csv(base / "concept_diet_policy.csv")
+recipes = []
+for r in db.query(Recipe).all():
+    recipes.append({
+        "recipe_id": r.id,
+        "title_pl": r.title_pl,
+        "category": r.category,
+        "dish_type": r.dish_type,
+        "time_min": r.time_min,
+        "servings": r.servings,
+        "ingredients": r.ingredients_data,
+        "steps_pl": r.steps_pl
+    })
 
-# CSV (w podfolderze clients/Winiary)
-client_skus = pd.read_csv(base / "clients/Winiary/client_skus_canonical.csv")
-sku_map = pd.read_csv(base / "clients/Winiary/sku_to_concept_map.csv")
-rules = pd.read_csv(base / "clients/Winiary/sku_selection_rules.csv")
+# --- TWORZENIE SŁOWNIKÓW Z BAZY DANYCH ---
 
-# JSON (bezpośrednio w data/raw)
-with open(base / "recipe_templates.json", "r", encoding="utf-8") as f:
-    recipes = json.load(f)
+# 1. Polityka dietetyczna
+diet_policy_by_concept = {}
+for p in db.query(DietPolicy).all():
+    diet_policy_by_concept[p.ingredient_id] = {
+        "is_vegetarian_ok": p.is_vegetarian_ok,
+        "is_vegan_ok": p.is_vegan_ok,
+        "is_meat": p.is_meat,
+        "is_fish": p.is_fish,
+        "is_keto_ok": p.is_keto_ok
+    }
 
-'''
-    Zamieniam dane na dict, żeby łatwiej było z nich korzystać w dalszej części
-'''
+# 2. Wartości odżywcze
+nutrients_by_concept = {}
+for n in db.query(Nutrient).all():
+    nutrients_by_concept[n.ingredient_id] = {
+        "energy_kcal_100g": n.energy_kcal_100g,
+        "protein_g_100g": n.protein_g_100g,
+        "fat_g_100g": n.fat_g_100g,
+        "carbs_g_100g": n.carbs_g_100g
+    }
 
-diet_policy_by_concept = diet_policy.set_index("concept_id").to_dict(orient="index")
-
-nutrients_by_concept = nutrients.set_index("concept_id")[
-    ["energy_kcal_100g", "protein_g_100g", "fat_g_100g", "carbs_g_100g"]
-].to_dict(orient="index")
-
-skus_by_id = client_skus.set_index("client_sku_id").to_dict(orient="index")
-
+# 3. Słowniki SKU oraz Nazwy SKU
+skus_by_id = {}
+sku_name = {}
 concept_to_skus = {}
-for _, row in sku_map.iterrows():
-    concept_to_skus.setdefault(row["concept_id"], []).append(row["client_sku_id"])
 
+for sku in db.query(ClientSku).all():
+    # Słownik detali produktu
+    skus_by_id[sku.id] = {
+        "client_sku_id": sku.id,
+        "name_pl": sku.name_pl,
+        "energy_kcal_100": sku.energy_kcal_100,
+        "protein_g_100": sku.protein_g_100,
+        "fat_g_100": sku.fat_g_100,
+        "carbs_g_100": sku.carbs_g_100,
+        "concept_id": sku.concept_id
+    }
+    
+    # Słownik tylko z nazwami (zastępuje ten blok z if/elif na dole)
+    sku_name[sku.id] = sku.name_pl
+    
+    # Mapowanie z jakiego konceptu (składnika) na jakie konkretnie SKU
+    if sku.concept_id:
+        concept_to_skus.setdefault(sku.concept_id, []).append(sku.id)
+
+# 4. Reguły biznesowe (Zgrupowane po concept_id i od razu posortowane)
 rules_by_concept = {}
-for cid, grp in rules.groupby("concept_id"):
-    rules_by_concept[cid] = grp.sort_values("rule_order").to_dict(orient="records")
+# .order_by(SkuSelectionRule.rule_order) zastępuje sort_values("rule_order") z Pandasa
+for rule in db.query(SkuSelectionRule).order_by(SkuSelectionRule.rule_order).all():
+    rules_by_concept.setdefault(rule.concept_id, []).append({
+        "client_id": rule.client_id,
+        "concept_id": rule.concept_id,
+        "rule_order": rule.rule_order,
+        "condition_type": rule.condition_type,
+        "condition_value": rule.condition_value,
+        "preferred_sku_id": rule.preferred_sku_id
+    })
 
-concept_name = concepts.set_index("concept_id")["name_pl"].to_dict()
+# 5. Nazwy składników bazowych
+concept_name = {}
+for ing in db.query(Ingredient).all():
+    concept_name[ing.id] = ing.name_pl
 
-# Obsługa różnych nazw kolumn dla nazwy produktu
-if "name_pl" in client_skus.columns:
-    sku_name = client_skus.set_index("client_sku_id")["name_pl"].to_dict()
-elif "sku_name_pl" in client_skus.columns:
-    sku_name = client_skus.set_index("client_sku_id")["sku_name_pl"].to_dict()
-else:
-    sku_name = {}
+# Zamykamy sesję, bo wszystkie potrzebne dane mamy już załadowane do pamięci
+db.close()
 
 '''
     Funkcje pomocnicze do sprawdzania zgodności diety i preferencji oraz do orkiestracji przepisów
@@ -440,7 +474,7 @@ def chat_with_bot(user_message: str, brand_name: str) -> str:
             "content": json.dumps(function_result, ensure_ascii=False)
         })
         
-        # 5. Ostatnie wywołanie;model ma już JSON'a i redaguje dla nas ładną odpowiedź
+        # 5.model ma już JSON'a i redaguje ładną odpowiedź
         final_response = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=messages,
