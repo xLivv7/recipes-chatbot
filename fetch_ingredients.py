@@ -154,7 +154,8 @@ if __name__ == "__main__":
         #"Proszek do pieczenia", "Skrobia ziemniaczana", "Ocet jabłkowy",
 
         # Inne dodatki
-        "Bulion warzywny", "Mleczko kokosowe", "Pesto bazyliowe", "Hummus klasyczny", 
+        #"Bulion warzywny", "Mleczko kokosowe",
+        "Pesto bazyliowe", "Hummus klasyczny", 
         "Dżem truskawkowy", "Czekolada gorzka 70%", "Czekolada mleczna", "Twarożek sernikowy"
     ]
     

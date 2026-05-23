@@ -106,6 +106,14 @@ PREF_TO_DIET = {
 }
 
 def concept_allows_diet(concept_id: str, diet: str | None) -> bool:
+    '''
+    INPUT: 
+        - concept_id (str): Identyfikator składnika bazowego (konceptu).
+        - diet (str | None): Znormalizowana nazwa diety (np. 'vegetarian', 'vegan') lub None.
+    OUTPUT: 
+        - bool: True, jeśli składnik jest zgodny z dietą, False w przeciwnym razie.
+    Opis działania: Sprawdza w słowniku `diet_policy_by_concept`, czy dany składnik bazowy jest dozwolony w określonej diecie. Jeśli dieta nie jest zdefiniowana, domyślnie przepuszcza składnik.
+    '''
     if diet is None:
         return True
     row = diet_policy_by_concept.get(concept_id)
@@ -118,6 +126,14 @@ def concept_allows_diet(concept_id: str, diet: str | None) -> bool:
     raise ValueError(f"Unknown diet: {diet}")
 
 def recipe_matches_user_pref(recipe: dict, user_pref: str) -> bool:
+    '''
+    INPUT: 
+        - recipe (dict): Słownik zawierający dane pojedynczego przepisu.
+        - user_pref (str): Surowa preferencja użytkownika (np. 'meat', 'pescetarian', 'vegan').
+    OUTPUT: 
+        - bool: True, jeśli cały przepis jest zgodny z preferencją, False w przeciwnym razie.
+    Opis działania: Weryfikuje cały przepis pod kątem zgodności z preferencjami użytkownika. Iteruje po składnikach przepisu i korzysta z flag dietetycznych (is_meat, is_fish) w celu akceptacji lub odrzucenia całego posiłku.
+    '''
     diet = PREF_TO_DIET.get(user_pref, None)
     if diet is None:
         return True
@@ -162,6 +178,15 @@ def recipe_matches_user_pref(recipe: dict, user_pref: str) -> bool:
 '''
 
 def choose_sku(concept_id: str, user_pref: str, nutrition_goal: str):
+    '''
+    INPUT: 
+        - concept_id (str): Identyfikator składnika bazowego (konceptu), dla którego szukamy zamiennika.
+        - user_pref (str): Preferencja dietetyczna użytkownika.
+        - nutrition_goal (str): Cel żywieniowy (np. 'low_kcal', 'keto').
+    OUTPUT: 
+        - str | None: Identyfikator konkretnego produktu marki (SKU) lub None, jeśli brak dopasowania.
+    Opis działania: Przeszukuje zdefiniowane reguły biznesowe w celu podmiany generycznego składnika na konkretny produkt klienta (SKU). Uwzględnia priorytetyzację na podstawie preferencji dietetycznych lub celu sylwetkowego.
+    '''
     if concept_id not in rules_by_concept:
         return None
     for rule in rules_by_concept[concept_id]:
@@ -175,6 +200,15 @@ def choose_sku(concept_id: str, user_pref: str, nutrition_goal: str):
     return None
 
 def orchestrate_recipe(recipe_id: str, user_pref="none", nutrition_goal="standard"):
+    '''
+    INPUT: 
+        - recipe_id (str): Identyfikator konkretnego przepisu.
+        - user_pref (str): Preferencja dietetyczna doboru SKU.
+        - nutrition_goal (str): Cel żywieniowy doboru SKU.
+    OUTPUT: 
+        - dict: Kompletny, przeliczony przepis uwzględniający produkty marki.
+    Opis działania: Dokonuje "brandyfikacji" przepisu. Zamienia zwykłe składniki na produkty klienta (jeśli spełniają reguły logiki), a następnie na podstawie gramatury oblicza sumaryczne oraz jednostkowe (na porcję) makroskładniki i kaloryczność dania.
+    '''
     recipe = next((r for r in recipes if r["recipe_id"] == recipe_id), None)
     if recipe is None:
         raise ValueError(f"Recipe not found: {recipe_id}")
@@ -231,6 +265,14 @@ def orchestrate_recipe(recipe_id: str, user_pref="none", nutrition_goal="standar
     }
 
 def score_recipe(result: dict, nutrition_goal: str = "standard"):
+    '''
+    INPUT: 
+        - result (dict): Słownik z "zorkiestrowanym" przepisem.
+        - nutrition_goal (str): Cel żywieniowy, według którego punktowany jest przepis.
+    OUTPUT: 
+        - tuple: Krotka (tuple) z wartościami wagowymi/punktowymi używana do sortowania.
+    Opis działania: Wylicza wagę (score) przepisu, ułatwiając ranking wyników. Promuje pożądane cechy zależnie od celu (np. jak najmniej kalorii dla 'low_kcal', węglowodany poniżej progu dla 'keto') oraz faworyzuje przepisy, w których udało się użyć najwięcej produktów promowanej marki.
+    '''
     used = len(result["used_skus"])
     kcal = float(result["nutrition_per_serving"]["kcal"])
     protein = float(result["nutrition_per_serving"]["protein"])
@@ -243,6 +285,17 @@ def score_recipe(result: dict, nutrition_goal: str = "standard"):
     return (used, -kcal, protein)
 
 def orchestrate_top_n(user_pref="none", nutrition_goal="standard", top_n=3, category="kolacja", time_max=None):
+    '''
+    INPUT: 
+        - user_pref (str): Preferencja dietetyczna.
+        - nutrition_goal (str): Cel żywieniowy.
+        - top_n (int): Maksymalna liczba przepisów do zwrócenia.
+        - category (str): Kategoria posiłku (np. 'śniadanie', 'kolacja').
+        - time_max (int | float | None): Maksymalny czas przygotowania w minutach.
+    OUTPUT: 
+        - list[dict]: Posortowana lista topowych (najlepiej ocenionych) przepisów.
+    Opis działania: Wyszukuje, filtruje (czas, kategoria, dieta), przetwarza (brandyfikacja i przeliczanie makro) i sortuje przepisy z bazy. Stara się zachować różnorodność rekomendowanych dań (dish_type).
+    '''
     results = []
     for r in recipes:
         if category and r.get("category") != category: continue
@@ -279,6 +332,13 @@ def orchestrate_top_n(user_pref="none", nutrition_goal="standard", top_n=3, cate
     return selected
 
 def get_recommendations(user_pref="none", nutrition_goal="standard", top_n=3, category="kolacja", time_max=None):
+    '''
+    INPUT: 
+        - Parametry wyciągnięte z promptu użytkownika (preferencje, cele, liczba wyników, kategoria, czas).
+    OUTPUT: 
+        - dict: Złożony obiekt (JSON) z zapisanym zapytaniem i pełnymi danymi zrekomendowanych przepisów.
+    Opis działania: Jest to główna funkcja integracyjna wywoływana jako narzędzie (tool) przez LLM. Agreguje wyszukane topowe przepisy, wyciąga polskie nazwy ze słowników składników/SKU i składa finalny obiekt przygotowany do konwersji i przekazania modelowi językowemu.
+    '''
     top = orchestrate_top_n(user_pref, nutrition_goal, top_n, category, time_max)
     recs = []
 
@@ -327,12 +387,34 @@ def get_recommendations(user_pref="none", nutrition_goal="standard", top_n=3, ca
 '''
 
 def safe_round(value, ndigits=1):
+    '''
+    INPUT: 
+        - value (any): Wartość do zaokrąglenia.
+        - ndigits (int): Liczba miejsc po przecinku.
+    OUTPUT: 
+        - int | float | any: Zaokrąglona wartość liczbowa lub ta sama wartość, jeśli nie jest liczbą.
+    Opis działania: Bezpieczna funkcja pomocnicza zaokrąglająca makroskładniki. Chroni przed błędami, gdyby z bazy wpadł typ danych inny niż int/float.
+    '''
     return round(value, ndigits) if isinstance(value, (int, float)) else value
 
 def safe_str(value) -> str:
+    '''
+    INPUT: 
+        - value (any): Wartość wejściowa do konwersji na ciąg znaków.
+    OUTPUT: 
+        - str: Oczyszczony ciąg znaków.
+    Opis działania: Bezpiecznie rzutuje wartość na typ tekstowy (str) i usuwa puste znaki. Jeśli wartość wynosi None, zwraca pusty string.
+    '''
     return str(value).strip() if value is not None else ""
 
 def normalize_ingredient(ingredient: dict) -> dict:
+    '''
+    INPUT: 
+        - ingredient (dict): Słownik reprezentujący pojedynczy składnik lub produkt.
+    OUTPUT: 
+        - dict: Znormalizowany słownik składnika.
+    Opis działania: Czyści i formatuje klucze oraz wartości w pojedynczym składniku (np. zaokrągla gramaturę do całości), zabezpieczając format przesyłany dalej do struktury JSON-a dla modelu.
+    '''
     return {
         "concept_id": ingredient.get("concept_id"),
         "name_pl": safe_str(ingredient.get("name_pl")),
@@ -341,6 +423,13 @@ def normalize_ingredient(ingredient: dict) -> dict:
     }
 
 def normalize_nutrition(nutrition: dict) -> dict:
+    '''
+    INPUT: 
+        - nutrition (dict): Słownik zawierający surowe wartości makro i kalorii.
+    OUTPUT: 
+        - dict: Słownik z zaokrąglonymi i bezpiecznymi danymi żywieniowymi.
+    Opis działania: Przetwarza obiekt wartości odżywczych, zaokrąglając liczby zmiennoprzecinkowe (często nieskończone po operacjach float) do jednego miejsca po przecinku.
+    '''
     nutrition = nutrition or {}
     return {
         "kcal": safe_round(nutrition.get("kcal"), 1),
@@ -350,9 +439,23 @@ def normalize_nutrition(nutrition: dict) -> dict:
     }
 
 def normalize_steps(steps) -> list[str]:
+    '''
+    INPUT: 
+        - steps (list | any): Surowe dane dotyczące kroków przepisu (np. z formatu JSONB).
+    OUTPUT: 
+        - list[str]: Ustandaryzowana i zweryfikowana lista ciągów znaków (kroków).
+    Opis działania: Upewnia się, że instrukcje przepisu wychodzą jako poprawne listy składające się z samych łańcuchów znakowych bez pustych elementów.
+    '''
     return [safe_str(step) for step in steps if safe_str(step)] if isinstance(steps, list) else []
 
 def normalize_recipe(recipe: dict) -> dict:
+    '''
+    INPUT: 
+        - recipe (dict): Złożony i przeliczony słownik całego przepisu z bazy.
+    OUTPUT: 
+        - dict: Przepis w znormalizowanym, płaskim formacie.
+    Opis działania: Przepuszcza poszczególne elementy przepisu (składniki, makro, kroki, metadane) przez dedykowane, mniejsze funkcje normalizujące. Gwarantuje jednorodną formę dla API OpenAI.
+    '''
     return {
         "rank": recipe.get("rank"),
         "recipe_id": recipe.get("recipe_id"),
@@ -369,6 +472,13 @@ def normalize_recipe(recipe: dict) -> dict:
     }
 
 def normalize_recommendations_output(raw_data: dict) -> dict:
+    '''
+    INPUT: 
+        - raw_data (dict): Surowy wynik z funkcji `get_recommendations`.
+    OUTPUT: 
+        - dict: Czysty obiekt do zwrotu dla LLM jako odpowiedź narzędzia (Tool Response).
+    Opis działania: Normalizuje finalny, zewnętrzny szkielet odpowiedzi wyciągnięty z bazy danych, przepuszczając przez proces normalizacji zarówno oryginalne zapytanie, jak i całą listę zrekomendowanych przepisów.
+    '''
     raw_query = raw_data.get("query", {})
     return {
         "query": {
@@ -382,6 +492,13 @@ def normalize_recommendations_output(raw_data: dict) -> dict:
     }
 
 def validate_recommendations_output(data: dict) -> list[str]:
+    '''
+    INPUT: 
+        - data (dict): Ustrukturyzowany słownik wygenerowany przez funkcje normalizujące.
+    OUTPUT: 
+        - list[str]: Lista komunikatów błędów (pusta, jeśli struktura jest poprawna).
+    Opis działania: Funkcja walidacyjna i diagnostyczna. Sprawdza, czy obiekt finalny zawiera wszystkie wymagane klucze i listy, by chatbot nie uległ awarii przy próbie renderowania odpowiedzi do klienta.
+    '''
     errors = []
     if not isinstance(data, dict): return ["Dane wejściowe nie są słownikiem (dict)."]
     if "query" not in data: errors.append("Brak pola 'query'.")
@@ -409,6 +526,14 @@ api_key = os.environ.get("OPENAI_API_KEY")
 client = OpenAI(api_key=api_key)
 
 def chat_with_bot(user_message: str, brand_name: str) -> str:
+    '''
+    INPUT: 
+        - user_message (str): Tekst (prompt) bezpośrednio wprowadzony przez użytkownika w interfejsie.
+        - brand_name (str): Nazwa promowanej marki (np. 'Winiary'), z którą ma się utożsamiać asystent.
+    OUTPUT: 
+        - str: Naturalna, ostateczna odpowiedź tekstowa (zwykle w formacie Markdown).
+    Opis działania: Serce integracji z OpenAI. Odpowiada za wysłanie zapytania użytkownika z odpowiednim promptem systemowym, wykrycie żądania wywołania narzędzia przez model, uruchomienie logiki Pythonowej (`get_recommendations`) i ostateczne wstrzyknięcie wyników (wraz ze zbrandyfikowanymi składnikami) z powrotem do modelu, zmuszając go do przygotowania apetycznej odpowiedzi na frontend.
+    '''
     # 1. Inicjalizacja konwersacji
     system_prompt = (
         "Jesteś kulinarnym asystentem. Twoim zadaniem jest pomaganie użytkownikom w znalezieniu "
