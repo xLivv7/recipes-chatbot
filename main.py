@@ -619,7 +619,7 @@ def chat_with_bot(user_message: str, brand_name: str) -> str:
 '''
 
 if __name__ == "__main__":
-    user_input = "Zaproponuj mi 3 przepisy na kolację keto"
+    user_input = "Szukam pomysłu na szybką kolację, najlepiej z mięsem, do 30 minut. Co polecasz?"
 
     print(f"👤 Użytkownik: {user_input}\n")
     answer = chat_with_bot(user_input, brand_name="Winiary")
