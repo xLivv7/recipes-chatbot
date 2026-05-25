@@ -110,6 +110,37 @@ if __name__ == "__main__":
         exit()
 
     przepisy_do_wygenerowania = [
+        #sniadania
+        ("Klasyczna jajecznica na maśle ze szczypiorkiem", "śniadanie"),
+        ("Owsianka z jabłkiem, cynamonem i orzechami włoskimi", "śniadanie"),
+        ("Szakszuka z pomidorami i papryką", "śniadanie"),
+        ("Tosty z awokado i jajkiem w koszulce", "śniadanie"),
+        ("Naleśniki z twarogiem i musem truskawkowym", "śniadanie"),
+        ("Jaglanka na mleku kokosowym z borówkami", "śniadanie"),
+        ("Omlet ze szpinakiem i serem feta", "śniadanie"),
+        ("Kanapki z wędzonym łososiem, serkiem i koperkiem", "śniadanie"),
+        ("Placuszki jogurtowe (pancakes) z syropem klonowym", "śniadanie"),
+        ("Domowa granola z jogurtem greckim", "śniadanie"),
+        ("Jajka na miękko z rzodkiewką i chrupiącą bułką", "śniadanie"),
+        ("Tosty francuskie na słodko z malinami", "śniadanie"),
+        ("Kanapki z domową pastą jajeczną", "śniadanie"),
+        ("Wytrawne gofry z jajkiem sadzonym i boczkiem", "śniadanie"),
+        ("Pieczona owsianka z bananem i czekoladą", "śniadanie"),
+        ("Jajka zapiekane w połówkach awokado", "śniadanie"),
+        ("Kasza manna na mleku z sokiem malinowym", "śniadanie"),
+        ("Kanapki z hummusem i pieczoną papryką", "śniadanie"),
+        ("Frittata z cukinią i pomidorkami koktajlowymi", "śniadanie"),
+        ("Placuszki bananowe z płatkami owsianymi (bez mąki)", "śniadanie"),
+        ("Twarożek ze śmietaną, rzodkiewką i szczypiorkiem", "śniadanie"),
+        ("Jajka po benedyktyńsku z sosem holenderskim", "śniadanie"),
+        ("Płatki kukurydziane na mleku", "śniadanie"),
+        ("Wrap śniadaniowy z jajecznicą i szynką", "śniadanie"),
+        ("Kanapki z pastą z tuńczyka", "śniadanie"),
+        ("Szybki koktajl owsiany z bananem i masłem orzechowym", "śniadanie"),
+        ("Tosty z mozzarellą, pomidorem i bazylią", "śniadanie"),
+        ("Kasza gryczana na słodko z migdałami", "śniadanie"),
+        ("Jajka po wiedeńsku w szklance", "śniadanie"),
+        ("Bułka grahamka z masłem orzechowym i dżemem", "śniadanie")
     ]
     
     print("Uruchamiam generator przepisów...")
