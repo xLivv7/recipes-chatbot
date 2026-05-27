@@ -7,6 +7,8 @@ from dotenv import load_dotenv
 from openai import OpenAI
 from core.database import SessionLocal, Ingredient, Nutrient, DietPolicy
 
+#PLIK ZOSTAWIONY W CELU PÓŹNIEJSZEGO OPISU W PRACY INŻYNIERSKIEJ - metodę web scrapingu zastąpiono generowaniem danych przez AI, ale ten plik pozostaje jako dokumentacja procesu i przykład integracji z OFF oraz AI.
+
 load_dotenv()
 client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
@@ -118,7 +120,7 @@ def fetch_generic_concept(query: str):
 
 if __name__ == "__main__":
     koncepty = [
-        # --- POBRANE (ZAKOMENTOWANE) ---
+        # --- POBRANE ---
         # "Mleko 2%", "Mleko 3.2%", "Jogurt naturalny", "Jogurt grecki", "Twaróg chudy", 
         # "Twaróg półtłusty", "Śmietana 12%", "Śmietana 18%", "Śmietanka 30%", "Masło", 
         # "Jajko kurze", "Ser żółty gouda", "Ser mozzarella", "Ser feta", "Ser parmesan",
@@ -148,7 +150,7 @@ if __name__ == "__main__":
         #"Orzechy nerkowca", "Migdały", "Pestki dyni", "Nasiona słonecznika", 
         #"Sezam", "Wiórki kokosowe", "Rodzynki", "Daktyle suszone", "Masło orzechowe",
 
-        # Przyprawy i sypkie dodatki (AI wyliczy ich gęstość kcal)
+        # Przyprawy i sypkie dodatki (niektóre mogą być trudne do znalezienia w OFF)
         #"Cukier biały", "Cukier brązowy", "Miód pszczeli", "Erytrol", "Sól kuchenna", 
         #"Kakao ciemne", "Kawa mielona", "Herbata czarna", "Drożdże suszone", 
         #"Proszek do pieczenia", "Skrobia ziemniaczana", "Ocet jabłkowy",
