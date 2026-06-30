@@ -21,8 +21,8 @@ Dla kazdego skladnika przepisu:
 2. System pobiera reguly `sku_selection_rules` dla pary `client_id + concept_id`.
 3. Reguly sa analizowane rosnaco po `rule_order`.
 4. Regula pasuje, jezeli:
-   - `condition_type = user_pref` i `condition_value = user_pref`,
-   - albo `condition_type = nutrition_goal` i `condition_value = nutrition_goal`,
+   - `condition_type = user_pref` i `condition_value` odpowiada preferencji przekazanej do runtime,
+   - albo `condition_type = nutrition_goal` i `condition_value` odpowiada celowi przekazanemu do runtime,
    - albo `condition_type = default` i `condition_value = any`.
 5. Wybrane SKU musi:
    - nalezec do danego klienta,
@@ -62,4 +62,5 @@ Walidator powinien zwracac `ERROR`, gdy:
 - regula wskazuje SKU mapowane na inny koncept niz `rule.concept_id`,
 - SKU z reguly nie ma kompletnych wartosci odzywczych,
 - regula `user_pref = vegan` wskazuje produkt jawnie nieweganski,
-- `condition_type` albo `condition_value` nie nalezy do dozwolonego slownika.
+- `condition_type` nie nalezy do dozwolonego slownika,
+- `condition_value` jest puste albo dla reguly `default` ma wartosc inna niz `any`.

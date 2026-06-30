@@ -10,7 +10,7 @@ Rekomendowany format pojedynczego problemu:
 
 ```text
 ERROR | recipes | R004 | ingredients_data[2].concept_id | Concept C999 does not exist in ingredients.
-WARNING | sku_selection_rules | rule_id=12 | condition_value | Value spicy is not allowed for condition_type user_pref in MVP.
+ERROR | sku_selection_rules | rule_id=12 | condition_value | Default rule must use condition_value='any'.
 INFO | client_skus | WINIARY_MAJONEZ_LEKKI_300ML | concept_id | SKU maps to brandable concept C001.
 ```
 
@@ -58,9 +58,9 @@ Te kryteria warto zaimplementowac jako pierwsze.
 | Sprawdzenie | Poziom |
 | --- | --- |
 | `recipes.category` nalezy do slownika | `ERROR` |
-| `recipes.dish_type` nalezy do slownika | `WARNING` |
+| `recipes.dish_type` jest niepustym tekstem | `ERROR` |
 | `sku_selection_rules.condition_type` nalezy do slownika | `ERROR` |
-| `sku_selection_rules.condition_value` pasuje do typu warunku | `ERROR` |
+| `sku_selection_rules.condition_value` jest niepuste | `ERROR` |
 | `ingredient.category` z CSV nalezy do slownika | `WARNING` |
 | `sku_to_concept_map.match_type` nalezy do slownika | `ERROR` |
 
@@ -86,6 +86,8 @@ Te kryteria warto zaimplementowac jako pierwsze.
 | kcal sa orientacyjnie zgodne z makro | `WARNING` |
 | suma makro nie przekracza sensownego zakresu | `WARNING` |
 | `nutrition_basis` SKU jest zgodne z zalozeniem przeliczania | `WARNING` |
+
+Uwaga: ostrzezenie o niespojnosci kcal z makro wymaga recznego przegladu. Dla przypraw, kakao, produktow bogatych w blonnik i slodzikow poliolowych roznica moze wynikac ze sposobu raportowania weglowodanow, a nie z bledu w bazie.
 
 ## Etap 2F: walidatory brandyfikacji
 
@@ -138,7 +140,7 @@ Implementacyjnie sprawdz:
 
 - puste `id` i `title_pl`,
 - `category` spoza slownika,
-- `dish_type` spoza slownika,
+- pusty `dish_type`,
 - `time_min <= 0`,
 - `servings <= 0`,
 - niepoprawny JSONB `ingredients_data`,
@@ -168,7 +170,8 @@ Implementacyjnie sprawdz:
 - SKU mapowane na inny koncept niz regula,
 - `rule_order <= 0`,
 - `condition_type` spoza slownika,
-- `condition_value` spoza slownika dla danego `condition_type`,
+- puste `condition_value`,
+- `condition_type = default` z `condition_value` innym niz `any`,
 - brak fallbacku `default/any` dla brandowalnego konceptu.
 
 ### Mapowanie SKU na koncepty
