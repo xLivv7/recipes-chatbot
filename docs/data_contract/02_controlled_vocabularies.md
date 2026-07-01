@@ -32,8 +32,8 @@ Dozwolone wartosci dla MVP:
 
 Uwagi:
 
-- W danych SKU pojawia sie wartosc `no_sugar`, ale nie wystepuje obecnie w definicji narzedzia LLM. Dla MVP powinna byc traktowana jako ostrzezenie walidatora albo przeniesiona do osobnego slownika.
-- Wartosc `spicy` z regul SKU nie jest celem zywieniowym. Jesli ma zostac utrzymana, powinna trafic do osobnego slownika, np. `taste_pref`.
+- Slownik `nutrition_goal` dotyczy obecnego tool callingu i filtrowania runtime.
+- Reguly SKU moga zawierac przyszlosciowe wartosci biznesowe, np. `no_sugar`, ktore nie sa jeszcze obslugiwane przez tool calling. Sama obecnosc takiej wartosci nie jest bledem walidacji bazy.
 
 ## Kategoria posilku: `category`
 
@@ -43,6 +43,7 @@ Dozwolone wartosci dla MVP:
 | --- | --- |
 | `śniadanie` | sniadanie |
 | `obiad` | obiad |
+| `lunch` | lunch |
 | `kolacja` | kolacja |
 | `deser` | deser |
 | `przekąska` | przekaska |
@@ -53,20 +54,9 @@ Obecny kod domyslnie uzywa `kolacja`. Walidator powinien sprawdzac, czy kategori
 
 `dish_type` sluzy do roznicowania wynikow, aby chatbot nie zwracal kilku podobnych dan.
 
-Docelowo wartosci powinny byc ujednolicone do jednego stylu, np. `snake_case`:
+To pole nie ma sztywnego slownika dozwolonych wartosci. Jest czescia opisu przepisu i moze byc generowane swobodnie, np. `Kanapka`, `Soup`, `Pudding`, `Danie glowne`, `Sałatka`.
 
-- `pasta`
-- `salad`
-- `wrap`
-- `bowl`
-- `stew`
-- `casserole`
-- `omelette`
-- `baked_potatoes`
-- `chicken_dish`
-- `other`
-
-Obecne dane zawieraja wartosci angielskie i mieszane, np. `Pasta`, `Salad`, `Wrap`, `Baked potatoes`. Dla MVP mozna je tolerowac, ale walidator powinien zglaszac ostrzezenie o wartosciach spoza docelowego slownika.
+Walidator powinien sprawdzac tylko, czy `dish_type` jest niepustym tekstem.
 
 ## Kategoria skladnika: `ingredient.category`
 
@@ -94,6 +84,8 @@ Dozwolone wartosci:
 | `default` | fallback dla danego konceptu |
 
 Dla `condition_type = default` dozwolona wartosc `condition_value` to `any`.
+
+Dla `condition_type = user_pref` i `condition_type = nutrition_goal` pole `condition_value` musi byc niepuste, ale nie jest zamknietym enumem na poziomie walidacji bazy. Pozwala to przechowywac przyszlosciowe reguly, ktore obecny runtime moze jeszcze ignorowac.
 
 ## Typ dopasowania SKU do konceptu: `match_type`
 

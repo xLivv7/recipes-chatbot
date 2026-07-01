@@ -5,7 +5,7 @@
 ## Znane ryzyka obecnego stanu
 
 1. Dane zrodlowe sa czesciowo generowane lub uzupelniane przez AI, wiec wymagaja audytu.
-2. `sku_selection_rules` zawiera wartosci `no_sugar` i `spicy`, ktore nie sa zgodne z obecnymi enumami tool calling.
+2. `sku_selection_rules` moze zawierac przyszlosciowe wartosci biznesowe, np. `no_sugar` albo `spicy`, ktorych obecny tool calling jeszcze nie generuje.
 3. `choose_sku` nie jest jeszcze zakreslone przez `client_id`, co blokuje prawdziwa wieloklienckosc.
 4. `ingredients` w bazie nie przechowuje jeszcze kategorii, synonimow i alergenow, mimo ze sa w CSV.
 5. `client_skus` w bazie nie przechowuje `nutrition_basis`, wiec moze mieszac wartosci `per 100 g` i `per 100 ml`.
@@ -45,4 +45,4 @@ Minimalny etap 2 powinien wykrywac:
 - niepoprawne `grams`,
 - reguly SKU wskazujace nieistniejace SKU,
 - SKU przypisane do innego klienta niz regula,
-- wartosci `condition_value` spoza slownikow.
+- puste `condition_value` albo niepoprawne fallbacki `default/any`.

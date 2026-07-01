@@ -206,7 +206,7 @@ Reguly poprawnosci:
 | `rule_order` musi byc liczba dodatnia | `ERROR` |
 | dla pary `client_id + concept_id` kolejnosc regul powinna byc jednoznaczna | `WARNING` |
 | `condition_type` musi nalezec do slownika | `ERROR` |
-| `condition_value` musi nalezec do odpowiedniego slownika dla danego `condition_type` | `ERROR` |
+| `condition_value` musi byc niepuste | `ERROR` |
 | dla `condition_type = default`, `condition_value` powinno byc `any` | `ERROR` |
 | dla brandowalnego konceptu powinien istniec fallback `default` | `WARNING` |
 | regula nie moze wybierac SKU sprzecznego z dieta uzytkownika | `ERROR` |
@@ -235,7 +235,7 @@ Reguly poprawnosci:
 | `id` musi byc niepuste i unikalne | `ERROR` |
 | `title_pl` musi byc niepuste | `ERROR` |
 | `category` musi nalezec do slownika kategorii posilku | `ERROR` |
-| `dish_type` powinien nalezec do slownika typow dan | `WARNING` |
+| `dish_type` musi byc niepustym tekstem | `ERROR` |
 | `time_min` musi byc liczba dodatnia | `ERROR` |
 | `servings` musi byc liczba dodatnia | `ERROR` |
 | `ingredients_data` musi byc lista obiektow | `ERROR` |

@@ -30,6 +30,8 @@ Walidator powinien raportowac `WARNING`, gdy:
 - kcal sa mocno niespojne z makro liczonym jako `4*protein + 9*fat + 4*carbs`,
 - kcal na porcje sa bardzo niskie albo bardzo wysokie.
 
+Ostrzezenie o niespojnosci kcal z makro nie oznacza automatycznie bledu danych. Formula `4/9/4` jest sanity checkiem, ale moze zawyzac kcal dla skladnikow bogatych w blonnik, przypraw, kakao albo slodzikow poliolowych, np. ksylitolu i erytrytolu. Takie rekordy trzeba przejrzec recznie przed poprawianiem danych.
+
 ## Znane uproszczenie MVP
 
 W CSV SKU wystepuje `nutrition_basis`, np. `per 100 g` lub `per 100 ml`, ale obecny model zapisuje wartosci do pol `*_100`. Dla precyzyjnego systemu trzeba rozroznic jednostke bazowa albo jawnie przyjac uproszczenie MVP.
