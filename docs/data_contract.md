@@ -21,20 +21,4 @@ Ten katalog opisuje kontrakt danych dla projektu. Dokument zostal podzielony tak
 7. [Kryteria walidatorow](data_contract/07_validator_criteria.md)
 8. [Ryzyka i nastepne kroki](data_contract/08_risks_and_next_steps.md)
 
-## Proponowane atomowe commity
-
-1. `docs: add data contract principles and mvp scope`
-2. `docs: add controlled vocabularies`
-3. `docs: add database table contracts`
-4. `docs: add recipe jsonb contract`
-5. `docs: add branding and nutrition contracts`
-6. `docs: add validator criteria`
-7. `docs: document data risks and next steps`
-
-## Zasada nadrzedna
-
 > Baza danych jest zrodlem prawdy. LLM moze interpretowac zapytanie uzytkownika i redagowac odpowiedz, ale nie moze wymyslac przepisow, produktow, skladnikow ani wartosci odzywczych.
-
-## Najblizszy krok techniczny
-
-Nastepny etap to przebudowa `validate_db.py` w walidator calej bazy, najlepiej wedlug checklisty z pliku [Kryteria walidatorow](data_contract/07_validator_criteria.md).
