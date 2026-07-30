@@ -8,4 +8,5 @@ __pycache__/
 .DS_Store
 Thumbs.db
 data/
+evals/llm_eval_report.json
 ABSTRAKT_PROJEKTU_CHATBOTA.txt

@@ -1,0 +1,202 @@
+[
+  {
+    "id": "intent_001",
+    "user_message": "szybka kolacja wegańska do 30 minut",
+    "expected": {"user_pref": "vegan", "nutrition_goal": "standard", "category": "kolacja", "time_max": 30, "top_n": 3}
+  },
+  {
+    "id": "intent_002",
+    "user_message": "coś lekkiego na lunch",
+    "expected": {"user_pref": "none", "nutrition_goal": "low_kcal", "category": "lunch", "time_max": null, "top_n": 3}
+  },
+  {
+    "id": "intent_003",
+    "user_message": "obiad z dużą ilością białka",
+    "expected": {"user_pref": "none", "nutrition_goal": "high_protein", "category": "obiad", "time_max": null, "top_n": 3}
+  },
+  {
+    "id": "intent_004",
+    "user_message": "deser bez mięsa",
+    "expected": {"user_pref": "none", "nutrition_goal": "standard", "category": "deser", "time_max": null, "top_n": 3}
+  },
+  {
+    "id": "intent_005",
+    "user_message": "coś keto na kolację",
+    "expected": {"user_pref": "none", "nutrition_goal": "keto", "category": "kolacja", "time_max": null, "top_n": 3}
+  },
+  {
+    "id": "intent_006",
+    "user_message": "daj 5 propozycji na obiad",
+    "expected": {"user_pref": "none", "nutrition_goal": "standard", "category": "obiad", "time_max": null, "top_n": 5}
+  },
+  {
+    "id": "intent_007",
+    "user_message": "potrzebuję dwóch przekąsek dla wegetarian",
+    "expected": {"user_pref": "vegetarian", "nutrition_goal": "standard", "category": "przekąska", "time_max": null, "top_n": 2}
+  },
+  {
+    "id": "intent_008",
+    "user_message": "śniadanie keto, najlepiej szybkie",
+    "expected": {"user_pref": "none", "nutrition_goal": "keto", "category": "śniadanie", "time_max": 30, "top_n": 3}
+  },
+  {
+    "id": "intent_009",
+    "user_message": "wegański lunch wysokobiałkowy",
+    "expected": {"user_pref": "vegan", "nutrition_goal": "high_protein", "category": "lunch", "time_max": null, "top_n": 3}
+  },
+  {
+    "id": "intent_010",
+    "user_message": "rybna kolacja do 20 minut",
+    "expected": {"user_pref": "fish", "nutrition_goal": "standard", "category": "kolacja", "time_max": 20, "top_n": 3}
+  },
+  {
+    "id": "intent_011",
+    "user_message": "coś dla pescetarian na obiad",
+    "expected": {"user_pref": "pescetarian", "nutrition_goal": "standard", "category": "obiad", "time_max": null, "top_n": 3}
+  },
+  {
+    "id": "intent_012",
+    "user_message": "mięsny lunch z małą ilością kalorii",
+    "expected": {"user_pref": "meat", "nutrition_goal": "low_kcal", "category": "lunch", "time_max": null, "top_n": 3}
+  },
+  {
+    "id": "intent_013",
+    "user_message": "mam ochotę na deser",
+    "expected": {"user_pref": "none", "nutrition_goal": "standard", "category": "deser", "time_max": null, "top_n": 3}
+  },
+  {
+    "id": "intent_014",
+    "user_message": "co mogę zjeść na śniadanie bez produktów mięsnych?",
+    "expected": {"user_pref": "vegetarian", "nutrition_goal": "standard", "category": "śniadanie", "time_max": null, "top_n": 3}
+  },
+  {
+    "id": "intent_015",
+    "user_message": "lekka kolacja wegetariańska do pół godziny",
+    "expected": {"user_pref": "vegetarian", "nutrition_goal": "low_kcal", "category": "kolacja", "time_max": 30, "top_n": 3}
+  },
+  {
+    "id": "intent_016",
+    "user_message": "poproszę trzy przepisy na lunch z rybą",
+    "expected": {"user_pref": "fish", "nutrition_goal": "standard", "category": "lunch", "time_max": null, "top_n": 3}
+  },
+  {
+    "id": "intent_017",
+    "user_message": "obiad dla osoby na redukcji",
+    "expected": {"user_pref": "none", "nutrition_goal": "low_kcal", "category": "obiad", "time_max": null, "top_n": 3}
+  },
+  {
+    "id": "intent_018",
+    "user_message": "przekąska z dużą ilością białka",
+    "expected": {"user_pref": "none", "nutrition_goal": "high_protein", "category": "przekąska", "time_max": null, "top_n": 3}
+  },
+  {
+    "id": "intent_019",
+    "user_message": "szybki obiad do 15 minut",
+    "expected": {"user_pref": "none", "nutrition_goal": "standard", "category": "obiad", "time_max": 15, "top_n": 3}
+  },
+  {
+    "id": "intent_020",
+    "user_message": "coś bez mięsa, ale ryby mogą być, na kolację",
+    "expected": {"user_pref": "pescetarian", "nutrition_goal": "standard", "category": "kolacja", "time_max": null, "top_n": 3}
+  },
+  {
+    "id": "intent_021",
+    "user_message": "keto lunch dla wegan",
+    "expected": {"user_pref": "vegan", "nutrition_goal": "keto", "category": "lunch", "time_max": null, "top_n": 3}
+  },
+  {
+    "id": "intent_022",
+    "user_message": "daj jedną propozycję na deser",
+    "expected": {"user_pref": "none", "nutrition_goal": "standard", "category": "deser", "time_max": null, "top_n": 1}
+  },
+  {
+    "id": "intent_023",
+    "user_message": "potrzebuję obiadu keto z mięsem",
+    "expected": {"user_pref": "meat", "nutrition_goal": "keto", "category": "obiad", "time_max": null, "top_n": 3}
+  },
+  {
+    "id": "intent_024",
+    "user_message": "fit śniadanie, mało kalorii",
+    "expected": {"user_pref": "none", "nutrition_goal": "low_kcal", "category": "śniadanie", "time_max": null, "top_n": 3}
+  },
+  {
+    "id": "intent_025",
+    "user_message": "coś na szybko, wegańskie",
+    "expected": {"user_pref": "vegan", "nutrition_goal": "standard", "category": "kolacja", "time_max": 30, "top_n": 3}
+  },
+  {
+    "id": "intent_026",
+    "user_message": "kolacja z dużą ilością białka do 45 minut",
+    "expected": {"user_pref": "none", "nutrition_goal": "high_protein", "category": "kolacja", "time_max": 45, "top_n": 3}
+  },
+  {
+    "id": "intent_027",
+    "user_message": "wege obiad",
+    "expected": {"user_pref": "vegetarian", "nutrition_goal": "standard", "category": "obiad", "time_max": null, "top_n": 3}
+  },
+  {
+    "id": "intent_028",
+    "user_message": "lunch bez mięsa",
+    "expected": {"user_pref": "vegetarian", "nutrition_goal": "standard", "category": "lunch", "time_max": null, "top_n": 3}
+  },
+  {
+    "id": "intent_029",
+    "user_message": "rybny obiad na redukcję",
+    "expected": {"user_pref": "fish", "nutrition_goal": "low_kcal", "category": "obiad", "time_max": null, "top_n": 3}
+  },
+  {
+    "id": "intent_030",
+    "user_message": "przekąska keto do 10 minut",
+    "expected": {"user_pref": "none", "nutrition_goal": "keto", "category": "przekąska", "time_max": 10, "top_n": 3}
+  },
+  {
+    "id": "intent_031",
+    "user_message": "coś na obiad",
+    "expected": {"user_pref": "none", "nutrition_goal": "standard", "category": "obiad", "time_max": null, "top_n": 3}
+  },
+  {
+    "id": "intent_032",
+    "user_message": "proszę o 4 pomysły na kolację pescetariańską",
+    "expected": {"user_pref": "pescetarian", "nutrition_goal": "standard", "category": "kolacja", "time_max": null, "top_n": 4}
+  },
+  {
+    "id": "intent_033",
+    "user_message": "deser wysokobiałkowy",
+    "expected": {"user_pref": "none", "nutrition_goal": "high_protein", "category": "deser", "time_max": null, "top_n": 3}
+  },
+  {
+    "id": "intent_034",
+    "user_message": "wegańskie śniadanie do 25 minut",
+    "expected": {"user_pref": "vegan", "nutrition_goal": "standard", "category": "śniadanie", "time_max": 25, "top_n": 3}
+  },
+  {
+    "id": "intent_035",
+    "user_message": "obiad bez ryb i mięsa",
+    "expected": {"user_pref": "vegetarian", "nutrition_goal": "standard", "category": "obiad", "time_max": null, "top_n": 3}
+  },
+  {
+    "id": "intent_036",
+    "user_message": "coś bardzo lekkiego na kolację",
+    "expected": {"user_pref": "none", "nutrition_goal": "low_kcal", "category": "kolacja", "time_max": null, "top_n": 3}
+  },
+  {
+    "id": "intent_037",
+    "user_message": "potrzebuję przepisu dla mięsożercy na lunch",
+    "expected": {"user_pref": "meat", "nutrition_goal": "standard", "category": "lunch", "time_max": null, "top_n": 3}
+  },
+  {
+    "id": "intent_038",
+    "user_message": "szybka przekąska wegetariańska do 20 minut",
+    "expected": {"user_pref": "vegetarian", "nutrition_goal": "standard", "category": "przekąska", "time_max": 20, "top_n": 3}
+  },
+  {
+    "id": "intent_039",
+    "user_message": "daj coś keto",
+    "expected": {"user_pref": "none", "nutrition_goal": "keto", "category": "kolacja", "time_max": null, "top_n": 3}
+  },
+  {
+    "id": "intent_040",
+    "user_message": "chcę pięć lekkich lunchy wegańskich",
+    "expected": {"user_pref": "vegan", "nutrition_goal": "low_kcal", "category": "lunch", "time_max": null, "top_n": 5}
+  }
+]
