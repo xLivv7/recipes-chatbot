@@ -33,6 +33,15 @@ Diet wording convention:
 - "bez mięsa, ale ryby mogą być" maps to `pescetarian`
 - explicit fish requests, such as "z rybą" or "rybny", map to `fish`
 
+Category and time conventions:
+
+- explicit "lunch" maps to `lunch`, not `obiad`
+- explicit "obiad" maps to `obiad`, not `lunch`
+- "lekki", "fit", "na redukcji" and "mało kalorii" map to `low_kcal`
+  without implying any `time_max`
+- "szybki", "na szybko", "ekspresowy" or an explicit minute limit may set
+  `time_max`
+
 ## Usage
 
 Validate the case file without calling the API:

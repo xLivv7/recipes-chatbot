@@ -21,11 +21,12 @@ RECIPE_TOOLS = [
                     },
                     "category": {
                         "type": "string",
-                        "description": "Rodzaj posiłku, np. 'śniadanie', 'obiad', 'kolacja', 'deser', 'przekąska'. Jeśli użytkownik nie sprecyzuje, domyślnie użyj 'kolacja'."
+                        "enum": ["śniadanie", "lunch", "obiad", "kolacja", "deser", "przekąska"],
+                        "description": "Rodzaj posiłku z kontrolowanego słownika. Jeśli użytkownik mówi dosłownie 'lunch', zawsze użyj 'lunch' i nie tłumacz tego na 'obiad'. Jeśli użytkownik mówi 'obiad', użyj 'obiad'. Jeśli użytkownik nie sprecyzuje rodzaju posiłku, domyślnie użyj 'kolacja'."
                     },
                     "time_max": {
                         "type": "integer",
-                        "description": "Maksymalny czas przygotowania w minutach, jeśli użytkownik prosi o coś szybkiego (np. 15, 30)."
+                        "description": "Maksymalny czas przygotowania w minutach. Ustawiaj tylko wtedy, gdy użytkownik jawnie podaje limit czasu (np. 'do 15 minut', 'do 30 minut') albo prosi o coś szybkiego/na szybko/ekspresowego; wtedy użyj rozsądnego domyślnego limitu 30 minut, jeśli nie podał liczby. Nie ustawiaj time_max tylko dlatego, że użytkownik prosi o coś lekkiego, fit, niskokalorycznego, na redukcję, keto lub wysokobiałkowego. Jeśli brak jawnego ograniczenia czasu lub szybkości, pomiń to pole."
                     },
                     "top_n": {
                         "type": "integer",
