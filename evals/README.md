@@ -27,6 +27,12 @@ Each case expects the model to call `get_recommendations` with:
 The runner canonicalizes the legacy alias `vege` to `vegetarian` before
 scoring, because both are currently accepted by the production code.
 
+Diet wording convention:
+
+- plain "bez mięsa" maps to `vegetarian`
+- "bez mięsa, ale ryby mogą być" maps to `pescetarian`
+- explicit fish requests, such as "z rybą" or "rybny", map to `fish`
+
 ## Usage
 
 Validate the case file without calling the API:

@@ -17,7 +17,7 @@
   {
     "id": "intent_004",
     "user_message": "deser bez mięsa",
-    "expected": {"user_pref": "none", "nutrition_goal": "standard", "category": "deser", "time_max": null, "top_n": 3}
+    "expected": {"user_pref": "vegetarian", "nutrition_goal": "standard", "category": "deser", "time_max": null, "top_n": 3}
   },
   {
     "id": "intent_005",
