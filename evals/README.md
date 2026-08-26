@@ -24,9 +24,6 @@ Each case expects the model to call `get_recommendations` with:
 - `time_max`: integer minutes or `null`
 - `top_n`: integer, usually `3`
 
-The runner canonicalizes the legacy alias `vege` to `vegetarian` before
-scoring, because both are currently accepted by the production code.
-
 Diet wording convention:
 
 - plain "bez mięsa" maps to `vegetarian`

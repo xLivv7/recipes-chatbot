@@ -1,11 +1,13 @@
 from types import SimpleNamespace
 import unittest
 
+from core.llm_tools import RECIPE_TOOLS
 from core.recommendation_normalization import (
     normalize_recommendations_output,
     validate_recommendations_output,
 )
 from core.recommendations import (
+    PREF_TO_DIET,
     choose_sku,
     orchestrate_recipe,
     recipe_matches_user_pref,
@@ -134,6 +136,16 @@ def build_catalog():
 class RecommendationTests(unittest.TestCase):
     def setUp(self):
         self.catalog = build_catalog()
+
+    def test_supported_user_preferences_match_current_contract(self):
+        expected_preferences = {"none", "vegetarian", "vegan", "meat", "fish", "pescetarian"}
+        tool_preferences = RECIPE_TOOLS[0]["function"]["parameters"]["properties"]["user_pref"]["enum"]
+
+        self.assertEqual(
+            set(PREF_TO_DIET),
+            expected_preferences,
+        )
+        self.assertEqual(set(tool_preferences), expected_preferences)
 
     def test_vegan_pref_selects_vegetable_broth(self):
         """Input: C007 broth concept with user_pref=vegan.

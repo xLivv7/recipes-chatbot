@@ -5,7 +5,6 @@ from core.recommendation_catalog import CATALOG, RecipeCatalog
 
 PREF_TO_DIET = {
     "none": None,
-    "vege": "vegetarian",
     "vegetarian": "vegetarian",
     "vegan": "vegan",
     "meat": "meat",
@@ -291,4 +290,3 @@ def get_recommendations(
         },
         "recommendations": recommendations,
     }
-

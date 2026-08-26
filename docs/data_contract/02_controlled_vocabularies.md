@@ -17,8 +17,6 @@ Dozwolone wartosci dla MVP:
 | `fish` | uzytkownik chce danie rybne | przepis musi zawierac skladnik z `is_fish = 1` |
 | `pescetarian` | dieta pescetarianska | ryby dozwolone, mieso niedozwolone |
 
-Wartosc `vege` moze byc tolerowana jako alias wejsciowy, ale powinna byc normalizowana do `vegetarian`.
-
 ## Cel zywieniowy: `nutrition_goal`
 
 Dozwolone wartosci dla MVP:

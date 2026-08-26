@@ -16,10 +16,6 @@ USER_PREFS = {
     "pescetarian",
 }
 
-USER_PREF_ALIASES = {
-    "vege": "vegetarian",
-}
-
 NUTRITION_GOALS = {
     "standard",
     "low_kcal",

@@ -41,9 +41,6 @@ def build_eval_system_prompt(brand_name: str) -> str:
 def canonicalize_args(args: dict[str, Any]) -> dict[str, Any]:
     canonical = {field: args.get(field) for field in FIELDS}
 
-    if canonical["user_pref"] == "vege":
-        canonical["user_pref"] = "vegetarian"
-
     if canonical["time_max"] is not None:
         canonical["time_max"] = int(canonical["time_max"])
 
