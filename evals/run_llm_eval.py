@@ -19,7 +19,15 @@ from core.llm_tools import RECIPE_TOOLS
 
 DEFAULT_CASES_PATH = Path(__file__).with_name("intent_cases.json")
 DEFAULT_REPORT_PATH = Path(__file__).with_name("llm_eval_report.json")
-FIELDS = ("user_pref", "nutrition_goal", "category", "time_max", "top_n")
+FIELDS = (
+    "diet",
+    "protein_preference",
+    "restrictions",
+    "nutrition_goal",
+    "category",
+    "time_max",
+    "top_n",
+)
 
 
 def build_eval_system_prompt(brand_name: str) -> str:
@@ -40,6 +48,8 @@ def build_eval_system_prompt(brand_name: str) -> str:
 
 def canonicalize_args(args: dict[str, Any]) -> dict[str, Any]:
     canonical = {field: args.get(field) for field in FIELDS}
+
+    canonical["restrictions"] = sorted(canonical["restrictions"] or [])
 
     if canonical["time_max"] is not None:
         canonical["time_max"] = int(canonical["time_max"])

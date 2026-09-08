@@ -18,7 +18,9 @@ more stable.
 
 Each case expects the model to call `get_recommendations` with:
 
-- `user_pref`: `none`, `vegan`, `vegetarian`, `meat`, `fish`, `pescetarian`
+- `diet`: `none`, `vegan`, `vegetarian`, `pescetarian`
+- `protein_preference`: `none`, `meat`, `fish`
+- `restrictions`: currently an empty list; additional restrictions are not implemented yet
 - `nutrition_goal`: `standard`, `low_kcal`, `high_protein`, `keto`
 - `category`: `śniadanie`, `lunch`, `obiad`, `kolacja`, `deser`, `przekąska`
 - `time_max`: integer minutes or `null`
@@ -26,9 +28,11 @@ Each case expects the model to call `get_recommendations` with:
 
 Diet wording convention:
 
-- plain "bez mięsa" maps to `vegetarian`
-- "bez mięsa, ale ryby mogą być" maps to `pescetarian`
-- explicit fish requests, such as "z rybą" or "rybny", map to `fish`
+- plain "bez mięsa" maps to `diet=vegetarian`
+- "bez mięsa, ale ryby mogą być" maps to `diet=pescetarian`
+- explicit fish requests, such as "z rybą" or "rybny", map to `protein_preference=fish`
+- explicit meat requests map to `protein_preference=meat`
+- no dietary wording maps to `diet=none` and `protein_preference=none`
 
 Category and time conventions:
 
@@ -61,3 +65,23 @@ venv\Scripts\python.exe evals\run_llm_eval.py --limit 10
 
 The script prints a concise console summary and writes a detailed JSON report
 to `evals/llm_eval_report.json`.
+
+## Latest baseline
+
+Run on 2026-09-08 with `gpt-4o-mini` after splitting dietary preferences into
+independent dimensions:
+
+- exact match: `33/40` (`82.5%`)
+- `diet`: `39/40` (`97.5%`)
+- `protein_preference`: `35/40` (`87.5%`)
+- `restrictions`: `40/40` (`100%`)
+- `nutrition_goal`: `39/40` (`97.5%`)
+- `category`: `40/40` (`100%`)
+- `time_max`: `40/40` (`100%`)
+- `top_n`: `40/40` (`100%`)
+
+The remaining errors mostly confuse an allowed protein source with a required
+one: pescetarian wording is sometimes mapped to `protein_preference=fish`, and
+high-protein wording is sometimes mapped to meat. One response returned a
+value outside the protein preference enum. This is a baseline for the next
+prompt/schema iteration, not a reason to relax the expected labels.
