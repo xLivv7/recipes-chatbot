@@ -88,7 +88,9 @@ Reguly poprawnosci:
 Decyzja projektowa:
 
 - Dla diety weganskiej i wegetarianskiej system powinien odrzucac przepis, jezeli jakikolwiek skladnik narusza polityke.
-- Dla `meat` i `fish` system szuka obecnosci odpowiedniego skladnika, a nie usuwa innych skladnikow.
+- Dieta pescetarianska odrzuca mieso, ale nie wymaga obecnosci ryby.
+- `protein_preference = meat` i `protein_preference = fish` wymagaja obecnosci odpowiedniego skladnika.
+- Dodatkowe ograniczenia sa przekazywane jako lista `restrictions`; do czasu wdrozenia pierwszej flagi lista musi byc pusta.
 
 ## `clients`
 
@@ -204,12 +206,15 @@ Reguly poprawnosci:
 | `preferred_sku_id` musi nalezec do tego samego klienta co regula | `ERROR` |
 | `preferred_sku_id.concept_id` musi byc zgodne z `rule.concept_id` albo miec jawny typ zamiennika | `ERROR` |
 | `rule_order` musi byc liczba dodatnia | `ERROR` |
-| dla pary `client_id + concept_id` kolejnosc regul powinna byc jednoznaczna | `WARNING` |
+| dla pary `client_id + concept_id` kolejnosc regul musi byc jednoznaczna | `ERROR` |
+| para `condition_type + condition_value` nie moze sie powtarzac dla klienta i konceptu | `ERROR` |
 | `condition_type` musi nalezec do slownika | `ERROR` |
 | `condition_value` musi byc niepuste | `ERROR` |
 | dla `condition_type = default`, `condition_value` powinno byc `any` | `ERROR` |
 | dla brandowalnego konceptu powinien istniec fallback `default` | `WARNING` |
 | regula nie moze wybierac SKU sprzecznego z dieta uzytkownika | `ERROR` |
+
+Aktywne reguly powinny uzywac `condition_type = diet`, `protein_preference`, `restriction`, `nutrition_goal` albo `default`. Typ `user_pref` jest tymczasowo tolerowany dla starszych regul, ktorych obecny runtime nie obsluguje.
 
 Znane ryzyko obecnego kodu:
 

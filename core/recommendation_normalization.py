@@ -53,7 +53,9 @@ def normalize_recommendations_output(raw_data: dict) -> dict:
     raw_query = raw_data.get("query", {})
     return {
         "query": {
-            "user_pref": safe_str(raw_query.get("user_pref")),
+            "diet": safe_str(raw_query.get("diet")),
+            "protein_preference": safe_str(raw_query.get("protein_preference")),
+            "restrictions": raw_query.get("restrictions", []),
             "nutrition_goal": safe_str(raw_query.get("nutrition_goal")),
             "category": safe_str(raw_query.get("category")),
             "time_max": raw_query.get("time_max"),
@@ -87,4 +89,3 @@ def validate_recommendations_output(data: dict) -> list[str]:
             errors.append(f"Recommendation #{idx}: missing 'nutrition_total'.")
 
     return errors
-

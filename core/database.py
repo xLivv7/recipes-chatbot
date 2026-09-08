@@ -55,7 +55,7 @@ class SkuSelectionRule(Base):
     client_id = Column(Integer, ForeignKey('clients.id'))
     concept_id = Column(String, ForeignKey('ingredients.id'))
     rule_order = Column(Integer)
-    condition_type = Column(String) # np. 'user_pref'
+    condition_type = Column(String) # np. 'diet', 'protein_preference', 'nutrition_goal'
     condition_value = Column(String) # np. 'vegan'
     preferred_sku_id = Column(String, ForeignKey('client_skus.id'))
 

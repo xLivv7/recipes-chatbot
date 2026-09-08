@@ -32,7 +32,9 @@ def build_system_prompt(brand_name: str) -> str:
 
 def run_recommendation_tool(function_args: dict) -> dict:
     raw_data = get_recommendations(
-        user_pref=function_args.get("user_pref", "none"),
+        diet=function_args.get("diet", "none"),
+        protein_preference=function_args.get("protein_preference", "none"),
+        restrictions=function_args.get("restrictions", []),
         nutrition_goal=function_args.get("nutrition_goal", "standard"),
         category=function_args.get("category", "kolacja"),
         time_max=function_args.get("time_max"),

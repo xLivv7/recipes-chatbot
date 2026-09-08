@@ -40,7 +40,9 @@ class RealDatabaseRecommendationTests(unittest.TestCase):
         response object that can be safely passed back to the LLM.
         """
         raw_data = self.recommendations.get_recommendations(
-            user_pref="none",
+            diet="none",
+            protein_preference="none",
+            restrictions=[],
             nutrition_goal="standard",
             category="lunch",
             top_n=3,
@@ -64,7 +66,9 @@ class RealDatabaseRecommendationTests(unittest.TestCase):
         before the chatbot response is generated.
         """
         raw_data = self.recommendations.get_recommendations(
-            user_pref="none",
+            diet="none",
+            protein_preference="none",
+            restrictions=[],
             nutrition_goal="standard",
             category="kolacja",
             time_max=30,
@@ -77,7 +81,7 @@ class RealDatabaseRecommendationTests(unittest.TestCase):
         self.assertTrue(all(recipe["time_min"] <= 30 for recipe in recommendations))
 
     def test_vegan_broth_rule_uses_vegetable_broth_sku(self):
-        """Input: real C007 broth concept with user_pref=vegan.
+        """Input: real C007 broth concept with diet=vegan.
 
         Output: Winiary vegetable broth SKU id.
         Behavior: protects the curated FMCG branding rule that prevents vegan
@@ -85,7 +89,9 @@ class RealDatabaseRecommendationTests(unittest.TestCase):
         """
         selected_sku = self.recommendations.choose_sku(
             "C007",
-            user_pref="vegan",
+            diet="vegan",
+            protein_preference="none",
+            restrictions=[],
             nutrition_goal="standard",
         )
 
@@ -99,7 +105,9 @@ class RealDatabaseRecommendationTests(unittest.TestCase):
         diet_policies rows instead of only mocked flags.
         """
         raw_data = self.recommendations.get_recommendations(
-            user_pref="vegan",
+            diet="vegan",
+            protein_preference="none",
+            restrictions=[],
             nutrition_goal="standard",
             category="kolacja",
             top_n=5,
@@ -126,7 +134,9 @@ class RealDatabaseRecommendationTests(unittest.TestCase):
         applied after nutrition calculation on real ingredient/SKU data.
         """
         raw_data = self.recommendations.get_recommendations(
-            user_pref="none",
+            diet="none",
+            protein_preference="none",
+            restrictions=[],
             nutrition_goal="keto",
             category="kolacja",
             top_n=5,

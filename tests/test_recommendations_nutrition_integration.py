@@ -12,7 +12,9 @@ class RecommendationNutritionIntegrationTests(RealDatabaseRecommendationTestCase
         substitution and nutrition calculation on real data.
         """
         normalized = self.get_normalized_recommendations(
-            user_pref="none",
+            diet="none",
+            protein_preference="none",
+            restrictions=[],
             nutrition_goal="keto",
             category="lunch",
             top_n=5,
@@ -32,7 +34,9 @@ class RecommendationNutritionIntegrationTests(RealDatabaseRecommendationTestCase
         recipes for the low_kcal nutrition goal.
         """
         normalized = self.get_normalized_recommendations(
-            user_pref="none",
+            diet="none",
+            protein_preference="none",
+            restrictions=[],
             nutrition_goal="low_kcal",
             category="lunch",
             top_n=5,
@@ -51,7 +55,9 @@ class RecommendationNutritionIntegrationTests(RealDatabaseRecommendationTestCase
         recipes for the high_protein nutrition goal.
         """
         normalized = self.get_normalized_recommendations(
-            user_pref="none",
+            diet="none",
+            protein_preference="none",
+            restrictions=[],
             nutrition_goal="high_protein",
             category="lunch",
             top_n=5,

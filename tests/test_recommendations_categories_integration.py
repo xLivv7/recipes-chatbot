@@ -21,7 +21,9 @@ class RecommendationCategoryIntegrationTests(RealDatabaseRecommendationTestCase)
         for category in categories:
             with self.subTest(category=category):
                 normalized = self.get_normalized_recommendations(
-                    user_pref="none",
+                    diet="none",
+                    protein_preference="none",
+                    restrictions=[],
                     nutrition_goal="standard",
                     category=category,
                     top_n=top_n,

@@ -61,6 +61,8 @@ Te kryteria warto zaimplementowac jako pierwsze.
 | `recipes.dish_type` jest niepustym tekstem | `ERROR` |
 | `sku_selection_rules.condition_type` nalezy do slownika | `ERROR` |
 | `sku_selection_rules.condition_value` jest niepuste | `ERROR` |
+| warunek reguly nie powtarza sie dla klienta i konceptu | `ERROR` |
+| `rule_order` nie powtarza sie dla klienta i konceptu | `ERROR` |
 | `ingredient.category` z CSV nalezy do slownika | `WARNING` |
 | `sku_to_concept_map.match_type` nalezy do slownika | `ERROR` |
 
@@ -73,7 +75,7 @@ Te kryteria warto zaimplementowac jako pierwsze.
 | mieso nie moze byc wegetarianskie ani weganskie | `ERROR` |
 | ryba nie moze byc wegetarianska ani weganska | `ERROR` |
 | skladnik uzyty w przepisie ma polityke dietetyczna | `WARNING` teraz, docelowo `ERROR` |
-| SKU dla reguly `user_pref = vegan` nie moze byc jawnie nieweganskie | `WARNING` teraz, docelowo `ERROR` |
+| SKU dla reguly `diet = vegan` nie moze byc jawnie nieweganskie | `WARNING` teraz, docelowo `ERROR` |
 
 ## Etap 2E: walidatory wartosci odzywczych
 
@@ -169,6 +171,8 @@ Implementacyjnie sprawdz:
 - SKU z innego klienta niz regula,
 - SKU mapowane na inny koncept niz regula,
 - `rule_order <= 0`,
+- zduplikowany `rule_order` dla klienta i konceptu,
+- zduplikowana para `condition_type + condition_value` dla klienta i konceptu,
 - `condition_type` spoza slownika,
 - puste `condition_value`,
 - `condition_type = default` z `condition_value` innym niz `any`,

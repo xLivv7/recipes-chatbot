@@ -8,7 +8,9 @@ Minimalne wejscie:
 
 - `client_id`
 - `recipe_id`
-- `user_pref`
+- `diet`
+- `protein_preference`
+- `restrictions`
 - `nutrition_goal`
 
 Obecny kod nie przyjmuje jeszcze `client_id` w funkcji `orchestrate_recipe`, ale dla docelowego SaaS jest to wymagane.
@@ -21,7 +23,9 @@ Dla kazdego skladnika przepisu:
 2. System pobiera reguly `sku_selection_rules` dla pary `client_id + concept_id`.
 3. Reguly sa analizowane rosnaco po `rule_order`.
 4. Regula pasuje, jezeli:
-   - `condition_type = user_pref` i `condition_value` odpowiada preferencji przekazanej do runtime,
+   - `condition_type = diet` i `condition_value` odpowiada diecie przekazanej do runtime,
+   - albo `condition_type = protein_preference` i `condition_value` odpowiada oczekiwanemu zrodlu bialka,
+   - albo `condition_type = restriction` i `condition_value` znajduje sie na liscie ograniczen,
    - albo `condition_type = nutrition_goal` i `condition_value` odpowiada celowi przekazanemu do runtime,
    - albo `condition_type = default` i `condition_value = any`.
 5. Wybrane SKU musi:
@@ -61,6 +65,6 @@ Walidator powinien zwracac `ERROR`, gdy:
 - regula wskazuje SKU innego klienta,
 - regula wskazuje SKU mapowane na inny koncept niz `rule.concept_id`,
 - SKU z reguly nie ma kompletnych wartosci odzywczych,
-- regula `user_pref = vegan` wskazuje produkt jawnie nieweganski,
+- regula `diet = vegan` wskazuje produkt jawnie nieweganski,
 - `condition_type` nie nalezy do dozwolonego slownika,
 - `condition_value` jest puste albo dla reguly `default` ma wartosc inna niz `any`.

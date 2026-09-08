@@ -1,4 +1,4 @@
-# core/llm_tools.py
+from core.recommendation_preferences import DIETS, PROTEIN_PREFERENCES
 
 RECIPE_TOOLS = [
     {
@@ -9,15 +9,26 @@ RECIPE_TOOLS = [
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "user_pref": {
+                    "diet": {
                         "type": "string",
-                        "enum": ["none", "vegetarian", "vegan", "meat", "fish", "pescetarian"],
-                        "description": "Preferencja dietetyczna użytkownika. Jeśli użytkownik nic nie wspomina o diecie, użyj 'none'."
+                        "enum": list(DIETS),
+                        "description": "Dieta użytkownika. Użyj 'vegetarian' dla diety bez mięsa i ryb, 'vegan' dla diety wegańskiej, 'pescetarian' gdy mięso jest wykluczone, ale ryby są dozwolone. Sama prośba o danie z rybą nie oznacza diety pescetariańskiej. Jeśli użytkownik nie określa diety, użyj 'none'."
+                    },
+                    "protein_preference": {
+                        "type": "string",
+                        "enum": list(PROTEIN_PREFERENCES),
+                        "description": "Jawnie oczekiwane źródło białka. Użyj 'meat' tylko gdy użytkownik wprost chce mięso, a 'fish' tylko gdy wprost chce rybę. Dieta pescetariańska jedynie dopuszcza ryby, więc bez jawnej prośby o rybę ustaw 'none'. Cel wysokobiałkowy również nie oznacza mięsa ani ryby. Nie wyprowadzaj źródła białka z diety lub celu żywieniowego."
+                    },
+                    "restrictions": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "maxItems": 0,
+                        "description": "Lista dodatkowych ograniczeń żywieniowych. Na obecnym etapie żadne dodatkowe ograniczenia nie są jeszcze obsługiwane, dlatego zawsze użyj pustej listy []."
                     },
                     "nutrition_goal": {
                         "type": "string",
                         "enum": ["standard", "low_kcal", "high_protein", "keto"],
-                        "description": "Cel sylwetkowy/żywieniowy. Jeśli użytkownik prosi o coś lekkiego/na redukcję użyj 'low_kcal'. Dla dużej ilości białka użyj 'high_protein'. Dla diety ketogenicznej użyj 'keto'. Jeśli brak wytycznych, użyj 'standard'."
+                        "description": "Cel sylwetkowy/żywieniowy. Słowa 'lekki', 'fit', 'niskokaloryczny', 'mało kalorii' i 'na redukcję' oznaczają 'low_kcal'. Dla dużej ilości białka użyj 'high_protein'. Dla diety ketogenicznej użyj 'keto'. Jeśli brak wytycznych, użyj 'standard'."
                     },
                     "category": {
                         "type": "string",
@@ -26,14 +37,14 @@ RECIPE_TOOLS = [
                     },
                     "time_max": {
                         "type": "integer",
-                        "description": "Maksymalny czas przygotowania w minutach. Ustawiaj tylko wtedy, gdy użytkownik jawnie podaje limit czasu (np. 'do 15 minut', 'do 30 minut') albo prosi o coś szybkiego/na szybko/ekspresowego; wtedy użyj rozsądnego domyślnego limitu 30 minut, jeśli nie podał liczby. Nie ustawiaj time_max tylko dlatego, że użytkownik prosi o coś lekkiego, fit, niskokalorycznego, na redukcję, keto lub wysokobiałkowego. Jeśli brak jawnego ograniczenia czasu lub szybkości, pomiń to pole."
+                        "description": "Maksymalny czas przygotowania w minutach. Ustawiaj tylko wtedy, gdy użytkownik jawnie podaje limit czasu (np. 'do 15 minut', 'do 30 minut') albo używa słów 'szybki', 'na szybko' lub 'ekspresowy'; przy takiej prośbie bez liczby użyj 30. Nie wymyślaj limitu 30 minut dla słów 'lekki', 'fit', 'niskokaloryczny', 'na redukcję', 'keto' ani 'wysokobiałkowy'. Jeśli nie ma jawnego ograniczenia czasu lub szybkości, pomiń to pole."
                     },
                     "top_n": {
                         "type": "integer",
                         "description": "Liczba propozycji do wyszukania w bazie. Domyślnie użyj 3, chyba że użytkownik chce więcej/mniej."
                     }
                 },
-                "required": ["user_pref", "nutrition_goal", "category", "top_n"]
+                "required": ["diet", "protein_preference", "restrictions", "nutrition_goal", "category", "top_n"]
             }
         }
     }

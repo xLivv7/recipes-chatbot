@@ -4,7 +4,7 @@
 
 Slowniki kontrolowane ograniczaja dryf danych, np. mieszanie wartosci `vegan`, `weganskie`, `plant_based`.
 
-## Preferencja dietetyczna uzytkownika: `user_pref`
+## Dieta uzytkownika: `diet`
 
 Dozwolone wartosci dla MVP:
 
@@ -13,9 +13,25 @@ Dozwolone wartosci dla MVP:
 | `none` | brak preferencji dietetycznej | wartosc domyslna |
 | `vegetarian` | dieta wegetarianska | bez miesa i ryb |
 | `vegan` | dieta weganska | bez produktow odzwierzecych |
+| `pescetarian` | dieta pescetarianska | ryby dozwolone, mieso niedozwolone |
+
+## Preferowane zrodlo bialka: `protein_preference`
+
+Dozwolone wartosci dla MVP:
+
+| Wartosc | Znaczenie | Uwagi |
+| --- | --- | --- |
+| `none` | brak wymaganego zrodla bialka | wartosc domyslna |
 | `meat` | uzytkownik chce danie miesne | przepis musi zawierac skladnik z `is_meat = 1` |
 | `fish` | uzytkownik chce danie rybne | przepis musi zawierac skladnik z `is_fish = 1` |
-| `pescetarian` | dieta pescetarianska | ryby dozwolone, mieso niedozwolone |
+
+`diet` i `protein_preference` sa niezaleznymi wymiarami, ale sprzeczne kombinacje sa odrzucane. Diety `vegetarian` i `vegan` nie moga byc laczone z `meat` ani `fish`, a `pescetarian` nie moze byc laczone z `meat`.
+
+## Dodatkowe ograniczenia: `restrictions`
+
+Pole jest lista niezaleznych ograniczen zywieniowych. W obecnym etapie lista obslugiwanych wartosci jest pusta, dlatego poprawna wartosc to `[]`.
+
+Pierwsza planowana wartosc to `gluten_free`. Nie wolno jej jeszcze przekazywac do runtime przed uzupelnieniem kontraktu danych, flag skladnikow, walidacji i testow.
 
 ## Cel zywieniowy: `nutrition_goal`
 
@@ -78,12 +94,17 @@ Dozwolone wartosci:
 | Wartosc | Znaczenie |
 | --- | --- |
 | `user_pref` | regula zalezy od preferencji dietetycznej |
+| `diet` | regula zalezy od diety uzytkownika |
+| `protein_preference` | regula zalezy od oczekiwanego zrodla bialka |
+| `restriction` | regula zalezy od elementu listy dodatkowych ograniczen |
 | `nutrition_goal` | regula zalezy od celu zywieniowego |
 | `default` | fallback dla danego konceptu |
 
 Dla `condition_type = default` dozwolona wartosc `condition_value` to `any`.
 
-Dla `condition_type = user_pref` i `condition_type = nutrition_goal` pole `condition_value` musi byc niepuste, ale nie jest zamknietym enumem na poziomie walidacji bazy. Pozwala to przechowywac przyszlosciowe reguly, ktore obecny runtime moze jeszcze ignorowac.
+Dla warunkow innych niz `default` pole `condition_value` musi byc niepuste, ale nie jest zamknietym enumem na poziomie walidacji bazy. Pozwala to przechowywac przyszlosciowe reguly, ktore obecny runtime moze jeszcze ignorowac.
+
+`user_pref` jest tolerowane w bazie tylko jako przejsciowy typ starszych, przyszlosciowych regul. Aktywne reguly dla obslugiwanych diet i zrodel bialka powinny zostac przeniesione odpowiednio do `diet` albo `protein_preference` przez `apply_data_curation.py`.
 
 ## Typ dopasowania SKU do konceptu: `match_type`
 

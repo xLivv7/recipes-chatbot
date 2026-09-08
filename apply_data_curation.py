@@ -15,13 +15,13 @@ VEGETABLE_BROTH_SKU_ID = "WINIARY_BULION_WARZYWNY_SLOIK_160G"
 BROTH_RULES = [
     {
         "rule_order": 1,
-        "condition_type": "user_pref",
+        "condition_type": "diet",
         "condition_value": "vegan",
         "preferred_sku_id": VEGETABLE_BROTH_SKU_ID,
     },
     {
         "rule_order": 2,
-        "condition_type": "user_pref",
+        "condition_type": "diet",
         "condition_value": "vegetarian",
         "preferred_sku_id": VEGETABLE_BROTH_SKU_ID,
     },
@@ -81,6 +81,37 @@ def upsert_rule(db, client_id, rule_data):
     return rule
 
 
+def migrate_supported_preference_rule_types(db):
+    diet_values = {"vegetarian", "vegan", "pescetarian"}
+    protein_values = {"meat", "fish"}
+
+    legacy_rules = db.query(SkuSelectionRule).filter(SkuSelectionRule.condition_type == "user_pref").all()
+    for rule in legacy_rules:
+        condition_value = str(rule.condition_value or "").strip()
+        if condition_value in diet_values:
+            rule.condition_type = "diet"
+        elif condition_value in protein_values:
+            rule.condition_type = "protein_preference"
+
+
+def deduplicate_supported_preference_rules(db):
+    supported_types = {"diet", "protein_preference"}
+    rules = (
+        db.query(SkuSelectionRule)
+        .filter(SkuSelectionRule.condition_type.in_(supported_types))
+        .order_by(SkuSelectionRule.id)
+        .all()
+    )
+
+    seen = set()
+    for rule in rules:
+        key = (rule.client_id, rule.concept_id, rule.condition_type, rule.condition_value)
+        if key in seen:
+            db.delete(rule)
+        else:
+            seen.add(key)
+
+
 def move_default_broth_rule_after_diet_rules(db, client_id):
     default_rules = (
         db.query(SkuSelectionRule)
@@ -103,10 +134,14 @@ def apply_curation():
     try:
         client = get_required_client(db)
         validate_required_sku(db, client.id)
+        migrate_supported_preference_rule_types(db)
+        db.flush()
 
         for rule_data in BROTH_RULES:
             upsert_rule(db, client.id, rule_data)
         move_default_broth_rule_after_diet_rules(db, client.id)
+        db.flush()
+        deduplicate_supported_preference_rules(db)
 
         db.commit()
         print("Applied C007 broth SKU curation rules.")

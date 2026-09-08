@@ -69,8 +69,52 @@ def validate_branding(ctx: ValidationContext) -> list[ValidationIssue]:
             )
 
     issues.extend(_validate_default_fallbacks(brandable_concepts_by_client, rules_by_client_concept))
+    issues.extend(_validate_rule_uniqueness(ctx))
     issues.extend(_validate_rule_coverage(ctx, brandable_concepts_by_client, rules_by_client_concept))
     issues.extend(_report_unused_skus(ctx, used_rule_skus))
+
+    return issues
+
+
+def _validate_rule_uniqueness(ctx: ValidationContext) -> list[ValidationIssue]:
+    issues: list[ValidationIssue] = []
+    condition_keys = {}
+    order_keys = {}
+
+    for rule in ctx.sku_selection_rules:
+        condition_key = (
+            rule.client_id,
+            rule.concept_id,
+            str(rule.condition_type or "").strip(),
+            str(rule.condition_value or "").strip(),
+        )
+        if condition_key in condition_keys:
+            issues.append(
+                issue(
+                    Severity.ERROR,
+                    "sku_selection_rules",
+                    rule.id or "<empty>",
+                    "condition_value",
+                    f"Duplicate rule condition; first rule id is {condition_keys[condition_key]}.",
+                )
+            )
+        else:
+            condition_keys[condition_key] = rule.id
+
+        if is_number(rule.rule_order):
+            order_key = (rule.client_id, rule.concept_id, int(rule.rule_order))
+            if order_key in order_keys:
+                issues.append(
+                    issue(
+                        Severity.ERROR,
+                        "sku_selection_rules",
+                        rule.id or "<empty>",
+                        "rule_order",
+                        f"Duplicate rule order; first rule id is {order_keys[order_key]}.",
+                    )
+                )
+            else:
+                order_keys[order_key] = rule.id
 
     return issues
 

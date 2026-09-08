@@ -1,20 +1,11 @@
 from __future__ import annotations
 
 from core.recommendation_catalog import CATALOG, RecipeCatalog
+from core.recommendation_preferences import validate_preference_contract
 
 
-PREF_TO_DIET = {
-    "none": None,
-    "vegetarian": "vegetarian",
-    "vegan": "vegan",
-    "meat": "meat",
-    "fish": "fish",
-    "pescetarian": "pescetarian",
-}
-
-
-def concept_allows_diet(concept_id: str, diet: str | None, catalog: RecipeCatalog = CATALOG) -> bool:
-    if diet is None:
+def concept_allows_diet(concept_id: str, diet: str, catalog: RecipeCatalog = CATALOG) -> bool:
+    if diet == "none":
         return True
 
     row = catalog.diet_policy_by_concept.get(concept_id)
@@ -28,41 +19,52 @@ def concept_allows_diet(concept_id: str, diet: str | None, catalog: RecipeCatalo
     raise ValueError(f"Unknown diet: {diet}")
 
 
-def recipe_matches_user_pref(recipe: dict, user_pref: str, catalog: RecipeCatalog = CATALOG) -> bool:
-    diet = PREF_TO_DIET.get(user_pref, None)
-    if diet is None:
-        return True
+def recipe_matches_preferences(
+    recipe: dict,
+    diet: str = "none",
+    protein_preference: str = "none",
+    restrictions: list[str] | None = None,
+    catalog: RecipeCatalog = CATALOG,
+) -> bool:
+    validate_preference_contract(diet, protein_preference, restrictions)
 
-    if diet == "meat":
+    if diet == "pescetarian" and any(
+        int(catalog.diet_policy_by_concept.get(item["concept_id"], {}).get("is_meat", 0)) == 1
+        for item in recipe.get("ingredients", [])
+    ):
+        return False
+
+    if diet in {"vegetarian", "vegan"} and not all(
+        concept_allows_diet(item["concept_id"], diet, catalog=catalog)
+        for item in recipe.get("ingredients", [])
+    ):
+        return False
+
+    if protein_preference == "meat":
         return any(
             int(catalog.diet_policy_by_concept.get(item["concept_id"], {}).get("is_meat", 0)) == 1
             for item in recipe.get("ingredients", [])
         )
 
-    if diet == "fish":
+    if protein_preference == "fish":
         return any(
             int(catalog.diet_policy_by_concept.get(item["concept_id"], {}).get("is_fish", 0)) == 1
             for item in recipe.get("ingredients", [])
         )
 
-    if diet == "pescetarian":
-        return not any(
-            int(catalog.diet_policy_by_concept.get(item["concept_id"], {}).get("is_meat", 0)) == 1
-            for item in recipe.get("ingredients", [])
-        )
-
-    return all(
-        concept_allows_diet(item["concept_id"], diet, catalog=catalog)
-        for item in recipe.get("ingredients", [])
-    )
+    return True
 
 
 def choose_sku(
     concept_id: str,
-    user_pref: str,
+    diet: str,
+    protein_preference: str,
+    restrictions: list[str] | None,
     nutrition_goal: str,
     catalog: RecipeCatalog = CATALOG,
 ) -> str | None:
+    normalized_restrictions = validate_preference_contract(diet, protein_preference, restrictions)
+
     if concept_id not in catalog.rules_by_concept:
         return None
 
@@ -71,7 +73,13 @@ def choose_sku(
         condition_value = str(rule["condition_value"])
         sku_id = rule["preferred_sku_id"]
 
-        if condition_type == "user_pref" and condition_value == user_pref:
+        if condition_type == "diet" and condition_value == diet:
+            return sku_id
+        if condition_type == "protein_preference" and condition_value == protein_preference:
+            return sku_id
+        if condition_type == "restriction" and condition_value in normalized_restrictions:
+            return sku_id
+        if condition_type == "user_pref" and condition_value in {diet, protein_preference}:
             return sku_id
         if condition_type == "nutrition_goal" and condition_value == nutrition_goal:
             return sku_id
@@ -83,10 +91,13 @@ def choose_sku(
 
 def orchestrate_recipe(
     recipe_id: str,
-    user_pref: str = "none",
+    diet: str = "none",
+    protein_preference: str = "none",
+    restrictions: list[str] | None = None,
     nutrition_goal: str = "standard",
     catalog: RecipeCatalog = CATALOG,
 ) -> dict:
+    normalized_restrictions = validate_preference_contract(diet, protein_preference, restrictions)
     recipe = next((item for item in catalog.recipes if item["recipe_id"] == recipe_id), None)
     if recipe is None:
         raise ValueError(f"Recipe not found: {recipe_id}")
@@ -103,7 +114,9 @@ def orchestrate_recipe(
         if concept_id in catalog.concept_to_skus:
             sku_id = choose_sku(
                 concept_id,
-                user_pref=user_pref,
+                diet=diet,
+                protein_preference=protein_preference,
+                restrictions=normalized_restrictions,
                 nutrition_goal=nutrition_goal,
                 catalog=catalog,
             )
@@ -166,13 +179,16 @@ def score_recipe(result: dict, nutrition_goal: str = "standard") -> tuple:
 
 
 def orchestrate_top_n(
-    user_pref: str = "none",
+    diet: str = "none",
+    protein_preference: str = "none",
+    restrictions: list[str] | None = None,
     nutrition_goal: str = "standard",
     top_n: int = 3,
     category: str = "kolacja",
     time_max: int | float | None = None,
     catalog: RecipeCatalog = CATALOG,
 ) -> list[dict]:
+    normalized_restrictions = validate_preference_contract(diet, protein_preference, restrictions)
     results = []
 
     for recipe in catalog.recipes:
@@ -180,13 +196,21 @@ def orchestrate_top_n(
             continue
         if time_max is not None and float(recipe.get("time_min", 9999)) > float(time_max):
             continue
-        if not recipe_matches_user_pref(recipe, user_pref, catalog=catalog):
+        if not recipe_matches_preferences(
+            recipe,
+            diet=diet,
+            protein_preference=protein_preference,
+            restrictions=normalized_restrictions,
+            catalog=catalog,
+        ):
             continue
 
         try:
             result = orchestrate_recipe(
                 recipe["recipe_id"],
-                user_pref=user_pref,
+                diet=diet,
+                protein_preference=protein_preference,
+                restrictions=normalized_restrictions,
                 nutrition_goal=nutrition_goal,
                 catalog=catalog,
             )
@@ -224,15 +248,20 @@ def orchestrate_top_n(
 
 
 def get_recommendations(
-    user_pref: str = "none",
+    diet: str = "none",
+    protein_preference: str = "none",
+    restrictions: list[str] | None = None,
     nutrition_goal: str = "standard",
     top_n: int = 3,
     category: str = "kolacja",
     time_max: int | None = None,
     catalog: RecipeCatalog = CATALOG,
 ) -> dict:
+    normalized_restrictions = validate_preference_contract(diet, protein_preference, restrictions)
     top_results = orchestrate_top_n(
-        user_pref=user_pref,
+        diet=diet,
+        protein_preference=protein_preference,
+        restrictions=normalized_restrictions,
         nutrition_goal=nutrition_goal,
         top_n=top_n,
         category=category,
@@ -282,7 +311,9 @@ def get_recommendations(
 
     return {
         "query": {
-            "user_pref": user_pref,
+            "diet": diet,
+            "protein_preference": protein_preference,
+            "restrictions": normalized_restrictions,
             "nutrition_goal": nutrition_goal,
             "category": category,
             "time_max": time_max,

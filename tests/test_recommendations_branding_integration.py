@@ -11,8 +11,20 @@ DEFAULT_BROTH_SKU_ID = "WINIARY_BULION_DROBIOWY_160G"
 class RecommendationBrandingIntegrationTests(RealDatabaseRecommendationTestCase):
     """Branding and SKU tests against real selection rules and recipe payloads."""
 
-    def test_c007_vegan_pref_selects_vegetable_broth_sku(self):
-        """Input: C007 broth concept with user_pref=vegan.
+    def test_supported_preference_rules_use_dimension_specific_condition_types(self):
+        supported_values = {"vegetarian", "vegan", "pescetarian", "meat", "fish"}
+        legacy_rules = [
+            rule
+            for rules in self.recommendations.CATALOG.rules_by_concept.values()
+            for rule in rules
+            if rule["condition_type"] == "user_pref"
+            and rule["condition_value"] in supported_values
+        ]
+
+        self.assertEqual(legacy_rules, [])
+
+    def test_c007_vegan_diet_selects_vegetable_broth_sku(self):
+        """Input: C007 broth concept with diet=vegan.
 
         Output: Winiary vegetable broth SKU id.
         Behavior: protects the curated rule that prevents vegan requests from
@@ -20,7 +32,9 @@ class RecommendationBrandingIntegrationTests(RealDatabaseRecommendationTestCase)
         """
         selected_sku = self.recommendations.choose_sku(
             "C007",
-            user_pref="vegan",
+            diet="vegan",
+            protein_preference="none",
+            restrictions=[],
             nutrition_goal="standard",
         )
 
@@ -35,7 +49,9 @@ class RecommendationBrandingIntegrationTests(RealDatabaseRecommendationTestCase)
         """
         selected_sku = self.recommendations.choose_sku(
             "C007",
-            user_pref="none",
+            diet="none",
+            protein_preference="none",
+            restrictions=[],
             nutrition_goal="standard",
         )
 
@@ -49,7 +65,9 @@ class RecommendationBrandingIntegrationTests(RealDatabaseRecommendationTestCase)
         summary and ingredient-level client_sku_id fields.
         """
         raw_data = self.recommendations.get_recommendations(
-            user_pref="none",
+            diet="none",
+            protein_preference="none",
+            restrictions=[],
             nutrition_goal="standard",
             category="lunch",
             top_n=5,
@@ -80,7 +98,9 @@ class RecommendationBrandingIntegrationTests(RealDatabaseRecommendationTestCase)
         deterministic recommendation step.
         """
         normalized = self.get_normalized_recommendations(
-            user_pref="none",
+            diet="none",
+            protein_preference="none",
+            restrictions=[],
             nutrition_goal="standard",
             category="lunch",
             top_n=5,

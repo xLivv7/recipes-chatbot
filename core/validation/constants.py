@@ -7,14 +7,20 @@ MEAL_CATEGORIES = {
     "przekąska",
 }
 
-USER_PREFS = {
+DIETS = {
     "none",
     "vegetarian",
     "vegan",
-    "meat",
-    "fish",
     "pescetarian",
 }
+
+PROTEIN_PREFERENCES = {
+    "none",
+    "meat",
+    "fish",
+}
+
+SUPPORTED_RESTRICTIONS = set()
 
 NUTRITION_GOALS = {
     "standard",
@@ -24,6 +30,9 @@ NUTRITION_GOALS = {
 }
 
 CONDITION_TYPES = {
+    "diet",
+    "protein_preference",
+    "restriction",
     "user_pref",
     "nutrition_goal",
     "default",

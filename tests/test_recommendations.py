@@ -6,11 +6,16 @@ from core.recommendation_normalization import (
     normalize_recommendations_output,
     validate_recommendations_output,
 )
+from core.recommendation_preferences import (
+    DIETS,
+    PROTEIN_PREFERENCES,
+    SUPPORTED_RESTRICTIONS,
+    validate_preference_contract,
+)
 from core.recommendations import (
-    PREF_TO_DIET,
     choose_sku,
     orchestrate_recipe,
-    recipe_matches_user_pref,
+    recipe_matches_preferences,
 )
 
 
@@ -107,7 +112,7 @@ def build_catalog():
                     "client_id": 1,
                     "concept_id": "C007",
                     "rule_order": 1,
-                    "condition_type": "user_pref",
+                    "condition_type": "diet",
                     "condition_value": "vegan",
                     "preferred_sku_id": "VEG_BROTH",
                 },
@@ -115,7 +120,7 @@ def build_catalog():
                     "client_id": 1,
                     "concept_id": "C007",
                     "rule_order": 2,
-                    "condition_type": "user_pref",
+                    "condition_type": "diet",
                     "condition_value": "vegetarian",
                     "preferred_sku_id": "VEG_BROTH",
                 },
@@ -137,18 +142,24 @@ class RecommendationTests(unittest.TestCase):
     def setUp(self):
         self.catalog = build_catalog()
 
-    def test_supported_user_preferences_match_current_contract(self):
-        expected_preferences = {"none", "vegetarian", "vegan", "meat", "fish", "pescetarian"}
-        tool_preferences = RECIPE_TOOLS[0]["function"]["parameters"]["properties"]["user_pref"]["enum"]
+    def test_supported_preferences_match_tool_contract(self):
+        properties = RECIPE_TOOLS[0]["function"]["parameters"]["properties"]
 
-        self.assertEqual(
-            set(PREF_TO_DIET),
-            expected_preferences,
-        )
-        self.assertEqual(set(tool_preferences), expected_preferences)
+        self.assertEqual(set(properties["diet"]["enum"]), set(DIETS))
+        self.assertEqual(set(properties["protein_preference"]["enum"]), set(PROTEIN_PREFERENCES))
+        self.assertEqual(list(SUPPORTED_RESTRICTIONS), [])
+        self.assertEqual(properties["restrictions"]["maxItems"], 0)
+
+    def test_preference_contract_rejects_unsupported_restriction(self):
+        with self.assertRaises(ValueError):
+            validate_preference_contract("none", "none", ["gluten_free"])
+
+    def test_preference_contract_rejects_conflicting_diet_and_protein(self):
+        with self.assertRaises(ValueError):
+            validate_preference_contract("vegan", "meat", [])
 
     def test_vegan_pref_selects_vegetable_broth(self):
-        """Input: C007 broth concept with user_pref=vegan.
+        """Input: C007 broth concept with diet=vegan.
 
         Output: vegetable broth SKU id.
         Behavior: confirms that diet-specific SKU rules are evaluated before
@@ -156,7 +167,9 @@ class RecommendationTests(unittest.TestCase):
         """
         selected = choose_sku(
             "C007",
-            user_pref="vegan",
+            diet="vegan",
+            protein_preference="none",
+            restrictions=[],
             nutrition_goal="standard",
             catalog=self.catalog,
         )
@@ -172,7 +185,9 @@ class RecommendationTests(unittest.TestCase):
         """
         selected = choose_sku(
             "C007",
-            user_pref="none",
+            diet="none",
+            protein_preference="none",
+            restrictions=[],
             nutrition_goal="standard",
             catalog=self.catalog,
         )
@@ -180,7 +195,7 @@ class RecommendationTests(unittest.TestCase):
         self.assertEqual(selected, "CHICKEN_BROTH")
 
     def test_vegan_filter_rejects_meat_recipe(self):
-        """Input: recipe containing a concept marked as meat and user_pref=vegan.
+        """Input: recipe containing a concept marked as meat and diet=vegan.
 
         Output: False.
         Behavior: verifies that recipe filtering rejects recipes that violate
@@ -188,10 +203,10 @@ class RecommendationTests(unittest.TestCase):
         """
         meat_recipe = self.catalog.recipes[1]
 
-        self.assertFalse(recipe_matches_user_pref(meat_recipe, "vegan", catalog=self.catalog))
+        self.assertFalse(recipe_matches_preferences(meat_recipe, diet="vegan", catalog=self.catalog))
 
     def test_orchestrate_recipe_uses_selected_sku_nutrition(self):
-        """Input: test soup with C007 broth and user_pref=vegan.
+        """Input: test soup with C007 broth and diet=vegan.
 
         Output: brandified recipe using vegetable broth and its nutrition.
         Behavior: verifies the full deterministic path: choose SKU, attach it
@@ -199,7 +214,9 @@ class RecommendationTests(unittest.TestCase):
         """
         result = orchestrate_recipe(
             "R_TEST",
-            user_pref="vegan",
+            diet="vegan",
+            protein_preference="none",
+            restrictions=[],
             nutrition_goal="standard",
             catalog=self.catalog,
         )
@@ -220,7 +237,9 @@ class RecommendationNormalizationTests(unittest.TestCase):
         """
         raw_data = {
             "query": {
-                "user_pref": "vegan",
+                "diet": "vegan",
+                "protein_preference": "none",
+                "restrictions": [],
                 "nutrition_goal": "standard",
                 "category": "kolacja",
                 "time_max": None,
