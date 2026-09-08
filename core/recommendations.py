@@ -19,6 +19,34 @@ def concept_allows_diet(concept_id: str, diet: str, catalog: RecipeCatalog = CAT
     raise ValueError(f"Unknown diet: {diet}")
 
 
+def concept_allows_restrictions(
+    concept_id: str,
+    restrictions: list[str],
+    catalog: RecipeCatalog = CATALOG,
+) -> bool:
+    policy = catalog.diet_policy_by_concept.get(concept_id)
+
+    if "gluten_free" in restrictions:
+        if policy is None or int(policy.get("is_gluten_free") or 0) != 1:
+            return False
+
+    return True
+
+
+def sku_allows_restrictions(
+    sku_id: str,
+    restrictions: list[str],
+    catalog: RecipeCatalog = CATALOG,
+) -> bool:
+    sku = catalog.skus_by_id.get(sku_id)
+
+    if "gluten_free" in restrictions:
+        if sku is None or int(sku.get("is_gluten_free") or 0) != 1:
+            return False
+
+    return True
+
+
 def recipe_matches_preferences(
     recipe: dict,
     diet: str = "none",
@@ -26,7 +54,7 @@ def recipe_matches_preferences(
     restrictions: list[str] | None = None,
     catalog: RecipeCatalog = CATALOG,
 ) -> bool:
-    validate_preference_contract(diet, protein_preference, restrictions)
+    normalized_restrictions = validate_preference_contract(diet, protein_preference, restrictions)
 
     if diet == "pescetarian" and any(
         int(catalog.diet_policy_by_concept.get(item["concept_id"], {}).get("is_meat", 0)) == 1
@@ -36,6 +64,16 @@ def recipe_matches_preferences(
 
     if diet in {"vegetarian", "vegan"} and not all(
         concept_allows_diet(item["concept_id"], diet, catalog=catalog)
+        for item in recipe.get("ingredients", [])
+    ):
+        return False
+
+    if not all(
+        concept_allows_restrictions(
+            item["concept_id"],
+            normalized_restrictions,
+            catalog=catalog,
+        )
         for item in recipe.get("ingredients", [])
     ):
         return False
@@ -73,17 +111,19 @@ def choose_sku(
         condition_value = str(rule["condition_value"])
         sku_id = rule["preferred_sku_id"]
 
-        if condition_type == "diet" and condition_value == diet:
-            return sku_id
-        if condition_type == "protein_preference" and condition_value == protein_preference:
-            return sku_id
-        if condition_type == "restriction" and condition_value in normalized_restrictions:
-            return sku_id
-        if condition_type == "user_pref" and condition_value in {diet, protein_preference}:
-            return sku_id
-        if condition_type == "nutrition_goal" and condition_value == nutrition_goal:
-            return sku_id
-        if condition_type == "default":
+        rule_matches = (
+            (condition_type == "diet" and condition_value == diet)
+            or (condition_type == "protein_preference" and condition_value == protein_preference)
+            or (condition_type == "restriction" and condition_value in normalized_restrictions)
+            or (condition_type == "user_pref" and condition_value in {diet, protein_preference})
+            or (condition_type == "nutrition_goal" and condition_value == nutrition_goal)
+            or condition_type == "default"
+        )
+        if rule_matches and sku_allows_restrictions(
+            sku_id,
+            normalized_restrictions,
+            catalog=catalog,
+        ):
             return sku_id
 
     return None

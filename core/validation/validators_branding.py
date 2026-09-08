@@ -17,6 +17,16 @@ def validate_branding(ctx: ValidationContext) -> list[ValidationIssue]:
     for sku in ctx.client_skus:
         if sku.client_id is not None and sku.concept_id:
             brandable_concepts_by_client[sku.client_id].add(sku.concept_id)
+        if sku.is_gluten_free not in (0, 1):
+            issues.append(
+                issue(
+                    Severity.ERROR,
+                    "client_skus",
+                    sku.id or "<empty>",
+                    "is_gluten_free",
+                    "SKU gluten-free flag must be 0 or 1.",
+                )
+            )
 
     for rule in ctx.sku_selection_rules:
         record_id = rule.id or "<empty>"
@@ -65,6 +75,20 @@ def validate_branding(ctx: ValidationContext) -> list[ValidationIssue]:
                     record_id,
                     "preferred_sku_id",
                     "Preferred SKU concept_id does not match rule concept_id.",
+                )
+            )
+        if (
+            rule.condition_type == "restriction"
+            and str(rule.condition_value).strip() == "gluten_free"
+            and sku.is_gluten_free != 1
+        ):
+            issues.append(
+                issue(
+                    Severity.ERROR,
+                    "sku_selection_rules",
+                    record_id,
+                    "preferred_sku_id",
+                    "Gluten-free rule must select an explicitly gluten-free SKU.",
                 )
             )
 

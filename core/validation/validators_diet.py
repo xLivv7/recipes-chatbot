@@ -10,6 +10,7 @@ DIET_FLAG_FIELDS = (
     "is_meat",
     "is_fish",
     "is_keto_ok",
+    "is_gluten_free",
 )
 
 

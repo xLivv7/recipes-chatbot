@@ -5,12 +5,21 @@ apply_curation(), so each manual data decision can be replayed after a
 database rebuild.
 """
 
-from core.database import Client, ClientSku, SessionLocal, SkuSelectionRule
+import csv
+from pathlib import Path
+
+from sqlalchemy import inspect, text
+
+from core.database import Client, ClientSku, DietPolicy, SessionLocal, SkuSelectionRule, engine
 
 
 CLIENT_NAME = "Winiary"
 BROTH_CONCEPT_ID = "C007"
 VEGETABLE_BROTH_SKU_ID = "WINIARY_BULION_WARZYWNY_SLOIK_160G"
+CURATION_DIR = Path(__file__).resolve().parent / "curation"
+GLUTEN_UNSAFE_CONCEPTS_PATH = CURATION_DIR / "gluten_unsafe_concepts.csv"
+WINIARY_SKU_GLUTEN_POLICY_PATH = CURATION_DIR / "winiary_sku_gluten_policy.csv"
+GLUTEN_POLICY_MAX_CONCEPT_NUMBER = 376
 
 BROTH_RULES = [
     {
@@ -26,6 +35,74 @@ BROTH_RULES = [
         "preferred_sku_id": VEGETABLE_BROTH_SKU_ID,
     },
 ]
+
+
+def ensure_gluten_free_columns():
+    table_columns = {
+        table_name: {column["name"] for column in inspect(engine).get_columns(table_name)}
+        for table_name in ("diet_policies", "client_skus")
+    }
+
+    with engine.begin() as connection:
+        if "is_gluten_free" not in table_columns["diet_policies"]:
+            connection.execute(text("ALTER TABLE diet_policies ADD COLUMN is_gluten_free INTEGER"))
+        if "is_gluten_free" not in table_columns["client_skus"]:
+            connection.execute(text("ALTER TABLE client_skus ADD COLUMN is_gluten_free INTEGER"))
+
+
+def load_gluten_unsafe_concept_ids() -> set[str]:
+    with GLUTEN_UNSAFE_CONCEPTS_PATH.open("r", encoding="utf-8", newline="") as file:
+        return {str(row["concept_id"]).strip() for row in csv.DictReader(file)}
+
+
+def curate_gluten_free_concepts(db):
+    unsafe_concept_ids = load_gluten_unsafe_concept_ids()
+    policies = db.query(DietPolicy).all()
+
+    unexpected_ids = []
+    for policy in policies:
+        concept_id = str(policy.ingredient_id or "").strip()
+        try:
+            concept_number = int(concept_id.removeprefix("C"))
+        except ValueError:
+            unexpected_ids.append(concept_id)
+            continue
+        if not concept_id.startswith("C") or concept_number > GLUTEN_POLICY_MAX_CONCEPT_NUMBER:
+            unexpected_ids.append(concept_id)
+
+    if unexpected_ids:
+        raise ValueError(
+            "Gluten policy requires manual classification for concepts: "
+            f"{sorted(unexpected_ids)}"
+        )
+
+    for policy in policies:
+        policy.is_gluten_free = 0 if policy.ingredient_id in unsafe_concept_ids else 1
+
+
+def load_gluten_free_sku_statuses() -> dict[str, int]:
+    with WINIARY_SKU_GLUTEN_POLICY_PATH.open("r", encoding="utf-8", newline="") as file:
+        statuses = {
+            str(row["client_sku_id"]).strip(): int(row["is_gluten_free"])
+            for row in csv.DictReader(file)
+        }
+
+    invalid = sorted(sku_id for sku_id, value in statuses.items() if value not in (0, 1))
+    if invalid:
+        raise ValueError(f"Invalid SKU gluten policy values: {invalid}")
+    return statuses
+
+
+def curate_gluten_free_skus(db, client_id: int):
+    statuses = load_gluten_free_sku_statuses()
+
+    client_skus = db.query(ClientSku).filter(ClientSku.client_id == client_id).all()
+    missing_source_ids = sorted(sku.id for sku in client_skus if sku.id not in statuses)
+    if missing_source_ids:
+        raise ValueError(f"SKU gluten policy is missing source rows: {missing_source_ids}")
+
+    for sku in client_skus:
+        sku.is_gluten_free = statuses[sku.id]
 
 
 def get_required_client(db):
@@ -130,10 +207,13 @@ def move_default_broth_rule_after_diet_rules(db, client_id):
 
 
 def apply_curation():
+    ensure_gluten_free_columns()
     db = SessionLocal()
     try:
         client = get_required_client(db)
         validate_required_sku(db, client.id)
+        curate_gluten_free_concepts(db)
+        curate_gluten_free_skus(db, client.id)
         migrate_supported_preference_rule_types(db)
         db.flush()
 
@@ -144,7 +224,7 @@ def apply_curation():
         deduplicate_supported_preference_rules(db)
 
         db.commit()
-        print("Applied C007 broth SKU curation rules.")
+        print("Applied preference rules and gluten-free policy curation.")
     except Exception:
         db.rollback()
         raise

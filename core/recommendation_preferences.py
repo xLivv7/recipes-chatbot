@@ -5,7 +5,7 @@ from collections.abc import Iterable
 
 DIETS = ("none", "vegetarian", "vegan", "pescetarian")
 PROTEIN_PREFERENCES = ("none", "meat", "fish")
-SUPPORTED_RESTRICTIONS: tuple[str, ...] = ()
+SUPPORTED_RESTRICTIONS = ("gluten_free",)
 
 
 def validate_preference_contract(

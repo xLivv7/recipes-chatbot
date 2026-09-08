@@ -12,7 +12,7 @@
 6. Brak pelnego walidatora powoduje, ze bledy w JSONB moga ujawnic sie dopiero w runtime.
 7. Brak testow automatycznych utrudnia bezpieczna refaktoryzacje `main.py`.
 8. LLM moze ladnie sformulowac odpowiedz, ale bez walidacji system nie udowodni, ze odpowiedz jest oparta na prawdziwych danych.
-9. `restrictions` jest przygotowanym polem kontraktu, ale do czasu wdrozenia pierwszego ograniczenia musi pozostawac pusta lista.
+9. `gluten_free` opiera sie na recznej klasyfikacji konceptow i deklaracjach alergenow SKU; przed zastosowaniem komercyjnym wymaga weryfikacji producenta i procesu aktualizacji.
 10. Starsze, przyszlosciowe reguly SKU moga nadal uzywac typu `user_pref`; aktywne reguly sa migrowane do osobnych wymiarow przez skrypt kuracji.
 
 ## Kryteria zakonczenia etapu 1

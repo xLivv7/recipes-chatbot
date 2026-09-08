@@ -74,6 +74,7 @@ Te kryteria warto zaimplementowac jako pierwsze.
 | `is_vegan_ok = 1` implikuje `is_vegetarian_ok = 1` | `ERROR` |
 | mieso nie moze byc wegetarianskie ani weganskie | `ERROR` |
 | ryba nie moze byc wegetarianska ani weganska | `ERROR` |
+| `diet_policies.is_gluten_free` ma wartosc `0` albo `1` | `ERROR` |
 | skladnik uzyty w przepisie ma polityke dietetyczna | `WARNING` teraz, docelowo `ERROR` |
 | SKU dla reguly `diet = vegan` nie moze byc jawnie nieweganskie | `WARNING` teraz, docelowo `ERROR` |
 
@@ -99,6 +100,8 @@ Uwaga: ostrzezenie o niespojnosci kcal z makro wymaga recznego przegladu. Dla pr
 | SKU z reguly mapuje sie na koncept reguly | `ERROR` |
 | kazdy brandowalny koncept ma fallback `default` | `WARNING` |
 | regula dla `vegan` nie wskazuje produktu nieweganskiego | `ERROR` |
+| `client_skus.is_gluten_free` ma wartosc `0` albo `1` | `ERROR` |
+| regula `restriction = gluten_free` wskazuje SKU z `is_gluten_free = 1` | `ERROR` |
 | SKU z katalogu klienta nieuzyte w zadnej regule jest raportowane | `INFO` lub `WARNING` |
 | koncept uzywany w przepisach, majacy SKU klienta, ale bez reguly, jest raportowany | `WARNING` |
 
@@ -135,6 +138,7 @@ Implementacyjnie sprawdz:
 - `vegan_ok` bez `vegetarian_ok`,
 - mieso oznaczone jako vegetarian/vegan,
 - ryba oznaczona jako vegetarian/vegan.
+- brak lub niepoprawna flage `is_gluten_free`.
 
 ### `recipes`
 
@@ -157,6 +161,7 @@ Implementacyjnie sprawdz:
 - puste `name_pl`,
 - obce `client_id`,
 - obce `concept_id`,
+- flage `is_gluten_free` inna niz `0` lub `1`,
 - brak makro dla SKU uzytego w regule,
 - wartosci odzywcze ujemne lub nieliczbowe,
 - SKU bez `concept_id` uzyte w brandyfikacji.

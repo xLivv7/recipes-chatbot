@@ -1,0 +1,21 @@
+client_sku_id,is_gluten_free,reason
+WINIARY_MAJONEZ_DEKORACYJNY_700ML,1,no gluten declaration in source dataset
+WINIARY_MAJONEZ_DEKORACYJNY_400ML,1,no gluten declaration in source dataset
+WINIARY_MAJONEZ_DEKORACYJNY_250ML,1,no gluten declaration in source dataset
+WINIARY_MAJONEZ_SALATKOWY_300ML,1,no gluten declaration in source dataset
+WINIARY_MAJONEZ_LEKKI_300ML,1,no gluten declaration in source dataset
+WINIARY_MAJONEZ_DELIKATNY_300ML,1,no gluten declaration in source dataset
+WINIARY_MAJONEZ_WEGANSKI_300ML,1,no gluten declaration in source dataset
+WINIARY_MAJONEZ_OMEGA_36_300ML,1,no gluten declaration in source dataset
+WINIARY_KETCHUP_LAGODNY_450G,1,no gluten declaration in source dataset
+WINIARY_KETCHUP_PIKANTNY_560G,1,no gluten declaration in source dataset
+WINIARY_KETCHUP_BEZ_CUKRU_410G,1,no gluten declaration in source dataset
+WINIARY_SOS_CZOSNKOWY_SLOIK_250ML,1,no gluten declaration in source dataset
+WINIARY_SOS_CZOSNKOWY_BUTELKA_300ML,1,no gluten declaration in source dataset
+WINIARY_SOS_AMERYKANSKI_BBQ_348G,1,no gluten declaration in source dataset
+WINIARY_SOS_SPAGHETTI_500G,1,no gluten declaration in source dataset
+WINIARY_SOS_BOLONSKI_500G,1,no gluten declaration in source dataset
+WINIARY_BULION_DROBIOWY_160G,0,source dataset declares possible wheat
+WINIARY_BULION_WARZYWNY_SLOIK_160G,0,source dataset declares possible wheat
+WINIARY_BULION_WOLOWY_160G,0,source dataset declares possible wheat
+WINIARY_BULION_GRZYBOWY_6KOSTEK_60G,0,source dataset declares possible gluten

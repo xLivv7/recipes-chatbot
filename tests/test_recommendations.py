@@ -50,6 +50,16 @@ def build_catalog():
                 "ingredients": [{"concept_id": "C_MEAT", "grams": 100}],
                 "steps_pl": ["Usmaz mieso."],
             },
+            {
+                "recipe_id": "R_GLUTEN",
+                "title_pl": "Testowy makaron",
+                "category": "kolacja",
+                "dish_type": "Main",
+                "time_min": 20,
+                "servings": 1,
+                "ingredients": [{"concept_id": "C_GLUTEN", "grams": 100}],
+                "steps_pl": ["Ugotuj makaron."],
+            },
         ],
         diet_policy_by_concept={
             "C007": {
@@ -58,6 +68,7 @@ def build_catalog():
                 "is_meat": 0,
                 "is_fish": 0,
                 "is_keto_ok": 1,
+                "is_gluten_free": 1,
             },
             "C_MEAT": {
                 "is_vegetarian_ok": 0,
@@ -65,6 +76,15 @@ def build_catalog():
                 "is_meat": 1,
                 "is_fish": 0,
                 "is_keto_ok": 1,
+                "is_gluten_free": 1,
+            },
+            "C_GLUTEN": {
+                "is_vegetarian_ok": 1,
+                "is_vegan_ok": 1,
+                "is_meat": 0,
+                "is_fish": 0,
+                "is_keto_ok": 0,
+                "is_gluten_free": 0,
             },
         },
         nutrients_by_concept={
@@ -80,6 +100,12 @@ def build_catalog():
                 "fat_g_100g": 10,
                 "carbs_g_100g": 0,
             },
+            "C_GLUTEN": {
+                "energy_kcal_100g": 350,
+                "protein_g_100g": 10,
+                "fat_g_100g": 2,
+                "carbs_g_100g": 70,
+            },
         },
         skus_by_id={
             "VEG_BROTH": {
@@ -90,6 +116,7 @@ def build_catalog():
                 "fat_g_100": 0.1,
                 "carbs_g_100": 0.6,
                 "concept_id": "C007",
+                "is_gluten_free": 1,
             },
             "CHICKEN_BROTH": {
                 "client_sku_id": "CHICKEN_BROTH",
@@ -99,6 +126,7 @@ def build_catalog():
                 "fat_g_100": 0.3,
                 "carbs_g_100": 0.5,
                 "concept_id": "C007",
+                "is_gluten_free": 0,
             },
         },
         sku_name={
@@ -134,7 +162,7 @@ def build_catalog():
                 },
             ]
         },
-        concept_name={"C007": "bulion", "C_MEAT": "mieso"},
+        concept_name={"C007": "bulion", "C_MEAT": "mieso", "C_GLUTEN": "makaron"},
     )
 
 
@@ -147,12 +175,13 @@ class RecommendationTests(unittest.TestCase):
 
         self.assertEqual(set(properties["diet"]["enum"]), set(DIETS))
         self.assertEqual(set(properties["protein_preference"]["enum"]), set(PROTEIN_PREFERENCES))
-        self.assertEqual(list(SUPPORTED_RESTRICTIONS), [])
-        self.assertEqual(properties["restrictions"]["maxItems"], 0)
+        self.assertEqual(list(SUPPORTED_RESTRICTIONS), ["gluten_free"])
+        self.assertEqual(properties["restrictions"]["items"]["enum"], ["gluten_free"])
+        self.assertEqual(properties["restrictions"]["maxItems"], 1)
 
     def test_preference_contract_rejects_unsupported_restriction(self):
         with self.assertRaises(ValueError):
-            validate_preference_contract("none", "none", ["gluten_free"])
+            validate_preference_contract("none", "none", ["nut_free"])
 
     def test_preference_contract_rejects_conflicting_diet_and_protein(self):
         with self.assertRaises(ValueError):
@@ -204,6 +233,43 @@ class RecommendationTests(unittest.TestCase):
         meat_recipe = self.catalog.recipes[1]
 
         self.assertFalse(recipe_matches_preferences(meat_recipe, diet="vegan", catalog=self.catalog))
+
+    def test_gluten_free_filter_rejects_gluten_concept(self):
+        gluten_recipe = self.catalog.recipes[2]
+
+        self.assertFalse(
+            recipe_matches_preferences(
+                gluten_recipe,
+                restrictions=["gluten_free"],
+                catalog=self.catalog,
+            )
+        )
+
+    def test_gluten_free_request_skips_unverified_default_sku(self):
+        selected = choose_sku(
+            "C007",
+            diet="none",
+            protein_preference="none",
+            restrictions=["gluten_free"],
+            nutrition_goal="standard",
+            catalog=self.catalog,
+        )
+
+        self.assertIsNone(selected)
+
+    def test_gluten_free_orchestration_keeps_safe_concept_generic(self):
+        result = orchestrate_recipe(
+            "R_TEST",
+            diet="none",
+            protein_preference="none",
+            restrictions=["gluten_free"],
+            nutrition_goal="standard",
+            catalog=self.catalog,
+        )
+
+        self.assertEqual(result["used_skus"], [])
+        self.assertNotIn("sku_id", result["brandified_ingredients"][0])
+        self.assertAlmostEqual(result["nutrition_total"]["kcal"], 10.0)
 
     def test_orchestrate_recipe_uses_selected_sku_nutrition(self):
         """Input: test soup with C007 broth and diet=vegan.

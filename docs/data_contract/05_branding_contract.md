@@ -32,7 +32,10 @@ Dla kazdego skladnika przepisu:
    - nalezec do danego klienta,
    - mapowac sie na ten sam koncept,
    - miec kompletne wartosci odzywcze,
-   - nie naruszac preferencji dietetycznej.
+   - nie naruszac preferencji dietetycznej,
+   - miec `is_gluten_free = 1`, jezeli aktywne jest ograniczenie `gluten_free`.
+
+Jezeli pierwsza pasujaca regula wskazuje SKU niedozwolone przez aktywne ograniczenie, runtime przechodzi do kolejnej reguly. Gdy nie istnieje zgodny produkt, skladnik pozostaje generyczny.
 
 ## Fallback
 
@@ -54,6 +57,7 @@ System nie moze:
 - wybrac SKU spoza klienta,
 - wybrac SKU spoza mapowanego konceptu,
 - wybrac SKU sprzecznego z dieta,
+- wybrac SKU bez jawnej zgodnosci z aktywnym ograniczeniem,
 - dopisac SKU tylko dlatego, ze nazwa brzmi podobnie,
 - zmienic gramatury skladnika bez jawnej reguly.
 

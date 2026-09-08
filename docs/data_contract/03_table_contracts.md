@@ -67,6 +67,7 @@ Obecne pola:
 - `is_meat`
 - `is_fish`
 - `is_keto_ok`
+- `is_gluten_free`
 
 Pola obecne w CSV, ale nieprzenoszone obecnie do modelu:
 
@@ -82,6 +83,7 @@ Reguly poprawnosci:
 | `is_vegan_ok = 1` implikuje `is_vegetarian_ok = 1` | `ERROR` |
 | `is_meat = 1` implikuje `is_vegetarian_ok = 0` oraz `is_vegan_ok = 0` | `ERROR` |
 | `is_fish = 1` implikuje `is_vegetarian_ok = 0` oraz `is_vegan_ok = 0` | `ERROR` |
+| `is_gluten_free` musi miec wartosc `0` lub `1` | `ERROR` |
 | skladnik bez polityki dietetycznej uzyty w przepisie powinien zostac zgloszony | `WARNING` teraz, docelowo `ERROR` |
 | skladnik keto powinien miec niska zawartosc weglowodanow albo byc swiadomym wyjatkiem | `WARNING` |
 
@@ -90,7 +92,7 @@ Decyzja projektowa:
 - Dla diety weganskiej i wegetarianskiej system powinien odrzucac przepis, jezeli jakikolwiek skladnik narusza polityke.
 - Dieta pescetarianska odrzuca mieso, ale nie wymaga obecnosci ryby.
 - `protein_preference = meat` i `protein_preference = fish` wymagaja obecnosci odpowiedniego skladnika.
-- Dodatkowe ograniczenia sa przekazywane jako lista `restrictions`; do czasu wdrozenia pierwszej flagi lista musi byc pusta.
+- `restrictions = [gluten_free]` wymaga `is_gluten_free = 1` dla kazdego skladnika. Brak polityki lub brak jawnego dopuszczenia powoduje odrzucenie przepisu.
 
 ## `clients`
 
@@ -120,6 +122,7 @@ Obecne pola:
 - `protein_g_100`
 - `fat_g_100`
 - `carbs_g_100`
+- `is_gluten_free`
 
 Pola obecne w CSV, ale obecnie nieprzenoszone do modelu:
 
@@ -141,6 +144,7 @@ Reguly poprawnosci:
 | `concept_id`, jesli istnieje, musi wskazywac `ingredients.id` | `ERROR` |
 | `name_pl` musi byc niepuste | `ERROR` |
 | wartosci kcal i makro musza byc liczbami nieujemnymi | `ERROR` |
+| `is_gluten_free` musi miec wartosc `0` lub `1` | `ERROR` |
 | SKU uzywane w regule wyboru musi miec kompletne makro | `ERROR` |
 | SKU z `concept_id = NULL` nie moze byc uzywane w regule brandyfikacji | `ERROR` |
 | `nutrition_basis` inne niz `per 100 g` powinno zostac zgloszone, bo obecne pola w bazie nie rozrozniaja gramow i mililitrow | `WARNING` |

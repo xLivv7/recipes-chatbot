@@ -1,4 +1,4 @@
-from core.recommendation_preferences import DIETS, PROTEIN_PREFERENCES
+from core.recommendation_preferences import DIETS, PROTEIN_PREFERENCES, SUPPORTED_RESTRICTIONS
 
 RECIPE_TOOLS = [
     {
@@ -21,9 +21,10 @@ RECIPE_TOOLS = [
                     },
                     "restrictions": {
                         "type": "array",
-                        "items": {"type": "string"},
-                        "maxItems": 0,
-                        "description": "Lista dodatkowych ograniczeń żywieniowych. Na obecnym etapie żadne dodatkowe ograniczenia nie są jeszcze obsługiwane, dlatego zawsze użyj pustej listy []."
+                        "items": {"type": "string", "enum": list(SUPPORTED_RESTRICTIONS)},
+                        "maxItems": len(SUPPORTED_RESTRICTIONS),
+                        "uniqueItems": True,
+                        "description": "Lista dodatkowych ograniczeń żywieniowych. Dodaj 'gluten_free' tylko gdy użytkownik jawnie prosi o danie bez glutenu lub bezglutenowe. Nie dodawaj go dla próśb o danie bez mięsa, bez laktozy, lekkie ani keto. W pozostałych przypadkach użyj pustej listy []."
                     },
                     "nutrition_goal": {
                         "type": "string",

@@ -29,9 +29,15 @@ Dozwolone wartosci dla MVP:
 
 ## Dodatkowe ograniczenia: `restrictions`
 
-Pole jest lista niezaleznych ograniczen zywieniowych. W obecnym etapie lista obslugiwanych wartosci jest pusta, dlatego poprawna wartosc to `[]`.
+Pole jest lista niezaleznych ograniczen zywieniowych. Dozwolone wartosci dla MVP:
 
-Pierwsza planowana wartosc to `gluten_free`. Nie wolno jej jeszcze przekazywac do runtime przed uzupelnieniem kontraktu danych, flag skladnikow, walidacji i testow.
+| Wartosc | Znaczenie | Warunek backendu |
+| --- | --- | --- |
+| `gluten_free` | uzytkownik jawnie prosi o danie bez glutenu | kazdy koncept skladnika i kazdy uzyty SKU musi miec `is_gluten_free = 1` |
+
+Pusta lista oznacza brak dodatkowych ograniczen. Wartosc `1` jest jawnym dopuszczeniem wedlug danych katalogowych. Brak flagi lub wartosc `0` nie przechodzi filtra.
+
+Flaga nie jest certyfikatem medycznym ani gwarancja braku zanieczyszczenia krzyzowego. Uzycie komercyjne wymaga zweryfikowanych danych producenta i procesu aktualizacji.
 
 ## Cel zywieniowy: `nutrition_goal`
 
