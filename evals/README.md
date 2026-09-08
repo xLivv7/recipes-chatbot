@@ -20,7 +20,7 @@ Each case expects the model to call `get_recommendations` with:
 
 - `diet`: `none`, `vegan`, `vegetarian`, `pescetarian`
 - `protein_preference`: `none`, `meat`, `fish`
-- `restrictions`: currently an empty list; additional restrictions are not implemented yet
+- `restrictions`: zero or more supported restrictions; currently `gluten_free`
 - `nutrition_goal`: `standard`, `low_kcal`, `high_protein`, `keto`
 - `category`: `śniadanie`, `lunch`, `obiad`, `kolacja`, `deser`, `przekąska`
 - `time_max`: integer minutes or `null`
@@ -33,6 +33,12 @@ Diet wording convention:
 - explicit fish requests, such as "z rybą" or "rybny", map to `protein_preference=fish`
 - explicit meat requests map to `protein_preference=meat`
 - no dietary wording maps to `diet=none` and `protein_preference=none`
+
+Restriction wording convention:
+
+- "bez glutenu", "bezglutenowy" and an explicit gluten intolerance map to `["gluten_free"]`
+- negated wording such as "nie musi być bezglutenowe" maps to `[]`
+- `gluten_free` may be combined independently with diet, protein preference and nutrition goal
 
 Category and time conventions:
 
@@ -68,20 +74,19 @@ to `evals/llm_eval_report.json`.
 
 ## Latest baseline
 
-Run on 2026-09-08 with `gpt-4o-mini` after splitting dietary preferences into
-independent dimensions:
+Run on 2026-09-08 with `gpt-4o-mini` after adding ten `gluten_free` cases:
 
-- exact match: `33/40` (`82.5%`)
-- `diet`: `39/40` (`97.5%`)
-- `protein_preference`: `35/40` (`87.5%`)
-- `restrictions`: `40/40` (`100%`)
-- `nutrition_goal`: `39/40` (`97.5%`)
-- `category`: `40/40` (`100%`)
-- `time_max`: `40/40` (`100%`)
-- `top_n`: `40/40` (`100%`)
+- exact match: `46/50` (`92%`)
+- `diet`: `50/50` (`100%`)
+- `protein_preference`: `47/50` (`94%`)
+- `restrictions`: `50/50` (`100%`)
+- `nutrition_goal`: `49/50` (`98%`)
+- `category`: `50/50` (`100%`)
+- `time_max`: `50/50` (`100%`)
+- `top_n`: `50/50` (`100%`)
 
-The remaining errors mostly confuse an allowed protein source with a required
-one: pescetarian wording is sometimes mapped to `protein_preference=fish`, and
-high-protein wording is sometimes mapped to meat. One response returned a
-value outside the protein preference enum. This is a baseline for the next
-prompt/schema iteration, not a reason to relax the expected labels.
+All ten new restriction cases passed, including combinations and negated
+wording. The four remaining failures are older cases: high-protein wording is
+sometimes mapped to meat, pescetarian wording is sometimes mapped to a fish
+requirement, and one light-meal request missed `low_kcal`. These labels remain
+unchanged so the report stays an honest baseline.

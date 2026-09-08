@@ -198,5 +198,55 @@
     "id": "intent_040",
     "user_message": "chcę pięć lekkich lunchy wegańskich",
     "expected": {"diet": "vegan", "protein_preference": "none", "restrictions": [], "nutrition_goal": "low_kcal", "category": "lunch", "time_max": null, "top_n": 5}
+  },
+  {
+    "id": "intent_041",
+    "user_message": "bezglutenowa kolacja",
+    "expected": {"diet": "none", "protein_preference": "none", "restrictions": ["gluten_free"], "nutrition_goal": "standard", "category": "kolacja", "time_max": null, "top_n": 3}
+  },
+  {
+    "id": "intent_042",
+    "user_message": "wegański lunch bez glutenu",
+    "expected": {"diet": "vegan", "protein_preference": "none", "restrictions": ["gluten_free"], "nutrition_goal": "standard", "category": "lunch", "time_max": null, "top_n": 3}
+  },
+  {
+    "id": "intent_043",
+    "user_message": "bezglutenowy obiad z mięsem",
+    "expected": {"diet": "none", "protein_preference": "meat", "restrictions": ["gluten_free"], "nutrition_goal": "standard", "category": "obiad", "time_max": null, "top_n": 3}
+  },
+  {
+    "id": "intent_044",
+    "user_message": "deser bez glutenu do 30 minut",
+    "expected": {"diet": "none", "protein_preference": "none", "restrictions": ["gluten_free"], "nutrition_goal": "standard", "category": "deser", "time_max": 30, "top_n": 3}
+  },
+  {
+    "id": "intent_045",
+    "user_message": "lunch z rybą i bez glutenu",
+    "expected": {"diet": "none", "protein_preference": "fish", "restrictions": ["gluten_free"], "nutrition_goal": "standard", "category": "lunch", "time_max": null, "top_n": 3}
+  },
+  {
+    "id": "intent_046",
+    "user_message": "zwykły obiad, nie musi być bezglutenowy",
+    "expected": {"diet": "none", "protein_preference": "none", "restrictions": [], "nutrition_goal": "standard", "category": "obiad", "time_max": null, "top_n": 3}
+  },
+  {
+    "id": "intent_047",
+    "user_message": "mam nietolerancję glutenu, co na śniadanie?",
+    "expected": {"diet": "none", "protein_preference": "none", "restrictions": ["gluten_free"], "nutrition_goal": "standard", "category": "śniadanie", "time_max": null, "top_n": 3}
+  },
+  {
+    "id": "intent_048",
+    "user_message": "keto kolacja bez glutenu",
+    "expected": {"diet": "none", "protein_preference": "none", "restrictions": ["gluten_free"], "nutrition_goal": "keto", "category": "kolacja", "time_max": null, "top_n": 3}
+  },
+  {
+    "id": "intent_049",
+    "user_message": "daj trzy bezglutenowe przekąski",
+    "expected": {"diet": "none", "protein_preference": "none", "restrictions": ["gluten_free"], "nutrition_goal": "standard", "category": "przekąska", "time_max": null, "top_n": 3}
+  },
+  {
+    "id": "intent_050",
+    "user_message": "pescetariańska kolacja bez glutenu",
+    "expected": {"diet": "pescetarian", "protein_preference": "none", "restrictions": ["gluten_free"], "nutrition_goal": "standard", "category": "kolacja", "time_max": null, "top_n": 3}
   }
 ]
