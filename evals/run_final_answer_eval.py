@@ -46,6 +46,33 @@ def sku_is_mentioned(name: str, response: str) -> bool:
     return bool(tokens) and all(token[: min(6, len(token))] in normalized_response for token in tokens)
 
 
+def recipe_section(response: str, title: str, all_titles: list[str]) -> str:
+    title_match = re.search(re.escape(title), response, re.IGNORECASE)
+    if not title_match:
+        return ""
+
+    next_positions = []
+    for other_title in all_titles:
+        if other_title == title:
+            continue
+        match = re.search(re.escape(other_title), response[title_match.end():], re.IGNORECASE)
+        if match:
+            next_positions.append(title_match.end() + match.start())
+
+    end = min(next_positions) if next_positions else len(response)
+    return response[title_match.start():end]
+
+
+def check_recipe_headings(response: str, recipe_titles: list[str], errors: list[str]) -> None:
+    section_headings = ("składniki", "przygotowanie", "wartości odżywcze", "makro")
+    for heading in re.findall(r"(?m)^#{2,3}\s+(.+?)\s*$", response):
+        cleaned = re.sub(r"^\d+[.)]\s*", "", heading).strip(" *")
+        if normalized_text(cleaned) in section_headings:
+            continue
+        if not any(normalized_text(title) == normalized_text(cleaned) for title in recipe_titles):
+            errors.append(f"unknown recipe heading: {cleaned}")
+
+
 def load_cases(path: Path) -> list[dict[str, Any]]:
     with path.open("r", encoding="utf-8") as file:
         cases = json.load(file)
@@ -136,6 +163,16 @@ def _check_recipe_details(recipe: dict[str, Any], response: str, errors: list[st
     ):
         errors.append(f"invented ingredient list for {title}")
 
+    if not recipe.get("steps_pl") and re.search(
+        r"(?im)^\s*#{0,4}\s*\*{0,2}przygotowanie\s*:?[\*]{0,2}\s*$",
+        response,
+    ):
+        errors.append(f"invented preparation section for {title}")
+
+    servings_match = re.search(r"(?:porcje|porcji)\s*[:=-]?\s*(\d+)", plain_response, re.IGNORECASE)
+    if servings_match and int(servings_match.group(1)) != recipe["servings"]:
+        errors.append(f"changed servings for {title}: {servings_match.group(1)}")
+
 
 def score_case(case: dict[str, Any], response: str, brand_name: str) -> dict[str, Any]:
     expected = case["expected"]
@@ -163,14 +200,17 @@ def score_case(case: dict[str, Any], response: str, brand_name: str) -> dict[str
     else:
         if not recommendations:
             errors.append("case without recommendations must set expect_no_results")
+        recipe_titles = [recipe["title_pl"] for recipe in recommendations]
+        check_recipe_headings(response, recipe_titles, errors)
         for recipe in recommendations:
-            _check_recipe_details(recipe, response, errors)
+            section = recipe_section(response, recipe["title_pl"], recipe_titles)
+            _check_recipe_details(recipe, section, errors)
 
             for sku in recipe.get("used_skus", []):
                 sku_name = clean_sku_name(sku["name_pl"])
-                if not sku_is_mentioned(sku_name, response):
+                if not sku_is_mentioned(sku_name, section):
                     errors.append(f"missing promoted SKU: {sku_name}")
-                if normalized_text(brand_name) not in normalized_text(response):
+                if normalized_text(brand_name) not in normalized_text(section):
                     errors.append(f"missing brand name for promoted SKU: {brand_name}")
 
     if not any(marker in normalized_text(response) for marker in POLISH_MARKERS):

@@ -92,8 +92,15 @@ unchanged so the report stays an honest baseline.
 `final_answer_cases.json` contains controlled payloads returned by
 `get_recommendations`. `run_final_answer_eval.py` supplies a payload to the
 second LLM call and checks that the final response preserves recipe titles,
-time, kcal, B, T and W per serving, and promoted SKUs. It also checks selected
-unsupported claims and the no-results path.
+time, kcal, B, T and W per serving, servings when stated, and promoted SKUs
+for the matching recipe. It rejects unknown recipe headings, selected
+unsupported claims, ingredient or preparation sections missing from the
+payload, and the no-results path when it contains a recipe.
+
+The current baseline has 12 controlled cases, including non-empty and empty
+ingredients, multiple recipes and SKU, dietary restrictions, and no-results
+responses. A single run is a point-in-time measurement; repeat it after any
+prompt or model change.
 
 ```powershell
 venv\Scripts\python.exe evals\run_final_answer_eval.py --dry-run

@@ -10,8 +10,8 @@ class FinalAnswerEvalTests(unittest.TestCase):
         cls.cases = {case["id"]: case for case in load_cases(DEFAULT_CASES_PATH)}
 
     def test_case_file_contains_unique_controlled_cases(self):
-        self.assertEqual(len(self.cases), 4)
-        self.assertEqual(set(self.cases), {"final_001", "final_002", "final_003", "final_004"})
+        self.assertEqual(len(self.cases), 12)
+        self.assertEqual(set(self.cases), {f"final_{index:03d}" for index in range(1, 13)})
 
     def test_prompt_omits_sections_missing_from_tool_payload(self):
         prompt = build_system_prompt("Winiary")
@@ -21,9 +21,43 @@ class FinalAnswerEvalTests(unittest.TestCase):
             "nie dopisuj produktów, składników, zamienników, wariantów ani sugestii dodatków",
             prompt.casefold(),
         )
+        self.assertIn("jeśli 'used_skus' jest puste, nie wspominaj marki ani żadnego produktu", prompt.casefold())
+        self.assertIn("krytyczna kontrola przed odpowiedzią", prompt.casefold())
 
     def test_sku_match_accepts_polish_inflection(self):
         self.assertTrue(sku_is_mentioned("Sos Pomidorowy", "Użyj Sosu Pomidorowego Winiary."))
+
+    def test_score_case_rejects_sku_moved_to_another_recipe(self):
+        response = """### 1. Łosoś z cukinią Eval
+Czas: 28 min. 420 kcal | B: 31 g | T: 30 g | W: 8 g.
+
+### 2. Sałatka jajeczna Eval
+Czas: 12 min. 310 kcal | B: 18 g | T: 25 g | W: 5 g.
+Użyj Winiary Sos Ziołowy i Winiary Majonez Lekki."""
+
+        result = score_case(self.cases["final_006"], response, "Winiary")
+
+        self.assertFalse(result["passed"])
+        self.assertIn("missing promoted SKU: Sos Ziołowy", result["errors"])
+
+    def test_score_case_rejects_changed_servings_when_stated(self):
+        response = """### Makaron ryżowy z tuńczykiem Eval
+Porcje: 2. Czas: 22 min. 390 kcal | B: 25 g | T: 10 g | W: 50 g.
+Użyj Winiary Sosu Cytrynowego."""
+
+        result = score_case(self.cases["final_007"], response, "Winiary")
+
+        self.assertFalse(result["passed"])
+        self.assertIn("changed servings for Makaron ryżowy z tuńczykiem Eval: 2", result["errors"])
+
+    def test_score_case_rejects_unknown_recipe_heading(self):
+        response = """### Inny deser Eval
+Czas: 8 min. 220 kcal | B: 6 g | T: 16 g | W: 14 g."""
+
+        result = score_case(self.cases["final_012"], response, "Winiary")
+
+        self.assertFalse(result["passed"])
+        self.assertIn("unknown recipe heading: Inny deser Eval", result["errors"])
 
     def test_score_case_accepts_grounded_answer(self):
         response = """## Kurczak z warzywami Eval

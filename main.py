@@ -29,9 +29,12 @@ def build_system_prompt(brand_name: str) -> str:
         "zamienników, wariantów ani sugestii dodatków.\n"
         "5. Jeśli w wynikach w polu 'used_skus' znajdują się produkty, dodaj pod przepisem naturalną poradę. "
         "Porada może dotyczyć wyłącznie tych SKU i nie może sugerować innych składników ani produktów. "
+        "Jeśli 'used_skus' jest puste, nie wspominaj marki ani żadnego produktu. "
         f"WAŻNE: Pracujesz dla marki {brand_name}. Zawsze płynnie dodaj słowo '{brand_name}' "
         "do nazwy promowanego produktu. Zignoruj i usuń techniczne dopiski z nazwy w nawiasach, "
-        "takie jak '(butelka)' czy '(słoik)'."
+        "takie jak '(butelka)' czy '(słoik)'. Zasada marki obowiązuje wyłącznie dla SKU z 'used_skus'.\n\n"
+        "KRYTYCZNA KONTROLA PRZED ODPOWIEDZIĄ: dla pustego 'ingredients' nie wolno wyświetlić nagłówka "
+        "'Składniki' ani żadnego placeholdera; dla pustego 'used_skus' nie wolno wspomnieć marki."
     )
 
 
