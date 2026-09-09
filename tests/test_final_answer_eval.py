@@ -1,6 +1,7 @@
 import unittest
 
-from evals.run_final_answer_eval import DEFAULT_CASES_PATH, load_cases, score_case
+from evals.run_final_answer_eval import DEFAULT_CASES_PATH, load_cases, score_case, sku_is_mentioned
+from main import build_system_prompt
 
 
 class FinalAnswerEvalTests(unittest.TestCase):
@@ -11,6 +12,18 @@ class FinalAnswerEvalTests(unittest.TestCase):
     def test_case_file_contains_unique_controlled_cases(self):
         self.assertEqual(len(self.cases), 4)
         self.assertEqual(set(self.cases), {"final_001", "final_002", "final_003", "final_004"})
+
+    def test_prompt_omits_sections_missing_from_tool_payload(self):
+        prompt = build_system_prompt("Winiary")
+
+        self.assertIn("całkowicie pomiń nagłówek i treść sekcji składników", prompt.casefold())
+        self.assertIn(
+            "nie dopisuj produktów, składników, zamienników, wariantów ani sugestii dodatków",
+            prompt.casefold(),
+        )
+
+    def test_sku_match_accepts_polish_inflection(self):
+        self.assertTrue(sku_is_mentioned("Sos Pomidorowy", "Użyj Sosu Pomidorowego Winiary."))
 
     def test_score_case_accepts_grounded_answer(self):
         response = """## Kurczak z warzywami Eval

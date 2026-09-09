@@ -36,6 +36,16 @@ def clean_sku_name(name: str) -> str:
     return name.split("(", 1)[0].strip()
 
 
+def sku_is_mentioned(name: str, response: str) -> bool:
+    normalized_name = normalized_text(clean_sku_name(name))
+    normalized_response = normalized_text(response)
+    if normalized_name in normalized_response:
+        return True
+
+    tokens = [token for token in re.findall(r"\w+", normalized_name) if len(token) >= 3]
+    return bool(tokens) and all(token[: min(6, len(token))] in normalized_response for token in tokens)
+
+
 def load_cases(path: Path) -> list[dict[str, Any]]:
     with path.open("r", encoding="utf-8") as file:
         cases = json.load(file)
@@ -158,7 +168,7 @@ def score_case(case: dict[str, Any], response: str, brand_name: str) -> dict[str
 
             for sku in recipe.get("used_skus", []):
                 sku_name = clean_sku_name(sku["name_pl"])
-                if normalized_text(sku_name) not in normalized_text(response):
+                if not sku_is_mentioned(sku_name, response):
                     errors.append(f"missing promoted SKU: {sku_name}")
                 if normalized_text(brand_name) not in normalized_text(response):
                     errors.append(f"missing brand name for promoted SKU: {brand_name}")
