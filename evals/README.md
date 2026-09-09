@@ -7,12 +7,8 @@ wording, credentials and network access.
 
 ## Scope
 
-The baseline currently evaluates intent extraction: whether the model chooses
-the correct arguments for the `get_recommendations` tool.
-
-The eval does not train the model and does not evaluate final answer quality
-yet. Final response guardrails should be added after the business contract is
-more stable.
+The baseline evaluates intent extraction and final-answer grounding. It does
+not train the model.
 
 ## Intent contract
 
@@ -90,3 +86,20 @@ wording. The four remaining failures are older cases: high-protein wording is
 sometimes mapped to meat, pescetarian wording is sometimes mapped to a fish
 requirement, and one light-meal request missed `low_kcal`. These labels remain
 unchanged so the report stays an honest baseline.
+
+## Final-answer evaluation
+
+`final_answer_cases.json` contains controlled payloads returned by
+`get_recommendations`. `run_final_answer_eval.py` supplies a payload to the
+second LLM call and checks that the final response preserves recipe titles,
+time, kcal, B, T and W per serving, and promoted SKUs. It also checks selected
+unsupported claims and the no-results path.
+
+```powershell
+venv\Scripts\python.exe evals\run_final_answer_eval.py --dry-run
+venv\Scripts\python.exe evals\run_final_answer_eval.py
+```
+
+The detailed report is written locally to `evals/final_answer_eval_report.json`
+and is ignored by Git. Polish readability still requires a short human review;
+the script reports only a basic heuristic for that criterion.

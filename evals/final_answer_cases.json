@@ -1,0 +1,45 @@
+[
+  {
+    "id": "final_001",
+    "user_message": "Poproszę o lekką kolację z dużą ilością białka.",
+    "tool_result": {
+      "query": {"diet": "none", "protein_preference": "none", "restrictions": [], "nutrition_goal": "high_protein", "category": "kolacja", "time_max": null, "top_n": 2},
+      "recommendations": [
+        {"rank": 1, "recipe_id": "EVAL_R001", "title_pl": "Kurczak z warzywami Eval", "category": "kolacja", "dish_type": "danie główne", "time_min": 25, "servings": 2, "nutrition_total": {"kcal": 642, "protein": 70, "fat": 18, "carbs": 48}, "nutrition_per_serving": {"kcal": 321, "protein": 35, "fat": 9, "carbs": 24}, "ingredients": [], "steps_pl": ["Usmaż składniki."], "used_skus": [{"client_sku_id": "EVAL_SKU_001", "name_pl": "Przyprawa Ziołowa (saszetka)"}]},
+        {"rank": 2, "recipe_id": "EVAL_R002", "title_pl": "Tofu z kaszą Eval", "category": "kolacja", "dish_type": "danie główne", "time_min": 30, "servings": 2, "nutrition_total": {"kcal": 588, "protein": 56, "fat": 20, "carbs": 66}, "nutrition_per_serving": {"kcal": 294, "protein": 28, "fat": 10, "carbs": 33}, "ingredients": [], "steps_pl": ["Ugotuj kaszę."], "used_skus": []}
+      ]
+    },
+    "expected": {"forbidden_terms": ["Sos Pomidorowy"]}
+  },
+  {
+    "id": "final_002",
+    "user_message": "Znajdź wegański lunch bez produktów marki.",
+    "tool_result": {
+      "query": {"diet": "vegan", "protein_preference": "none", "restrictions": [], "nutrition_goal": "standard", "category": "lunch", "time_max": 20, "top_n": 1},
+      "recommendations": [
+        {"rank": 1, "recipe_id": "EVAL_R003", "title_pl": "Sałatka z ciecierzycą Eval", "category": "lunch", "dish_type": "sałatka", "time_min": 20, "servings": 1, "nutrition_total": {"kcal": 410, "protein": 16, "fat": 14, "carbs": 55}, "nutrition_per_serving": {"kcal": 410, "protein": 16, "fat": 14, "carbs": 55}, "ingredients": [], "steps_pl": ["Połącz składniki."], "used_skus": []}
+      ]
+    },
+    "expected": {"forbidden_terms": ["Winiary", "Przyprawa Ziołowa"]}
+  },
+  {
+    "id": "final_003",
+    "user_message": "Co mogę przygotować na bezglutenowy obiad?",
+    "tool_result": {
+      "query": {"diet": "none", "protein_preference": "none", "restrictions": ["gluten_free"], "nutrition_goal": "standard", "category": "obiad", "time_max": null, "top_n": 1},
+      "recommendations": [
+        {"rank": 1, "recipe_id": "EVAL_R004", "title_pl": "Ryż z warzywami Eval", "category": "obiad", "dish_type": "danie główne", "time_min": 35, "servings": 2, "nutrition_total": {"kcal": 760, "protein": 24, "fat": 22, "carbs": 116}, "nutrition_per_serving": {"kcal": 380, "protein": 12, "fat": 11, "carbs": 58}, "ingredients": [], "steps_pl": ["Ugotuj ryż."], "used_skus": [{"client_sku_id": "EVAL_SKU_002", "name_pl": "Sos Pomidorowy (słoik)"}]}
+      ]
+    },
+    "expected": {"forbidden_terms": ["certyfikowany", "dla celiakii", "brak zanieczyszczeń"]}
+  },
+  {
+    "id": "final_004",
+    "user_message": "Poproszę o keto deser w 10 minut.",
+    "tool_result": {
+      "query": {"diet": "none", "protein_preference": "none", "restrictions": [], "nutrition_goal": "keto", "category": "deser", "time_max": 10, "top_n": 3},
+      "recommendations": []
+    },
+    "expected": {"expect_no_results": true, "forbidden_terms": ["Kurczak z warzywami Eval", "Sałatka z ciecierzycą Eval", "Ryż z warzywami Eval"]}
+  }
+]
