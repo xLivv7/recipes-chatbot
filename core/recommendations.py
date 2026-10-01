@@ -30,6 +30,10 @@ def concept_allows_restrictions(
         if policy is None or int(policy.get("is_gluten_free") or 0) != 1:
             return False
 
+    if "lactose_free" in restrictions:
+        if policy is None or policy.get("is_lactose_free") != 1:
+            return False
+
     return True
 
 
