@@ -1,7 +1,4 @@
-from core.recommendation_preferences import DIETS, PROTEIN_PREFERENCES
-
-# Expose lactose_free only after the separate LLM integration/evaluation stage.
-LLM_SUPPORTED_RESTRICTIONS = ("gluten_free",)
+from core.recommendation_preferences import DIETS, PROTEIN_PREFERENCES, SUPPORTED_RESTRICTIONS
 
 RECIPE_TOOLS = [
     {
@@ -24,10 +21,10 @@ RECIPE_TOOLS = [
                     },
                     "restrictions": {
                         "type": "array",
-                        "items": {"type": "string", "enum": list(LLM_SUPPORTED_RESTRICTIONS)},
-                        "maxItems": len(LLM_SUPPORTED_RESTRICTIONS),
+                        "items": {"type": "string", "enum": list(SUPPORTED_RESTRICTIONS)},
+                        "maxItems": len(SUPPORTED_RESTRICTIONS),
                         "uniqueItems": True,
-                        "description": "Lista dodatkowych ograniczeń żywieniowych. Dodaj 'gluten_free' tylko gdy użytkownik jawnie prosi o danie bez glutenu lub bezglutenowe. Nie dodawaj go dla próśb o danie bez mięsa, bez laktozy, lekkie ani keto. W pozostałych przypadkach użyj pustej listy []."
+                        "description": "Lista dodatkowych ograniczeń żywieniowych. Dodaj 'gluten_free' dla jawnej prośby bez glutenu lub nietolerancji glutenu. Dodaj 'lactose_free' dla bez laktozy, bezlaktozowe lub jawnej nietolerancji laktozy. Oba ograniczenia mogą wystąpić razem i są niezależne od diety, źródła białka oraz celu. Nie dodawaj ograniczenia zanegowanego, np. 'nie musi być bez laktozy'. Vegan nie dodaje automatycznie lactose_free. Bez mleka, bez nabiału i alergia na mleko nie oznaczają lactose_free ani vegan; wymagają doprecyzowania poza narzędziem. W pozostałych przypadkach użyj []."
                     },
                     "nutrition_goal": {
                         "type": "string",

@@ -15,6 +15,7 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from core.llm_tools import RECIPE_TOOLS
+from main import build_system_prompt
 
 
 DEFAULT_CASES_PATH = Path(__file__).with_name("intent_cases.json")
@@ -31,19 +32,7 @@ FIELDS = (
 
 
 def build_eval_system_prompt(brand_name: str) -> str:
-    return (
-        "Jesteś kulinarnym asystentem. Twoim zadaniem jest pomaganie użytkownikom w znalezieniu "
-        "idealnego posiłku. Zawsze używaj narzędzia 'get_recommendations', aby wyszukać przepisy w bazie. "
-        "Gdy otrzymasz wyniki z narzędzia, przedstaw je w czytelny, apetyczny sposób w Markdown.\n\n"
-        "ZASADY FORMATOWANIA:\n"
-        "1. Zawsze podawaj czas przygotowania, kalorie i makro na porcję (kcal | B | T | W).\n"
-        "2. Nie zmyślaj przepisów, składników ani wartości odżywczych spoza dostarczonych wyników.\n"
-        "3. ZABRONIONE jest generowanie jakichkolwiek linków (URL) w odpowiedzi.\n"
-        "4. Jeśli w wynikach w polu 'used_skus' znajdują się produkty, dodaj pod przepisem naturalną poradę. "
-        f"WAŻNE: Pracujesz dla marki {brand_name}. Zawsze płynnie dodaj słowo '{brand_name}' "
-        "do nazwy promowanego produktu. Zignoruj i usuń techniczne dopiski z nazwy w nawiasach, "
-        "takie jak '(butelka)' czy '(słoik)'."
-    )
+    return build_system_prompt(brand_name)
 
 
 def canonicalize_args(args: dict[str, Any]) -> dict[str, Any]:
