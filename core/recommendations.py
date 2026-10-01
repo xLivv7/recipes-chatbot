@@ -48,6 +48,10 @@ def sku_allows_restrictions(
         if sku is None or int(sku.get("is_gluten_free") or 0) != 1:
             return False
 
+    if "lactose_free" in restrictions:
+        if sku is None or sku.get("is_lactose_free") != 1:
+            return False
+
     return True
 
 
@@ -146,6 +150,10 @@ def orchestrate_recipe(
     if recipe is None:
         raise ValueError(f"Recipe not found: {recipe_id}")
 
+    if not all(concept_allows_restrictions(item["concept_id"], normalized_restrictions, catalog)
+               for item in recipe["ingredients"]):
+        raise ValueError(f"Recipe {recipe_id} does not satisfy active restrictions.")
+
     total = {"kcal": 0.0, "protein": 0.0, "fat": 0.0, "carbs": 0.0}
     brandified_ingredients = []
     used_skus = []
@@ -195,6 +203,7 @@ def orchestrate_recipe(
     return {
         "recipe_id": recipe["recipe_id"],
         "title_pl": recipe["title_pl"],
+        "category": recipe["category"],
         "time_min": recipe["time_min"],
         "servings": recipe["servings"],
         "brandified_ingredients": brandified_ingredients,

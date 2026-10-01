@@ -2,7 +2,8 @@
 
 Status: decyzja projektowa do implementacji. Data audytu: 2026-10-01.
 Aktualizacja: dodano nullable kolumny i import polityk; filtrowanie oraz
-obsluga parametru lactose_free pozostaja do wdrozenia. Fragmenty audytu
+obsluga parametru lactose_free sa wdrozone w backendzie. Warstwa LLM
+pozostaje do osobnego wdrozenia i ewaluacji. Fragmenty audytu
 ponizej opisuja stan z dnia poprzedzajacego import.
 Obecny backend obsluguje tylko gluten_free. Ten dokument nie aktywuje
 nowego ograniczenia ani nie nadaje flag rekordom.
@@ -145,6 +146,21 @@ duplikaty, nieznane/brakujace ID i wartosci inne niz puste/0/1 sa bledami.
 Nie tworzy rekordow i nie zmienia innych flag. Powtorzenie jest idempotentne.
 Pelny apply_curation() rowniez obejmuje te polityki przy odbudowie bazy.
 Nie aktywowano filtrowania, normalizacji parametrow ani deklaracji LLM.
+
+### Filtrowanie backendu 2026-10-01
+
+Katalog odczytuje tri-state obu flag. Backend przyjmuje lactose_free i
+kombinacje z gluten_free; kazdy koncept i wybrane SKU musza miec jawne 1
+dla wszystkich aktywnych restrictions. SKU sa wybierane w istniejacej
+kolejnosci regul; odrzucone SKU nie trafiaja do used_skus. Brak zgodnego
+SKU pozostawia zgodny koncept generyczny z jego makro. Bezposrednie
+orchestrate_recipe odrzuca przepis niezgodny z restrictions, aby nie
+ominac filtra ani nie ratowac konceptu przez SKU. Brak wynikow pozostaje
+pusta lista. Brak ograniczen zachowuje dotychczasowy wybor.
+Walidatory dopuszczaja NULL i ostrzegaja o niezweryfikowanych pozycjach
+uzywanych w przepisach; reguly lactose_free wymagaja jawnie zgodnego SKU.
+Lista ograniczen tool calla LLM jest nadal tylko gluten_free. Oddzielono
+ja od kontraktu backendu, aby nie aktywowac LLM przed kolejnym etapem.
 
 ### Aktualizacja przegladu SKU 2026-10-01
 

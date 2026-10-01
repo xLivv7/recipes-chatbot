@@ -2,7 +2,7 @@ from types import SimpleNamespace
 import unittest
 from unittest.mock import MagicMock, patch
 
-from core.database import ClientSku, DietPolicy, Recipe
+from core.database import ClientSku, DietPolicy, Recipe, SkuSelectionRule
 from core.recommendation_catalog import load_recipe_catalog
 from core.validation.context import ValidationContext
 from core.validation.models import Severity
@@ -37,6 +37,15 @@ class LactoseCatalogValidationTests(unittest.TestCase):
     def test_confirmed_states_have_no_lactose_issues(self):
         for status in (0, 1):
             self.assertEqual(self.lactose_issues(status), [])
+
+    def test_lactose_rule_requires_explicitly_allowed_sku(self):
+        for status in (None, 0, 1):
+            ctx = self.context(status)
+            ctx.sku_selection_rules.append(SkuSelectionRule(
+                id=1, concept_id="C", rule_order=1, condition_type="restriction",
+                condition_value="lactose_free", preferred_sku_id="SKU"))
+            issues = validate_branding(ctx)
+            self.assertEqual(any("Lactose-free rule" in i.message for i in issues), status != 1)
 
     def test_unused_unknown_records_do_not_raise_lactose_warnings(self):
         ctx = self.context(None)

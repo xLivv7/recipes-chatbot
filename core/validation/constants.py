@@ -20,7 +20,7 @@ PROTEIN_PREFERENCES = {
     "fish",
 }
 
-SUPPORTED_RESTRICTIONS = {"gluten_free"}
+SUPPORTED_RESTRICTIONS = {"gluten_free", "lactose_free"}
 
 NUTRITION_GOALS = {
     "standard",

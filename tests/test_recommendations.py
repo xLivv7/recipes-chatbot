@@ -175,7 +175,7 @@ class RecommendationTests(unittest.TestCase):
 
         self.assertEqual(set(properties["diet"]["enum"]), set(DIETS))
         self.assertEqual(set(properties["protein_preference"]["enum"]), set(PROTEIN_PREFERENCES))
-        self.assertEqual(list(SUPPORTED_RESTRICTIONS), ["gluten_free"])
+        self.assertEqual(list(SUPPORTED_RESTRICTIONS), ["gluten_free", "lactose_free"])
         self.assertEqual(properties["restrictions"]["items"]["enum"], ["gluten_free"])
         self.assertEqual(properties["restrictions"]["maxItems"], 1)
 

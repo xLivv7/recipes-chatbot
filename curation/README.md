@@ -21,7 +21,7 @@ Parmigiano Reggiano DOP and C109 means Grana Padano DOP. Ghee (C104)
 remains pending: tolerance or a limit of 0.1 g/100 g is not proof of
 compliance with 0.01 g/100 g. SKU still require independent verification.
 `apply_data_curation.py --lactose-only` imports both lactose policies.
-The runtime does not yet support lactose_free filtering.
+The backend supports lactose_free filtering; the LLM tool does not expose it yet.
 See `docs/lactose_free_contract.md`.
 
 ## Lactose SKU classification
@@ -33,7 +33,7 @@ review date and a manual action for unknowns. See
 Allowed means composition-based MVP compatibility, not measured lactose
 content or manufacturer lactose-free certification. Milk trace warnings and
 unmatched package variants remain unknown. Nullable database columns and
-policy import are enabled; runtime filtering is not. Product label changes
+policy import and backend filtering are enabled. Product label changes
 require renewed review.
 
 The importer rejects duplicate IDs, invalid states and mismatches between

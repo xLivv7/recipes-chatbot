@@ -1,4 +1,7 @@
-from core.recommendation_preferences import DIETS, PROTEIN_PREFERENCES, SUPPORTED_RESTRICTIONS
+from core.recommendation_preferences import DIETS, PROTEIN_PREFERENCES
+
+# Expose lactose_free only after the separate LLM integration/evaluation stage.
+LLM_SUPPORTED_RESTRICTIONS = ("gluten_free",)
 
 RECIPE_TOOLS = [
     {
@@ -21,8 +24,8 @@ RECIPE_TOOLS = [
                     },
                     "restrictions": {
                         "type": "array",
-                        "items": {"type": "string", "enum": list(SUPPORTED_RESTRICTIONS)},
-                        "maxItems": len(SUPPORTED_RESTRICTIONS),
+                        "items": {"type": "string", "enum": list(LLM_SUPPORTED_RESTRICTIONS)},
+                        "maxItems": len(LLM_SUPPORTED_RESTRICTIONS),
                         "uniqueItems": True,
                         "description": "Lista dodatkowych ograniczeń żywieniowych. Dodaj 'gluten_free' tylko gdy użytkownik jawnie prosi o danie bez glutenu lub bezglutenowe. Nie dodawaj go dla próśb o danie bez mięsa, bez laktozy, lekkie ani keto. W pozostałych przypadkach użyj pustej listy []."
                     },

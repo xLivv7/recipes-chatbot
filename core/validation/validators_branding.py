@@ -99,6 +99,12 @@ def validate_branding(ctx: ValidationContext) -> list[ValidationIssue]:
             )
 
     issues.extend(_validate_default_fallbacks(brandable_concepts_by_client, rules_by_client_concept))
+    for rule in ctx.sku_selection_rules:
+        if rule.condition_type == "restriction" and str(rule.condition_value).strip() == "lactose_free":
+            sku = sku_by_id.get(rule.preferred_sku_id)
+            if sku is not None and sku.is_lactose_free != 1:
+                issues.append(issue(Severity.ERROR, "sku_selection_rules", rule.id or "<empty>",
+                                    "preferred_sku_id", "Lactose-free rule must select an explicitly compatible SKU."))
     issues.extend(_validate_rule_uniqueness(ctx))
     issues.extend(_validate_rule_coverage(ctx, brandable_concepts_by_client, rules_by_client_concept))
     issues.extend(_report_unused_skus(ctx, used_rule_skus))
