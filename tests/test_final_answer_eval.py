@@ -1,10 +1,31 @@
 import unittest
+import argparse
 
 from evals.run_final_answer_eval import DEFAULT_CASES_PATH, load_cases, score_case, sku_is_mentioned
 from main import build_system_prompt
+from evals.run_final_answer_eval import summarize, positive_int
 
 
 class FinalAnswerEvalTests(unittest.TestCase):
+    def test_summary_distinguishes_persistent_and_intermittent_failures(self):
+        trials = [
+            {"id": case_id, "attempt": attempt, "passed": passed, "errors": [] if passed else ["failure"], "warnings": []}
+            for case_id, outcomes in (("stable", [True, True]), ("mixed", [True, False]), ("failed", [False, False]))
+            for attempt, passed in enumerate(outcomes, 1)
+        ]
+        result = summarize(trials)
+        self.assertEqual(result["passed"], 3)
+        self.assertEqual(result["stable_cases"], 1)
+        self.assertEqual(result["case_results"]["mixed"]["failure_type"], "intermittent")
+        self.assertEqual(result["case_results"]["failed"]["failure_type"], "persistent")
+        self.assertEqual(result["attempt_results"]["1"]["passed"], 2)
+
+    def test_repeat_count_must_be_positive(self):
+        for value in ("0", "-1"):
+            with self.assertRaises(argparse.ArgumentTypeError):
+                positive_int(value)
+        self.assertEqual(positive_int("3"), 3)
+
     @classmethod
     def setUpClass(cls):
         cls.cases = {case["id"]: case for case in load_cases(DEFAULT_CASES_PATH)}
@@ -26,6 +47,8 @@ class FinalAnswerEvalTests(unittest.TestCase):
 
     def test_sku_match_accepts_polish_inflection(self):
         self.assertTrue(sku_is_mentioned("Sos Pomidorowy", "Użyj Sosu Pomidorowego Winiary."))
+        self.assertTrue(sku_is_mentioned("Majonez Lekki", "Użyj Majonezu Lekkiego Winiary."))
+        self.assertTrue(sku_is_mentioned("Sos Cytrynowy", "Użyj Sosu Cytrynowego Winiary."))
         for adjective in ("Ziołowa", "Śniadaniowa", "Grillowa"):
             with self.subTest(adjective=adjective):
                 self.assertTrue(sku_is_mentioned(

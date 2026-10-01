@@ -44,10 +44,12 @@ def sku_is_mentioned(name: str, response: str) -> bool:
 
     tokens = re.findall(r"\w+", normalized_name)
     suffixes = {"sos": "(?:u|em|ie)?", "przyprawa": "(?:a|ę|y|ie|ą)",
-                "pomidorowy": "(?:y|ego|ym)", "ziołowy": "(?:y|ej|ą|ego|ym)"}
+                "pomidorowy": "(?:y|ego|ym)", "ziołowy": "(?:y|ej|ą|ego|ym)",
+                "majonez": "(?:u|em|ie)?", "lekki": "(?:i|iego|im)",
+                "cytrynowy": "(?:y|ego|ym)"}
     patterns = []
     for token in tokens:
-        stem = token[:-1] if token in ("przyprawa", "pomidorowy", "ziołowy") else token
+        stem = token[:-1] if token in ("przyprawa", "pomidorowy", "ziołowy", "lekki", "cytrynowy") else token
         if token.endswith("owa"):
             patterns.append(re.escape(token[:-1]) + "(?:a|ej|ą)")
         else:
@@ -254,12 +256,34 @@ def summarize(results: list[dict[str, Any]]) -> dict[str, Any]:
     total = len(results)
     passed = sum(result["passed"] for result in results)
     warnings = sum(bool(result["warnings"]) for result in results)
+    by_case = {}
+    by_attempt = {}
+    for result in results:
+        by_case.setdefault(result["id"], []).append(result)
+        by_attempt.setdefault(result.get("attempt", 1), []).append(result)
+    case_results = {}
+    for case_id, trials in by_case.items():
+        successes = sum(trial["passed"] for trial in trials)
+        case_results[case_id] = {
+            "passed": successes, "total": len(trials),
+            "stable": successes == len(trials),
+            "failure_type": "none" if successes == len(trials) else
+                            "persistent" if successes == 0 else "intermittent",
+            "errors": sorted({error for trial in trials for error in trial["errors"]}),
+        }
     return {
         "total": total,
         "passed": passed,
         "failed": total - passed,
         "pass_rate": passed / total if total else 0,
         "cases_with_warnings": warnings,
+        "stable_cases": sum(case["stable"] for case in case_results.values()),
+        "case_count": len(case_results),
+        "case_results": case_results,
+        "attempt_results": {
+            str(attempt): {"passed": sum(trial["passed"] for trial in trials), "total": len(trials)}
+            for attempt, trials in by_attempt.items()
+        },
     }
 
 
@@ -270,18 +294,19 @@ def run_eval(args: argparse.Namespace) -> dict[str, Any]:
         cases = cases[: args.limit]
 
     if args.dry_run:
-        return {"dry_run": True, "summary": {"total": len(cases)}, "results": []}
+        return {"dry_run": True, "summary": {"total": len(cases), "planned_calls": len(cases) * args.repeats}, "results": []}
 
     client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
     results = []
-    for case in cases:
+    for attempt, case in ((attempt, case) for attempt in range(1, args.repeats + 1) for case in cases):
         try:
             response = generate_final_answer(client, args.model, case, args.brand_name)
             result = score_case(case, response, args.brand_name)
-            results.append({"id": case["id"], "user_message": case["user_message"], "response": response, **result})
+            results.append({"id": case["id"], "attempt": attempt, "user_message": case["user_message"], "response": response, **result})
         except Exception as exc:
             results.append({
                 "id": case["id"],
+                "attempt": attempt,
                 "user_message": case["user_message"],
                 "response": None,
                 "passed": False,
@@ -293,6 +318,7 @@ def run_eval(args: argparse.Namespace) -> dict[str, Any]:
         "dry_run": False,
         "model": args.model,
         "brand_name": args.brand_name,
+        "repeats": args.repeats,
         "summary": summarize(results),
         "results": results,
     }
@@ -301,7 +327,7 @@ def run_eval(args: argparse.Namespace) -> dict[str, Any]:
 def print_summary(report: dict[str, Any]) -> None:
     summary = report["summary"]
     if report["dry_run"]:
-        print(f"Dry run OK. Loaded {summary['total']} final-answer eval cases.")
+        print(f"Dry run OK. Loaded {summary['total']} cases; planned calls: {summary['planned_calls']}.")
         return
 
     print("LLM final-answer eval")
@@ -310,9 +336,19 @@ def print_summary(report: dict[str, Any]) -> None:
     print(f"Cases: {summary['total']}")
     print(f"Passed: {summary['passed']}/{summary['total']} ({summary['pass_rate']:.1%})")
     print(f"Cases with manual-review warnings: {summary['cases_with_warnings']}")
+    print(f"Stable cases: {summary['stable_cases']}/{summary['case_count']}")
+    for attempt, result in summary["attempt_results"].items():
+        print(f"Attempt {attempt}: {result['passed']}/{result['total']}")
     for result in report["results"]:
         if not result["passed"]:
-            print(f"  - {result['id']}: {'; '.join(result['errors'])}")
+            print(f"  - {result['id']} (attempt {result['attempt']}): {'; '.join(result['errors'])}")
+
+
+def positive_int(value: str) -> int:
+    number = int(value)
+    if number < 1:
+        raise argparse.ArgumentTypeError("Value must be positive.")
+    return number
 
 
 def parse_args() -> argparse.Namespace:
@@ -321,7 +357,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--output", type=Path, default=DEFAULT_REPORT_PATH)
     parser.add_argument("--model", default=os.environ.get("LLM_EVAL_MODEL", "gpt-4o-mini"))
     parser.add_argument("--brand-name", default="Winiary")
-    parser.add_argument("--limit", type=int)
+    parser.add_argument("--limit", type=positive_int)
+    parser.add_argument("--repeats", type=positive_int, default=1)
     parser.add_argument("--dry-run", action="store_true")
     return parser.parse_args()
 

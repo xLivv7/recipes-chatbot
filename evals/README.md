@@ -89,6 +89,20 @@ unchanged so the report stays an honest baseline.
 
 ## Final-answer evaluation
 
+For a stability measurement, run:
+
+```powershell
+venv\Scripts\python.exe evals\run_final_answer_eval.py --repeats 3
+```
+
+The default remains one attempt. Each result includes an `attempt` number.
+The summary reports success across all calls, per-attempt results and cases
+passing every attempt. Failures are classified as persistent (every attempt
+failed) or intermittent (some attempts failed). This classification includes
+API errors; inspect individual errors before attributing failures to the model.
+Any failed attempt makes the command exit with status 1. Dry run prints the
+planned call count; repeat and limit counts must be positive.
+
 The evaluator also rejects extra labelled nutrition values, unknown bullet
 items in ingredient sections, and unknown brand-first product mentions.
 SKU matching requires adjacent words with explicitly supported Polish
