@@ -47,8 +47,12 @@ def sku_is_mentioned(name: str, response: str) -> bool:
                 "pomidorowy": "(?:y|ego|ym)", "ziołowy": "(?:y|ej|ą|ego|ym)",
                 "majonez": "(?:u|em|ie)?", "lekki": "(?:i|iego|im)",
                 "cytrynowy": "(?:y|ego|ym)"}
+    noun_forms = {"warzywa": r"warzyw(?:a|ami|ach|om)?", "mleko": r"mlek(?:o|a|u|iem)"}
     patterns = []
     for token in tokens:
+        if token in noun_forms:
+            patterns.append(noun_forms[token])
+            continue
         stem = token[:-1] if token in ("przyprawa", "pomidorowy", "ziołowy", "lekki", "cytrynowy") else token
         if token.endswith("owa"):
             patterns.append(re.escape(token[:-1]) + "(?:a|ej|ą)")
@@ -155,7 +159,7 @@ def _check_recipe_details(recipe: dict[str, Any], response: str, errors: list[st
     plain_response = re.sub(r"[*_`]", "", response)
     expected_values = {
         "kcal": (nutrition["kcal"], r"kcal"),
-        "protein": (nutrition["protein"], r"(?:białko|\bB\b)"),
+        "protein": (nutrition["protein"], r"(?:białk[oa]|\bB\b)"),
         "fat": (nutrition["fat"], r"(?:tłuszcz|\bT\b)"),
         "carbs": (nutrition["carbs"], r"(?:węglowodan\w*|\bW\b)"),
     }

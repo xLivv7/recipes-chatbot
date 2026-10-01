@@ -2,8 +2,9 @@
 
 Status: decyzja projektowa do implementacji. Data audytu: 2026-10-01.
 Aktualizacja: dodano nullable kolumny i import polityk; filtrowanie oraz
-obsluga parametru lactose_free sa wdrozone w backendzie. Warstwa LLM
-pozostaje do osobnego wdrozenia i ewaluacji. Fragmenty audytu
+obsluga parametru lactose_free sa wdrozone w backendzie i toolu LLM.
+Prompt oraz zestawy eval rozszerzono; wyniki opisuje evals/README.md.
+Fragmenty audytu
 ponizej opisuja stan z dnia poprzedzajacego import.
 Obecny backend obsluguje tylko gluten_free. Ten dokument nie aktywuje
 nowego ograniczenia ani nie nadaje flag rekordom.

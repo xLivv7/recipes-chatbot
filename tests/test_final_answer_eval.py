@@ -31,8 +31,8 @@ class FinalAnswerEvalTests(unittest.TestCase):
         cls.cases = {case["id"]: case for case in load_cases(DEFAULT_CASES_PATH)}
 
     def test_case_file_contains_unique_controlled_cases(self):
-        self.assertEqual(len(self.cases), 12)
-        self.assertEqual(set(self.cases), {f"final_{index:03d}" for index in range(1, 13)})
+        self.assertEqual(len(self.cases), 16)
+        self.assertEqual(set(self.cases), {f"final_{index:03d}" for index in range(1, 17)})
 
     def test_prompt_omits_sections_missing_from_tool_payload(self):
         prompt = build_system_prompt("Winiary")

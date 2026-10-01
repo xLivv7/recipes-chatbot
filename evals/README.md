@@ -16,7 +16,7 @@ Each case expects the model to call `get_recommendations` with:
 
 - `diet`: `none`, `vegan`, `vegetarian`, `pescetarian`
 - `protein_preference`: `none`, `meat`, `fish`
-- `restrictions`: zero or more supported restrictions; currently `gluten_free`
+- `restrictions`: zero or more supported restrictions: `gluten_free`, `lactose_free`
 - `nutrition_goal`: `standard`, `low_kcal`, `high_protein`, `keto`
 - `category`: `śniadanie`, `lunch`, `obiad`, `kolacja`, `deser`, `przekąska`
 - `time_max`: integer minutes or `null`
@@ -132,3 +132,45 @@ venv\Scripts\python.exe evals\run_final_answer_eval.py
 The detailed report is written locally to `evals/final_answer_eval_report.json`
 and is ignored by Git. Polish readability still requires a short human review;
 the script reports only a basic heuristic for that criterion.
+
+## Lactose integration (2026-10-01)
+
+The intent dataset now has 64 cases (50 existing + 14 new cases). The tool
+exposes both restrictions; lactose-free is independent of vegan, protein
+preference and nutrition goal. Cases cover explicit intolerance, negation,
+both restrictions and unchanged defaults. Intent evaluation uses the same
+system prompt as the application, rather than a simplified duplicate.
+
+The final-answer dataset has 16 controlled cases (12 existing + 4 new).
+New cases cover requests to invent an unreturned SKU, medical guarantees,
+no-result recipe invention, and lactose-free milk versus dairy-free claims.
+These fixtures are synthetic, not newly added database recipes. Final-answer
+evaluation isolates rendering of supplied tool data, not the whole live
+chat workflow. Two manual live smoke checks also exercised unsupported
+milk-allergy/dairy-free requests with automatic tool selection.
+
+The grader accepts the explicitly tested Polish forms bialko/bialka (with
+Polish diacritics), warzywa/warzyw and mleko/mleka; it still rejects changed
+nutrition numbers and unrelated products. Lexical checks cannot prove the
+absence of every medical claim or hallucination. Human review remains needed.
+temperature=0 is a measurement setting; the application uses 0.1/0.2, so
+repeated evals do not establish stability for all production settings.
+
+Methodological reference: [official OpenAI evaluation guidance](https://developers.openai.com/api/docs/guides/evaluation-best-practices).
+
+Final measurement on 2026-10-01 (`gpt-4o-mini`):
+- Intent exact match: 58/64 (90.6%); restrictions: 64/64; all 14 new cases pass.
+- Final answers: 45/48 (93.8%), stable cases 15/16, 15/16 per attempt.
+- Persistent failure: final_013 adds an unreturned vegetable broth SKU on
+  explicit user request, in all three attempts. This is a real grounding
+  failure, not a grader false positive. Do not treat the feature as proven
+  safe against user-driven product invention.
+- Intent failures: intent_003, 011, 015, 020, 032, 050. Protein source is
+  inferred from high-protein/pescetarian requests; one light request misses
+  low_kcal. Expected labels were not changed to match model errors.
+
+Before prompt repair, the final score was 34/48 with the old grader and
+41/48 when the same saved responses were rescored with the corrected grader.
+Use 41/48 -> 45/48 for a like-for-like comparison of this small tuned dataset,
+not 34/48 -> 45/48 as a model-only improvement. A holdout set is still needed.
+Both eval commands exit 1 because failures remain; API calls completed.

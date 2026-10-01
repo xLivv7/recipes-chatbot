@@ -248,5 +248,212 @@
     "id": "intent_050",
     "user_message": "pescetariańska kolacja bez glutenu",
     "expected": {"diet": "pescetarian", "protein_preference": "none", "restrictions": ["gluten_free"], "nutrition_goal": "standard", "category": "kolacja", "time_max": null, "top_n": 3}
+  },
+  {
+    "id": "intent_051",
+    "user_message": "kolacja bez laktozy",
+    "expected": {
+      "diet": "none",
+      "protein_preference": "none",
+      "restrictions": [
+        "lactose_free"
+      ],
+      "nutrition_goal": "standard",
+      "category": "kolacja",
+      "time_max": null,
+      "top_n": 3
+    }
+  },
+  {
+    "id": "intent_052",
+    "user_message": "bezlaktozowy lunch do 20 minut",
+    "expected": {
+      "diet": "none",
+      "protein_preference": "none",
+      "restrictions": [
+        "lactose_free"
+      ],
+      "nutrition_goal": "standard",
+      "category": "lunch",
+      "time_max": 20,
+      "top_n": 3
+    }
+  },
+  {
+    "id": "intent_053",
+    "user_message": "mam nietolerancję laktozy, co na śniadanie?",
+    "expected": {
+      "diet": "none",
+      "protein_preference": "none",
+      "restrictions": [
+        "lactose_free"
+      ],
+      "nutrition_goal": "standard",
+      "category": "śniadanie",
+      "time_max": null,
+      "top_n": 3
+    }
+  },
+  {
+    "id": "intent_054",
+    "user_message": "obiad bez glutenu i bez laktozy",
+    "expected": {
+      "diet": "none",
+      "protein_preference": "none",
+      "restrictions": [
+        "gluten_free",
+        "lactose_free"
+      ],
+      "nutrition_goal": "standard",
+      "category": "obiad",
+      "time_max": null,
+      "top_n": 3
+    }
+  },
+  {
+    "id": "intent_055",
+    "user_message": "wegańska kolacja bez laktozy",
+    "expected": {
+      "diet": "vegan",
+      "protein_preference": "none",
+      "restrictions": [
+        "lactose_free"
+      ],
+      "nutrition_goal": "standard",
+      "category": "kolacja",
+      "time_max": null,
+      "top_n": 3
+    }
+  },
+  {
+    "id": "intent_056",
+    "user_message": "lekki lunch bez laktozy",
+    "expected": {
+      "diet": "none",
+      "protein_preference": "none",
+      "restrictions": [
+        "lactose_free"
+      ],
+      "nutrition_goal": "low_kcal",
+      "category": "lunch",
+      "time_max": null,
+      "top_n": 3
+    }
+  },
+  {
+    "id": "intent_057",
+    "user_message": "wysokobiałkowy obiad bez laktozy",
+    "expected": {
+      "diet": "none",
+      "protein_preference": "none",
+      "restrictions": [
+        "lactose_free"
+      ],
+      "nutrition_goal": "high_protein",
+      "category": "obiad",
+      "time_max": null,
+      "top_n": 3
+    }
+  },
+  {
+    "id": "intent_058",
+    "user_message": "keto kolacja bez laktozy",
+    "expected": {
+      "diet": "none",
+      "protein_preference": "none",
+      "restrictions": [
+        "lactose_free"
+      ],
+      "nutrition_goal": "keto",
+      "category": "kolacja",
+      "time_max": null,
+      "top_n": 3
+    }
+  },
+  {
+    "id": "intent_059",
+    "user_message": "dwa desery bez laktozy do 15 minut",
+    "expected": {
+      "diet": "none",
+      "protein_preference": "none",
+      "restrictions": [
+        "lactose_free"
+      ],
+      "nutrition_goal": "standard",
+      "category": "deser",
+      "time_max": 15,
+      "top_n": 2
+    }
+  },
+  {
+    "id": "intent_060",
+    "user_message": "lunch z rybą bez laktozy",
+    "expected": {
+      "diet": "none",
+      "protein_preference": "fish",
+      "restrictions": [
+        "lactose_free"
+      ],
+      "nutrition_goal": "standard",
+      "category": "lunch",
+      "time_max": null,
+      "top_n": 3
+    }
+  },
+  {
+    "id": "intent_061",
+    "user_message": "kolacja, nie musi być bez laktozy",
+    "expected": {
+      "diet": "none",
+      "protein_preference": "none",
+      "restrictions": [],
+      "nutrition_goal": "standard",
+      "category": "kolacja",
+      "time_max": null,
+      "top_n": 3
+    }
+  },
+  {
+    "id": "intent_062",
+    "user_message": "wegańskie śniadanie",
+    "expected": {
+      "diet": "vegan",
+      "protein_preference": "none",
+      "restrictions": [],
+      "nutrition_goal": "standard",
+      "category": "śniadanie",
+      "time_max": null,
+      "top_n": 3
+    }
+  },
+  {
+    "id": "intent_063",
+    "user_message": "bezglutenowy obiad, laktoza jest dozwolona",
+    "expected": {
+      "diet": "none",
+      "protein_preference": "none",
+      "restrictions": [
+        "gluten_free"
+      ],
+      "nutrition_goal": "standard",
+      "category": "obiad",
+      "time_max": null,
+      "top_n": 3
+    }
+  },
+  {
+    "id": "intent_064",
+    "user_message": "wegetariańska przekąska bez laktozy",
+    "expected": {
+      "diet": "vegetarian",
+      "protein_preference": "none",
+      "restrictions": [
+        "lactose_free"
+      ],
+      "nutrition_goal": "standard",
+      "category": "przekąska",
+      "time_max": null,
+      "top_n": 3
+    }
   }
 ]
