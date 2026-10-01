@@ -2,8 +2,8 @@
 
 ## Lactose concept classification (not imported yet)
 
-`lactose_concept_policy.csv` explicitly covers C001-C376: 214 allowed,
-31 excluded and 131 pending as of 2026-10-01. Empty status means unknown,
+`lactose_concept_policy.csv` explicitly covers C001-C376: 327 allowed,
+48 excluded and 1 pending as of 2026-10-01. Empty status means unknown,
 never allowed. `lactose_manual_review.md` lists pending concepts for human
 review. Update the CSV as the source of truth and keep that review list in sync.
 
@@ -15,8 +15,12 @@ evidence and catalog definitions support the decisions; the source column
 does not imply that NIDDK individually certified every item. `reviewed_at`
 records the concept review date, not an inspected product-label date.
 
-Composite products, low-lactose cheeses, ghee and ambiguous processed foods
-remain pending. The current importer does not read this file and the runtime
+The owner's manual classification defines the catalog recipes of composite
+products; it does not certify arbitrary retail variants. C108 means only
+Parmigiano Reggiano DOP and C109 means Grana Padano DOP. Ghee (C104)
+remains pending: tolerance or a limit of 0.1 g/100 g is not proof of
+compliance with 0.01 g/100 g. SKU still require independent verification.
+The current importer does not read this file and the runtime
 does not yet support lactose_free. See `docs/lactose_free_contract.md`.
 
 ## Gluten-free policy

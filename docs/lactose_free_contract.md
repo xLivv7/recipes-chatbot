@@ -62,6 +62,21 @@ w MVP wzmianka mleka bez wyjasnienia pozostawia status niezweryfikowany.
 
 ## Filtrowanie i SKU
 
+### Przeglad reczny 2026-10-01
+
+Przyjeto definicje receptur konceptow z klasyfikacji wlascicielki katalogu.
+To nie gwarancja skladu dowolnego produktu sklepowego. C108 oznacza tylko
+Parmigiano Reggiano DOP, C109 Grana Padano DOP; zrodla zapisano w CSV.
+C104 pozostaje NULL. Stan klasyfikacji: 327 dopuszczonych, 48 wykluczonych,
+1 niezweryfikowany. Nie zaimportowano tych decyzji do bazy.
+
+GIS zaleca 0.01% jako granice oznaczalnosci metody referencyjnej; nie jest
+to jednolity ustawowy prog UE. Tolerancja 12 g opisana przez EFSA nie
+kwalifikuje produktu jako bezlaktozowego. Nie deklarujemy pomiarow, ktorych
+nie posiadamy, ani nie utozsamiamy galaktozy z laktoza.
+https://www.gov.pl/web/gis/znakowanie-srodkow-spozywczych-komunikatem-bez-laktozy
+https://www.efsa.europa.eu/en/efsajournal/pub/1777
+
 Na poczatek zachowac aktualny model: najpierw dopuszczenie konceptow,
 potem wybor SKU. Kazdy koncept musi miec 1. Kazdy wybrany SKU tez musi miec
 1 dla wszystkich aktywnych restrictions. Zgodnosc konceptu nie zatwierdza SKU.
