@@ -42,8 +42,17 @@ def sku_is_mentioned(name: str, response: str) -> bool:
     if normalized_name in normalized_response:
         return True
 
-    tokens = [token for token in re.findall(r"\w+", normalized_name) if len(token) >= 3]
-    return bool(tokens) and all(token[: min(6, len(token))] in normalized_response for token in tokens)
+    tokens = re.findall(r"\w+", normalized_name)
+    suffixes = {"sos": "(?:u|em|ie)?", "przyprawa": "(?:a|ę|y|ie|ą)",
+                "pomidorowy": "(?:y|ego|ym)", "ziołowy": "(?:y|ej|ą|ego|ym)"}
+    patterns = []
+    for token in tokens:
+        stem = token[:-1] if token in ("przyprawa", "pomidorowy", "ziołowy") else token
+        if token.endswith("owa"):
+            patterns.append(re.escape(token[:-1]) + "(?:a|ej|ą)")
+        else:
+            patterns.append(re.escape(stem) + suffixes.get(token, ""))
+    return bool(patterns) and bool(re.search(r"\b" + r"\s+".join(patterns) + r"\b", normalized_response))
 
 
 def recipe_section(response: str, title: str, all_titles: list[str]) -> str:
@@ -156,6 +165,15 @@ def _check_recipe_details(recipe: dict[str, Any], response: str, errors: list[st
         )
         if not any(re.search(pattern, plain_response, re.IGNORECASE) for pattern in patterns):
             errors.append(f"missing or changed {label} per serving for {title}: {value}")
+        numeric = r"(?<![\d.,])(\d+(?:[.,]\d+)?)(?![\d.,])"
+        claim_patterns = [rf"{numeric}\s*kcal\b"] if label == "kcal" else [
+            rf"{label_pattern}\s*[:=]\s*{numeric}\s*g\b",
+            rf"{numeric}\s*g\s*{label_pattern}\b",
+        ]
+        claims = [float(match.replace(",", ".")) for pattern in claim_patterns
+                  for match in re.findall(pattern, plain_response, re.IGNORECASE)]
+        if any(claim != value for claim in claims):
+            errors.append(f"unexpected {label} value for {title}")
 
     if not recipe.get("ingredients") and re.search(
         r"(?im)^\s*#{0,4}\s*\*{0,2}składniki\s*:?[\*]{0,2}\s*$",
@@ -205,6 +223,19 @@ def score_case(case: dict[str, Any], response: str, brand_name: str) -> dict[str
         for recipe in recommendations:
             section = recipe_section(response, recipe["title_pl"], recipe_titles)
             _check_recipe_details(recipe, section, errors)
+            allowed_names = [item["name_pl"] for item in recipe.get("ingredients", [])]
+            allowed_names += [item["name_pl"] for item in recipe.get("used_skus", [])]
+            ingredient_block = re.search(
+                r"(?ims)^\s*(?:#{1,6}\s*)?\*{0,2}składniki\s*:?\*{0,2}\s*\n(.*?)(?=\n\s*(?:#{1,6}\s|\*\*|---)|\Z)", section)
+            if ingredient_block:
+                for item in re.findall(r"(?m)^\s*[-*]\s+(.+)$", ingredient_block.group(1)):
+                    item = re.sub(r"\b" + re.escape(brand_name) + r"\b", "", item, flags=re.IGNORECASE).strip()
+                    item = re.sub(r"\s*[-:(]?\s*\d+(?:[.,]\d+)?\s*g\)?\s*$", "", item).strip()
+                    if not any(sku_is_mentioned(name, item) for name in allowed_names):
+                        errors.append(f"unknown ingredient for {recipe['title_pl']}: {item}")
+            for product in re.findall(r"\b" + re.escape(brand_name) + r"\s+([^.!\n]+)", section, re.IGNORECASE):
+                if not any(sku_is_mentioned(sku["name_pl"], product) for sku in recipe.get("used_skus", [])):
+                    errors.append(f"unknown branded product for {recipe['title_pl']}: {product.strip()}")
 
             for sku in recipe.get("used_skus", []):
                 sku_name = clean_sku_name(sku["name_pl"])

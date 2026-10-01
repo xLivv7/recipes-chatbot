@@ -26,6 +26,51 @@ class FinalAnswerEvalTests(unittest.TestCase):
 
     def test_sku_match_accepts_polish_inflection(self):
         self.assertTrue(sku_is_mentioned("Sos Pomidorowy", "Użyj Sosu Pomidorowego Winiary."))
+        for adjective in ("Ziołowa", "Śniadaniowa", "Grillowa"):
+            with self.subTest(adjective=adjective):
+                self.assertTrue(sku_is_mentioned(
+                    "Przyprawa " + adjective, "Użyj Przyprawy " + adjective[:-1] + "ej Winiary."))
+
+    def test_sku_match_rejects_scattered_words_and_similar_product(self):
+        self.assertFalse(sku_is_mentioned("Sos Pomidorowy", "Sos czosnkowy. Pomidorowy smak."))
+        self.assertFalse(sku_is_mentioned("Sos Pomidorowy", "Sos Pomidorowy Pikantny".replace("Pomidorowy", "Pomidorowaty")))
+
+    def test_rejects_extra_ingredient_in_nonempty_payload(self):
+        response = """### Omlet warzywny Eval
+15 min. 260 kcal | B: 16 g | T: 17 g | W: 10 g.
+#### Składniki
+- Jajka Eval
+- Szpinak Eval
+- Bekon
+#### Przygotowanie
+Usmaż omlet.
+Winiary Przyprawa Śniadaniowa."""
+        result = score_case(self.cases["final_005"], response, "Winiary")
+        self.assertTrue(any("unknown ingredient" in error for error in result["errors"]))
+
+    def test_rejects_foreign_sku_even_when_expected_sku_is_present(self):
+        response = """### Ryż z warzywami Eval
+35 min. 380 kcal | B: 12 g | T: 11 g | W: 58 g.
+Winiary Sos Pomidorowy.
+Winiary Majonez Lekki."""
+        result = score_case(self.cases["final_003"], response, "Winiary")
+        self.assertTrue(any("unknown branded product" in error for error in result["errors"]))
+
+    def test_rejects_additional_wrong_calories(self):
+        response = """### Ryż z warzywami Eval
+35 min. 380 kcal | B: 12 g | T: 11 g | W: 58 g.
+Winiary Sos Pomidorowy. Kalorie: 1380 kcal."""
+        result = score_case(self.cases["final_003"], response, "Winiary")
+        self.assertIn("unexpected kcal value for Ryż z warzywami Eval", result["errors"])
+
+    def test_rejects_macros_swapped_between_recipes(self):
+        response = """### Kurczak z warzywami Eval
+25 min. 294 kcal | B: 28 g | T: 10 g | W: 33 g.
+Winiary Przyprawa Ziołowa.
+### Tofu z kaszą Eval
+30 min. 321 kcal | B: 35 g | T: 9 g | W: 24 g."""
+        result = score_case(self.cases["final_001"], response, "Winiary")
+        self.assertTrue(any("unexpected kcal" in error for error in result["errors"]))
 
     def test_score_case_rejects_sku_moved_to_another_recipe(self):
         response = """### 1. Łosoś z cukinią Eval

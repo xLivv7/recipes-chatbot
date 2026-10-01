@@ -89,6 +89,14 @@ unchanged so the report stays an honest baseline.
 
 ## Final-answer evaluation
 
+The evaluator also rejects extra labelled nutrition values, unknown bullet
+items in ingredient sections, and unknown brand-first product mentions.
+SKU matching requires adjacent words with explicitly supported Polish
+inflections. These checks are lexical: arbitrary paraphrases, claims in
+prose, and all possible grammatical forms still need human review. Nutritional
+numbers are checked as per-serving claims; total-nutrition presentations are
+outside the current response contract.
+
 `final_answer_cases.json` contains controlled payloads returned by
 `get_recommendations`. `run_final_answer_eval.py` supplies a payload to the
 second LLM call and checks that the final response preserves recipe titles,
