@@ -132,6 +132,17 @@ wdrozenie lactose_free nie powinno go maskowac ani poszerzac zakresu prac.
 
 ## Kolejnosc wdrozenia i kryteria akceptacji
 
+### Aktualizacja przegladu SKU 2026-10-01
+
+Przeglad publicznych skladow producenta zapisano w
+curation/winiary_sku_lactose_policy.csv: 8 dopuszczonych, 12 NULL, 0
+potwierdzonych wykluczen. Wczesniejszy audyt powyzej opisuje stan raw
+przed przegladem. Nie zmieniono raw ani bazy. Dopuszczenie wynika z
+pelnego skladu bez skladnikow mlecznych i dopasowania wariantu, nie
+pomiaru poziomu laktozy. Kolejka i ograniczenia dowodow sa opisane w
+curation/lactose_sku_manual_review.md. Deklaracje may_contain milk
+pozostaja NULL; nowsze opakowania nie zatwierdzaja starszych SKU.
+
 1. Jawne pliki klasyfikacji dla wszystkich ID; nieznane pozostaja NULL.
 2. Migracja nullable flag bez automatycznego dopuszczania; idempotentny import.
 3. Loader, filtr konceptow i SKU, walidator, testy jednostkowe/integracyjne.

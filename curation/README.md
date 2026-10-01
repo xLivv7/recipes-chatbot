@@ -23,6 +23,17 @@ compliance with 0.01 g/100 g. SKU still require independent verification.
 The current importer does not read this file and the runtime
 does not yet support lactose_free. See `docs/lactose_free_contract.md`.
 
+## Lactose SKU classification (not imported yet)
+
+`winiary_sku_lactose_policy.csv` covers all 20 existing SKU: 8 allowed,
+0 confirmed exclusions and 12 pending. Decisions include evidence URLs,
+review date and a manual action for unknowns. See
+`lactose_sku_manual_review.md` for the outstanding evidence.
+Allowed means composition-based MVP compatibility, not measured lactose
+content or manufacturer lactose-free certification. Milk trace warnings and
+unmatched package variants remain unknown. No runtime or database import
+has been enabled. Product label changes require renewed review.
+
 ## Gluten-free policy
 
 `gluten_unsafe_concepts.csv` contains concepts that must not pass the
