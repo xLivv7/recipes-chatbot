@@ -5,12 +5,13 @@ apply_curation(), so each manual data decision can be replayed after a
 database rebuild.
 """
 
+import argparse
 import csv
 from pathlib import Path
 
 from sqlalchemy import inspect, text
 
-from core.database import Client, ClientSku, DietPolicy, SessionLocal, SkuSelectionRule, engine
+from core.database import Client, ClientSku, DietPolicy, Ingredient, SessionLocal, SkuSelectionRule, engine
 
 
 CLIENT_NAME = "Winiary"
@@ -20,6 +21,75 @@ CURATION_DIR = Path(__file__).resolve().parent / "curation"
 GLUTEN_UNSAFE_CONCEPTS_PATH = CURATION_DIR / "gluten_unsafe_concepts.csv"
 WINIARY_SKU_GLUTEN_POLICY_PATH = CURATION_DIR / "winiary_sku_gluten_policy.csv"
 GLUTEN_POLICY_MAX_CONCEPT_NUMBER = 376
+LACTOSE_CONCEPT_POLICY_PATH = CURATION_DIR / "lactose_concept_policy.csv"
+WINIARY_SKU_LACTOSE_POLICY_PATH = CURATION_DIR / "winiary_sku_lactose_policy.csv"
+
+
+def ensure_lactose_free_columns():
+    with engine.begin() as connection:
+        for table_name in ("diet_policies", "client_skus"):
+            connection.execute(text(
+                f"ALTER TABLE {table_name} ADD COLUMN IF NOT EXISTS is_lactose_free INTEGER"
+            ))
+
+
+def load_lactose_statuses(path, id_field):
+    statuses = {}
+    required = {id_field, "is_lactose_free"}
+    with path.open(encoding="utf-8", newline="") as source:
+        reader = csv.DictReader(source)
+        if not required.issubset(reader.fieldnames or []):
+            raise ValueError(f"Missing lactose policy columns in {path.name}")
+        for row in reader:
+            record_id = (row[id_field] or "").strip()
+            value = (row["is_lactose_free"] or "").strip()
+            if not record_id or record_id in statuses:
+                raise ValueError(f"Empty or duplicate lactose policy ID: {record_id!r}")
+            if value not in ("", "0", "1"):
+                raise ValueError(f"Invalid lactose policy value for {record_id}: {value!r}")
+            statuses[record_id] = None if value == "" else int(value)
+    if not statuses:
+        raise ValueError(f"Empty lactose policy: {path.name}")
+    return statuses
+
+
+def validate_lactose_policy_ids(statuses, database_ids, label):
+    missing = sorted(database_ids - statuses.keys())
+    unknown = sorted(statuses.keys() - database_ids)
+    if missing or unknown:
+        raise ValueError(f"Lactose {label} policy ID mismatch: missing={missing}, unknown={unknown}")
+
+
+def curate_lactose_free_policies(db, client_id):
+    concept_statuses = load_lactose_statuses(LACTOSE_CONCEPT_POLICY_PATH, "concept_id")
+    sku_statuses = load_lactose_statuses(WINIARY_SKU_LACTOSE_POLICY_PATH, "client_sku_id")
+    ingredient_ids = {row.id for row in db.query(Ingredient).all()}
+    policies = db.query(DietPolicy).all()
+    skus = db.query(ClientSku).filter(ClientSku.client_id == client_id).all()
+    validate_lactose_policy_ids(concept_statuses, ingredient_ids, "concept")
+    validate_lactose_policy_ids(concept_statuses, {row.ingredient_id for row in policies}, "diet")
+    validate_lactose_policy_ids(sku_statuses, {row.id for row in skus}, "SKU")
+
+    # Validate both files and their entire scope before assigning any values.
+    for policy in policies:
+        policy.is_lactose_free = concept_statuses[policy.ingredient_id]
+    for sku in skus:
+        sku.is_lactose_free = sku_statuses[sku.id]
+
+
+def apply_lactose_curation():
+    ensure_lactose_free_columns()
+    db = SessionLocal()
+    try:
+        client = get_required_client(db)
+        curate_lactose_free_policies(db, client.id)
+        db.commit()
+        print("Applied lactose-free concept and SKU policies (unknown values remain NULL).")
+    except Exception:
+        db.rollback()
+        raise
+    finally:
+        db.close()
 
 BROTH_RULES = [
     {
@@ -208,12 +278,14 @@ def move_default_broth_rule_after_diet_rules(db, client_id):
 
 def apply_curation():
     ensure_gluten_free_columns()
+    ensure_lactose_free_columns()
     db = SessionLocal()
     try:
         client = get_required_client(db)
         validate_required_sku(db, client.id)
         curate_gluten_free_concepts(db)
         curate_gluten_free_skus(db, client.id)
+        curate_lactose_free_policies(db, client.id)
         migrate_supported_preference_rule_types(db)
         db.flush()
 
@@ -224,7 +296,7 @@ def apply_curation():
         deduplicate_supported_preference_rules(db)
 
         db.commit()
-        print("Applied preference rules and gluten-free policy curation.")
+        print("Applied preference rules, gluten-free and lactose-free policy curation.")
     except Exception:
         db.rollback()
         raise
@@ -233,4 +305,10 @@ def apply_curation():
 
 
 if __name__ == "__main__":
-    apply_curation()
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--lactose-only", action="store_true", help="Import only lactose policies.")
+    args = parser.parse_args()
+    if args.lactose_only:
+        apply_lactose_curation()
+    else:
+        apply_curation()

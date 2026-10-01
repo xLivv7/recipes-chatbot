@@ -1,6 +1,9 @@
 # Kontrakt lactose_free i audyt danych
 
 Status: decyzja projektowa do implementacji. Data audytu: 2026-10-01.
+Aktualizacja: dodano nullable kolumny i import polityk; filtrowanie oraz
+obsluga parametru lactose_free pozostaja do wdrozenia. Fragmenty audytu
+ponizej opisuja stan z dnia poprzedzajacego import.
 Obecny backend obsluguje tylko gluten_free. Ten dokument nie aktywuje
 nowego ograniczenia ani nie nadaje flag rekordom.
 
@@ -131,6 +134,17 @@ a runtime liczy po gramach. To osobny problem kontraktu odzywczego;
 wdrozenie lactose_free nie powinno go maskowac ani poszerzac zakresu prac.
 
 ## Kolejnosc wdrozenia i kryteria akceptacji
+
+### Migracja i import 2026-10-01
+
+DietPolicy oraz ClientSku maja nullable Integer is_lactose_free bez default.
+apply_data_curation.py --lactose-only tworzy brakujace kolumny i importuje
+obie polityki w jednej transakcji danych. Migracja DDL jest osobna transakcja.
+Import wymaga dokladnego pokrycia ingredients, diet_policies i SKU Winiary;
+duplikaty, nieznane/brakujace ID i wartosci inne niz puste/0/1 sa bledami.
+Nie tworzy rekordow i nie zmienia innych flag. Powtorzenie jest idempotentne.
+Pelny apply_curation() rowniez obejmuje te polityki przy odbudowie bazy.
+Nie aktywowano filtrowania, normalizacji parametrow ani deklaracji LLM.
 
 ### Aktualizacja przegladu SKU 2026-10-01
 

@@ -1,6 +1,6 @@
 # Data curation
 
-## Lactose concept classification (not imported yet)
+## Lactose concept classification
 
 `lactose_concept_policy.csv` explicitly covers C001-C376: 327 allowed,
 48 excluded and 1 pending as of 2026-10-01. Empty status means unknown,
@@ -20,10 +20,11 @@ products; it does not certify arbitrary retail variants. C108 means only
 Parmigiano Reggiano DOP and C109 means Grana Padano DOP. Ghee (C104)
 remains pending: tolerance or a limit of 0.1 g/100 g is not proof of
 compliance with 0.01 g/100 g. SKU still require independent verification.
-The current importer does not read this file and the runtime
-does not yet support lactose_free. See `docs/lactose_free_contract.md`.
+`apply_data_curation.py --lactose-only` imports both lactose policies.
+The runtime does not yet support lactose_free filtering.
+See `docs/lactose_free_contract.md`.
 
-## Lactose SKU classification (not imported yet)
+## Lactose SKU classification
 
 `winiary_sku_lactose_policy.csv` covers all 20 existing SKU: 8 allowed,
 0 confirmed exclusions and 12 pending. Decisions include evidence URLs,
@@ -31,8 +32,16 @@ review date and a manual action for unknowns. See
 `lactose_sku_manual_review.md` for the outstanding evidence.
 Allowed means composition-based MVP compatibility, not measured lactose
 content or manufacturer lactose-free certification. Milk trace warnings and
-unmatched package variants remain unknown. No runtime or database import
-has been enabled. Product label changes require renewed review.
+unmatched package variants remain unknown. Nullable database columns and
+policy import are enabled; runtime filtering is not. Product label changes
+require renewed review.
+
+The importer rejects duplicate IDs, invalid states and mismatches between
+policy IDs and the database catalog before assigning any flags. Empty CSV
+states become NULL. Both policies are committed together; reruns overwrite
+only lactose flags with the explicit source decisions. Schema migration is
+idempotent and commits separately; on a failed import, new columns can remain
+present with NULL values. No new records or ingredient substitutions are made.
 
 ## Gluten-free policy
 

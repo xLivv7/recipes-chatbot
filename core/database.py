@@ -33,6 +33,7 @@ class DietPolicy(Base):
     is_fish = Column(Integer, default=0)
     is_keto_ok = Column(Integer, default=1)
     is_gluten_free = Column(Integer)
+    is_lactose_free = Column(Integer, nullable=True)
 
 class Client(Base):
     __tablename__ = 'clients'
@@ -50,6 +51,7 @@ class ClientSku(Base):
     fat_g_100 = Column(Float)
     carbs_g_100 = Column(Float)
     is_gluten_free = Column(Integer)
+    is_lactose_free = Column(Integer, nullable=True)
 
 class SkuSelectionRule(Base):
     __tablename__ = 'sku_selection_rules'
