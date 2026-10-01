@@ -11,7 +11,7 @@ from pathlib import Path
 
 from sqlalchemy import inspect, text
 
-from core.database import Client, ClientSku, DietPolicy, Ingredient, SessionLocal, SkuSelectionRule, engine
+from core.database import Client, ClientSku, DietPolicy, Ingredient, Recipe, SessionLocal, SkuSelectionRule, engine
 
 
 CLIENT_NAME = "Winiary"
@@ -21,6 +21,47 @@ CURATION_DIR = Path(__file__).resolve().parent / "curation"
 GLUTEN_UNSAFE_CONCEPTS_PATH = CURATION_DIR / "gluten_unsafe_concepts.csv"
 WINIARY_SKU_GLUTEN_POLICY_PATH = CURATION_DIR / "winiary_sku_gluten_policy.csv"
 GLUTEN_POLICY_MAX_CONCEPT_NUMBER = 376
+
+R120_STEP_CORRECTIONS = {
+    1: (
+        "Po upieczeniu buraków, gdy slightly ostygną, obierz je i pokrój w cienkie plastry.",
+        "Po upieczeniu buraków, gdy lekko ostygną, obierz je i pokrój w cienkie plastry.",
+    ),
+    4: (
+        "Podawaj od razu, dekorując świeżymi ziołami, jeśli masz pod ręką.",
+        "Podawaj od razu.",
+    ),
+}
+
+
+def curate_r120_steps(db):
+    recipe = db.get(Recipe, "R120")
+    if recipe is None:
+        raise ValueError("Recipe R120 is missing; cannot apply instruction corrections.")
+    steps = recipe.steps_pl
+    if not isinstance(steps, list) or len(steps) != 5:
+        raise ValueError("Recipe R120 instructions changed; manual review required.")
+    for index, (original, corrected) in R120_STEP_CORRECTIONS.items():
+        if steps[index] not in (original, corrected):
+            raise ValueError(f"Recipe R120 step {index + 1} changed; manual review required.")
+    updated = list(steps)
+    for index, (_, corrected) in R120_STEP_CORRECTIONS.items():
+        updated[index] = corrected
+    if updated != steps:
+        recipe.steps_pl = updated
+
+
+def apply_recipe_curation():
+    db = SessionLocal()
+    try:
+        curate_r120_steps(db)
+        db.commit()
+        print("Applied R120 instruction corrections; ingredients and nutrition unchanged.")
+    except Exception:
+        db.rollback()
+        raise
+    finally:
+        db.close()
 LACTOSE_CONCEPT_POLICY_PATH = CURATION_DIR / "lactose_concept_policy.csv"
 WINIARY_SKU_LACTOSE_POLICY_PATH = CURATION_DIR / "winiary_sku_lactose_policy.csv"
 
@@ -294,6 +335,7 @@ def apply_curation():
         move_default_broth_rule_after_diet_rules(db, client.id)
         db.flush()
         deduplicate_supported_preference_rules(db)
+        curate_r120_steps(db)
 
         db.commit()
         print("Applied preference rules, gluten-free and lactose-free policy curation.")
@@ -306,9 +348,13 @@ def apply_curation():
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--lactose-only", action="store_true", help="Import only lactose policies.")
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument("--lactose-only", action="store_true", help="Import only lactose policies.")
+    mode.add_argument("--recipes-only", action="store_true", help="Apply only recipe instruction corrections.")
     args = parser.parse_args()
     if args.lactose_only:
         apply_lactose_curation()
+    elif args.recipes_only:
+        apply_recipe_curation()
     else:
         apply_curation()
