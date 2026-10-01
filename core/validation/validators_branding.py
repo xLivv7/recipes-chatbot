@@ -15,6 +15,12 @@ def validate_branding(ctx: ValidationContext) -> list[ValidationIssue]:
     used_rule_skus: set[str] = set()
     brandable_concepts_by_client: dict[int, set[str]] = defaultdict(set)
     for sku in ctx.client_skus:
+        if sku.is_lactose_free not in (None, 0, 1):
+            issues.append(issue(Severity.ERROR, "client_skus", sku.id or "<empty>",
+                                "is_lactose_free", "SKU lactose-free flag must be 0, 1 or NULL."))
+        elif sku.is_lactose_free is None and sku.concept_id in ctx.used_recipe_concepts:
+            issues.append(issue(Severity.WARNING, "client_skus", sku.id or "<empty>",
+                                "is_lactose_free", "SKU for a recipe concept has unverified lactose-free status."))
         if sku.client_id is not None and sku.concept_id:
             brandable_concepts_by_client[sku.client_id].add(sku.concept_id)
         if sku.is_gluten_free not in (0, 1):

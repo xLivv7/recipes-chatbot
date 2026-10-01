@@ -42,6 +42,7 @@ def load_recipe_catalog() -> RecipeCatalog:
                 "is_fish": policy.is_fish,
                 "is_keto_ok": policy.is_keto_ok,
                 "is_gluten_free": policy.is_gluten_free,
+                "is_lactose_free": policy.is_lactose_free,
             }
             for policy in db.query(DietPolicy).all()
         }
@@ -69,6 +70,7 @@ def load_recipe_catalog() -> RecipeCatalog:
                 "fat_g_100": sku.fat_g_100,
                 "carbs_g_100": sku.carbs_g_100,
                 "is_gluten_free": sku.is_gluten_free,
+                "is_lactose_free": sku.is_lactose_free,
                 "concept_id": sku.concept_id,
             }
             sku_name[sku.id] = sku.name_pl

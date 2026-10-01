@@ -33,6 +33,10 @@ def validate_diet_policies(ctx: ValidationContext) -> list[ValidationIssue]:
                     )
                 )
 
+        if policy.is_lactose_free not in (None, 0, 1):
+            issues.append(issue(Severity.ERROR, "diet_policies", record_id,
+                                "is_lactose_free", "Lactose-free flag must be 0, 1 or NULL."))
+
         if policy.is_vegan_ok == 1 and policy.is_vegetarian_ok != 1:
             issues.append(
                 issue(
@@ -65,6 +69,10 @@ def validate_diet_policies(ctx: ValidationContext) -> list[ValidationIssue]:
             )
 
     for concept_id in sorted(ctx.used_recipe_concepts):
+        policy = policy_by_ingredient.get(concept_id)
+        if policy is not None and policy.is_lactose_free is None:
+            issues.append(issue(Severity.WARNING, "diet_policies", concept_id,
+                                "is_lactose_free", "Recipe concept has unverified lactose-free status."))
         if concept_id not in policy_by_ingredient:
             issues.append(
                 issue(
