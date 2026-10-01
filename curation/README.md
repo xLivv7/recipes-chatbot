@@ -1,5 +1,24 @@
 # Data curation
 
+## Lactose concept classification (not imported yet)
+
+`lactose_concept_policy.csv` explicitly covers C001-C376: 214 allowed,
+31 excluded and 131 pending as of 2026-10-01. Empty status means unknown,
+never allowed. `lactose_manual_review.md` lists pending concepts for human
+review. Update the CSV as the source of truth and keep that review list in sync.
+
+These are concept-level decisions, not manufacturer certifications. Allowed
+simple concepts mean pure ingredients without dairy additions. C094 is allowed
+because its definition explicitly requires lactose-free milk, not because a
+particular SKU was verified. No SKU inherits this status. General dietary
+evidence and catalog definitions support the decisions; the source column
+does not imply that NIDDK individually certified every item. `reviewed_at`
+records the concept review date, not an inspected product-label date.
+
+Composite products, low-lactose cheeses, ghee and ambiguous processed foods
+remain pending. The current importer does not read this file and the runtime
+does not yet support lactose_free. See `docs/lactose_free_contract.md`.
+
 ## Gluten-free policy
 
 `gluten_unsafe_concepts.csv` contains concepts that must not pass the
