@@ -1,14 +1,14 @@
-import json
 import os
 import logging
 
 from dotenv import load_dotenv
-from openai import OpenAI
+from openai import APIError, OpenAI
 
 from core.llm_tools import RECIPE_TOOLS
 from core.recommendation_normalization import normalize_recommendations_output
 from core.recommendations import get_recommendations
 from core.response_renderer import ResponsePayloadError, render_recommendations
+from core.tool_call_validation import ToolArgumentsError, parse_recipe_tool_arguments
 
 
 load_dotenv()
@@ -21,6 +21,8 @@ NO_TOOL_RESPONSE = (
     "Bez laktozy nie oznacza bez mleka ani bez nabiału. "
     "Ten chatbot nie obsługuje doboru przepisów dla alergii na mleko lub jego białka."
 )
+INVALID_TOOL_RESPONSE = "Nie udało się odczytać parametrów zapytania. Doprecyzuj wymagania i spróbuj ponownie."
+API_ERROR_RESPONSE = "Usługa interpretacji zapytań jest obecnie niedostępna. Spróbuj ponownie później."
 
 
 def build_system_prompt(brand_name: str) -> str:
@@ -83,26 +85,36 @@ def chat_with_bot(user_message: str, brand_name: str) -> str:
         {"role": "user", "content": user_message},
     ]
 
-    response = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=messages,
-        tools=RECIPE_TOOLS,
-        tool_choice="auto",
-        temperature=0.1,
-    )
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=messages,
+            tools=RECIPE_TOOLS,
+            tool_choice="auto",
+            temperature=0.1,
+        )
+    except APIError as exc:
+        logging.getLogger(__name__).warning("LLM API failure: %s", type(exc).__name__)
+        return API_ERROR_RESPONSE
 
+    if not response.choices:
+        return INVALID_TOOL_RESPONSE
     response_message = response.choices[0].message
     if not response_message.tool_calls:
         return NO_TOOL_RESPONSE
 
+    if len(response_message.tool_calls) != 1:
+        return INVALID_TOOL_RESPONSE
     tool_call = response_message.tool_calls[0]
     function_name = tool_call.function.name
-    function_args = json.loads(tool_call.function.arguments)
-
-    print(f"[DEBUG] Model calls Python function '{function_name}' with args: {function_args}")
 
     if function_name != "get_recommendations":
         return "Nie udało się obsłużyć zapytania. Spróbuj ponownie."
+    try:
+        function_args = parse_recipe_tool_arguments(tool_call.function.arguments)
+    except ToolArgumentsError:
+        logging.getLogger(__name__).warning("Invalid recipe tool arguments")
+        return INVALID_TOOL_RESPONSE
     try:
         function_result = run_recommendation_tool(function_args)
         return render_recommendations(function_result, brand_name)

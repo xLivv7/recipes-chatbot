@@ -8,6 +8,7 @@ RECIPE_TOOLS = [
             "description": "Wyszukuje i poleca przepisy kulinarne na podstawie zapytania użytkownika. Użyj tej funkcji zawsze, gdy użytkownik szuka pomysłu na posiłek, prosi o przepis lub chce coś ugotować.",
             "parameters": {
                 "type": "object",
+                "additionalProperties": False,
                 "properties": {
                     "diet": {
                         "type": "string",
@@ -38,10 +39,12 @@ RECIPE_TOOLS = [
                     },
                     "time_max": {
                         "type": "integer",
+                        "minimum": 1,
                         "description": "Maksymalny czas przygotowania w minutach. Ustawiaj tylko wtedy, gdy użytkownik jawnie podaje limit czasu (np. 'do 15 minut', 'do 30 minut') albo używa słów 'szybki', 'na szybko' lub 'ekspresowy'; przy takiej prośbie bez liczby użyj 30. Nie wymyślaj limitu 30 minut dla słów 'lekki', 'fit', 'niskokaloryczny', 'na redukcję', 'keto' ani 'wysokobiałkowy'. Jeśli nie ma jawnego ograniczenia czasu lub szybkości, pomiń to pole."
                     },
                     "top_n": {
                         "type": "integer",
+                        "minimum": 1,
                         "description": "Liczba propozycji do wyszukania w bazie. Domyślnie użyj 3, chyba że użytkownik chce więcej/mniej."
                     }
                 },

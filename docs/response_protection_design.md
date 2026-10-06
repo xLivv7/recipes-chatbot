@@ -134,3 +134,17 @@ Nie jest to klasyfikacja przyczyny odmowy: ten sam komunikat otrzyma zapytanie
 niejasne, nieobslugiwane lub przypadkowo pozbawione tool calla przez model.
 Nie gwarantuje to poprawnej interpretacji alergii, gdy model jednak wywola tool.
 Nie dodano heurystyk slow kluczowych ani ponownych prob API.
+# Aktualizacja 2026-10-06: granica tool calla i bledy API
+
+`parse_recipe_tool_arguments` odczytuje JSON i sprawdza wymagane pola, zamkniety
+zestaw kluczy, enumy, typy, dodatnie liczby calkowite, ograniczenia bez duplikatow
+oraz zgodnosc diety ze zrodlem bialka. Wartosci nie sa naprawiane ani uzupelniane.
+Walidator jest wyspecjalizowany dla obecnych typow schematu, nie jest ogolnym
+silnikiem JSON Schema. Schemat narzedzia otrzymal additionalProperties=false
+oraz minimum=1 dla time_max/top_n. Nie ustalono gornego limitu tych liczb.
+Brak time_max jest poprawny; jawne null jest niezgodne z obecnym schematem.
+Powtorzone klucze JSON, puste choices i wiele tool calli sa odrzucane przed baza.
+APIError jest obslugiwany stalym komunikatem; log zawiera tylko nazwe klasy.
+Nie dodano retry w aplikacji; zachowanie retry SDK pozostalo niezmienione.
+Nie przechwytujemy wszystkich Exception ani bledow programistycznych.
+Referencja SDK: https://developers.openai.com/api/reference/python

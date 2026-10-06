@@ -1,4 +1,5 @@
 from copy import deepcopy
+import json
 from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
@@ -23,7 +24,9 @@ class ChatResponseProtectionTests(unittest.TestCase):
         self.assertNotIn("client_sku_id", normalize_ingredient({"name_pl": "ryz"}))
 
     def call_chat(self, data, function_name="get_recommendations"):
-        call = SimpleNamespace(function=SimpleNamespace(name=function_name, arguments="{}"))
+        args = {"diet": "none", "protein_preference": "none", "restrictions": [],
+                "nutrition_goal": "standard", "category": "kolacja", "top_n": 3}
+        call = SimpleNamespace(function=SimpleNamespace(name=function_name, arguments=json.dumps(args)))
         message = SimpleNamespace(tool_calls=[call], content="Invented product")
         response = SimpleNamespace(choices=[SimpleNamespace(message=message)])
         with patch("main.client.chat.completions.create", return_value=response) as api:
