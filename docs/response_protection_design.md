@@ -125,3 +125,12 @@ odpowiedzia LLM i nie jest objeta ta ochrona; walidacja argumentow, bledy API
 oraz semantyczny audyt instrukcji katalogu pozostaja osobnymi zadaniami.
 Dotychczasowa ewaluacja odpowiedzi LLM jest eksperymentem historycznym,
 nie ewaluacja aktualnej produkcyjnej prezentacji wynikow.
+# Aktualizacja 2026-10-06: ochrona sciezki bez tool calla
+
+Brak tool calla powoduje zwrocenie stalej `NO_TOOL_RESPONSE`, niezaleznie od
+tekstu modelu i uzytkownika. Komunikat prosi o doprecyzowanie, wskazuje granice
+gluten_free/lactose_free i odroznia brak wyszukiwania od pustego wyniku bazy.
+Nie jest to klasyfikacja przyczyny odmowy: ten sam komunikat otrzyma zapytanie
+niejasne, nieobslugiwane lub przypadkowo pozbawione tool calla przez model.
+Nie gwarantuje to poprawnej interpretacji alergii, gdy model jednak wywola tool.
+Nie dodano heurystyk slow kluczowych ani ponownych prob API.

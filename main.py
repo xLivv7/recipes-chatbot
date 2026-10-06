@@ -15,6 +15,13 @@ load_dotenv()
 
 client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
+NO_TOOL_RESPONSE = (
+    "Nie wyszukano przepisów. Doprecyzuj rodzaj posiłku i swoje wymagania. "
+    "Obsługiwane ograniczenia to bez glutenu i bez laktozy. "
+    "Bez laktozy nie oznacza bez mleka ani bez nabiału. "
+    "Ten chatbot nie obsługuje doboru przepisów dla alergii na mleko lub jego białka."
+)
+
 
 def build_system_prompt(brand_name: str) -> str:
     return (
@@ -86,7 +93,7 @@ def chat_with_bot(user_message: str, brand_name: str) -> str:
 
     response_message = response.choices[0].message
     if not response_message.tool_calls:
-        return response_message.content
+        return NO_TOOL_RESPONSE
 
     tool_call = response_message.tool_calls[0]
     function_name = tool_call.function.name
