@@ -2,6 +2,19 @@
 
 Status: projekt do wdrozenia, 2026-10-01. Nie zmienia jeszcze chat_with_bot.
 
+Aktualizacja 2026-10-06: etap 1 wdrozony w core/response_renderer.py.
+render_recommendations przyjmuje tylko payload backendu i nazwe marki,
+bez tekstu modelu/uzytkownika, bez wyboru stylu i bez API. Nie jest jeszcze
+podlaczony do main.py. Niepoprawne dane powoduja ResponsePayloadError;
+komunikat bledu dla uzytkownika zostanie dodany przy integracji.
+Renderer sprawdza finitywne nieujemne liczby, dodatnie porcje/gramature,
+strukture list oraz zgodnosc used_skus z przypisaniami w ingredients.
+Zachowuje kolejnosc, liczby i nazwy SKU bez zmian; nie usuwa dopiskow.
+Nazwy i kroki escapuje dla Markdown/HTML oraz odrzuca URL zamiast
+po cichu modyfikowac dane. Nie analizuje semantycznej zgodnosci instrukcji.
+Obecny normalize_ingredient usuwa client_sku_id: przy etapie 2 trzeba
+zachowac te metadane i dodac testy regresji, nie omijac kontroli renderera.
+
 ## Problem i cel
 
 final_013 w 3/3 prob dopisal bulion Winiary nieobecny w used_skus.
