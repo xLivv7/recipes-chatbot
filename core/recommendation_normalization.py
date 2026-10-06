@@ -10,12 +10,16 @@ def safe_str(value) -> str:
 
 
 def normalize_ingredient(ingredient: dict) -> dict:
-    return {
+    result = {
         "concept_id": ingredient.get("concept_id"),
         "name_pl": safe_str(ingredient.get("name_pl")),
         "grams_total": safe_round(ingredient.get("grams_total"), 0),
         "grams_per_serving": safe_round(ingredient.get("grams_per_serving"), 0),
     }
+    for field in ("client_sku_id", "client_sku_name_pl"):
+        if field in ingredient:
+            result[field] = ingredient[field]
+    return result
 
 
 def normalize_nutrition(nutrition: dict) -> dict:

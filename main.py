@@ -1,5 +1,6 @@
 import json
 import os
+import logging
 
 from dotenv import load_dotenv
 from openai import OpenAI
@@ -7,6 +8,7 @@ from openai import OpenAI
 from core.llm_tools import RECIPE_TOOLS
 from core.recommendation_normalization import normalize_recommendations_output
 from core.recommendations import get_recommendations
+from core.response_renderer import ResponsePayloadError, render_recommendations
 
 
 load_dotenv()
@@ -92,28 +94,14 @@ def chat_with_bot(user_message: str, brand_name: str) -> str:
 
     print(f"[DEBUG] Model calls Python function '{function_name}' with args: {function_args}")
 
-    if function_name == "get_recommendations":
+    if function_name != "get_recommendations":
+        return "Nie udało się obsłużyć zapytania. Spróbuj ponownie."
+    try:
         function_result = run_recommendation_tool(function_args)
-    else:
-        function_result = {"error": "Unknown function"}
-
-    messages.append(response_message)
-    messages.append(
-        {
-            "role": "tool",
-            "tool_call_id": tool_call.id,
-            "name": function_name,
-            "content": json.dumps(function_result, ensure_ascii=False),
-        }
-    )
-
-    final_response = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=messages,
-        temperature=0.2,
-    )
-
-    return final_response.choices[0].message.content
+        return render_recommendations(function_result, brand_name)
+    except ResponsePayloadError:
+        logging.getLogger(__name__).exception("Invalid recommendation response payload")
+        return "Nie udało się wyświetlić przepisów z powodu niespójnych danych. Spróbuj ponownie później."
 
 
 if __name__ == "__main__":

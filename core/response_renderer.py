@@ -76,7 +76,7 @@ def render_recommendations(data, brand_name="Winiary"):
     """Render a validated backend payload in its original order, without mutation.
 
     Raises ResponsePayloadError on invalid facts. The caller owns error fallback.
-    SKU assignments must survive normalization before this can be wired to main.
+    SKU assignments must be preserved by payload normalization.
     """
     if not isinstance(data, dict) or not isinstance(data.get("query"), dict):
         raise ResponsePayloadError("Expected payload and query objects.")

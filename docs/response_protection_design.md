@@ -113,3 +113,15 @@ Akceptacja: zadne nowe SKU/liczby/przepisy z odpowiedzi modelu nie trafiaja
 do wyrenderowanej odpowiedzi; final_013 i niezalezny holdout nie dopisuja
 bulionu; awaria drugiego calla nie zmienia faktow; testy backendu nadal OK.
 Pomiar estetyki/czytelnosci pozostaje osobny od deterministycznej zgodnosci.
+# Aktualizacja 2026-10-06: integracja renderera
+
+`main.chat_with_bot` po tool callu renderuje wynik backendu lokalnie. Drugie
+wywolanie LLM zostalo usuniete: wyniki bazy nie sa wysylane do modelu w tej sciezce.
+Normalizacja zachowuje `client_sku_id` i `client_sku_name_pl` bez dopisywania ich
+do skladnikow generycznych. `ResponsePayloadError` powoduje staly komunikat
+o niespojnych danych i zapis diagnostyczny w loggerze, bez czesciowej odpowiedzi.
+Nieznane narzedzie nie uruchamia backendu. Sciezka bez tool calla pozostaje
+odpowiedzia LLM i nie jest objeta ta ochrona; walidacja argumentow, bledy API
+oraz semantyczny audyt instrukcji katalogu pozostaja osobnymi zadaniami.
+Dotychczasowa ewaluacja odpowiedzi LLM jest eksperymentem historycznym,
+nie ewaluacja aktualnej produkcyjnej prezentacji wynikow.
