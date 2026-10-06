@@ -1,4 +1,50 @@
-# LLM evaluation baseline
+# Evaluation: Current Architecture and Historical Baselines
+
+## Current Architecture (2026-10-06)
+
+The application uses one LLM call for intent and tool selection. Backend results
+are rendered locally; no final-answer LLM call is made. The shared current prompt
+contains intent rules only. Its previous version is frozen in
+`legacy_final_answer_prompt.py` exclusively for historical experiments.
+
+`run_llm_eval.py` now uses `tool_choice=auto`, temperature 0.1 and the application's
+argument validator. Invalid types are not coerced before scoring. It loads 64
+existing intent cases plus 6 `routing_cases.json` cases requiring no tool call
+(milk exclusions/allergies, unsupported nut allergy, unrelated question and
+conflicting preferences). The report includes action accuracy; field accuracy
+excludes no-tool cases, while a missing tool for a recipe request fails.
+`expected.time_max=null` is the dataset notation for an omitted tool argument;
+actual explicit null is rejected by the tool contract. No old labels were changed.
+The report records the system prompt and temperature for reproducibility.
+
+```powershell
+venv\Scripts\python.exe evals\run_llm_eval.py --dry-run
+venv\Scripts\python.exe evals\run_renderer_eval.py
+```
+
+The renderer eval runs offline on six controlled, separate fixtures, with exact
+expected outputs or expected rejection: generic recipe, assigned branded SKU,
+empty sections, empty results, unassigned SKU and fractional nutrition precision.
+It does not repair or reuse incompatible historical final-answer payloads.
+Its report `renderer_eval_report.json` is ignored by Git. This measures rendering
+contracts, not model quality, Polish readability or semantic correctness of data.
+
+Verification on 2026-10-06: renderer 6/6, intent dry-run 70 cases, unit/integration
+suite 155 tests OK. No new live LLM measurement has been performed. Historical
+58/64 is not a score for the new prompt, routing policy or stricter validator.
+Live intent runs send only test user messages to the API, not database results:
+
+```powershell
+venv\Scripts\python.exe evals\run_llm_eval.py
+```
+
+`run_final_answer_eval.py` is **historical only** and uses the frozen old prompt.
+It still makes paid API calls when run without `--dry-run`; it does not measure
+the current application and must not be presented as a production safety score.
+
+Method reference: [official function-calling documentation](https://developers.openai.com/api/docs/guides/function-calling).
+
+## Historical Baseline Notes
 
 This directory contains lightweight, manually triggered evaluations for the
 LLM layer. These checks are intentionally separate from `unittest discover`
@@ -7,7 +53,7 @@ wording, credentials and network access.
 
 ## Scope
 
-The baseline evaluates intent extraction and final-answer grounding. It does
+The historical baseline evaluates intent extraction and final-answer grounding. It does
 not train the model.
 
 ## Intent contract

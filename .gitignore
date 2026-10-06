@@ -10,5 +10,6 @@ Thumbs.db
 data/
 evals/llm_eval_report.json
 evals/final_answer_eval_report.json
+evals/renderer_eval_report.json
 ABSTRAKT_PROJEKTU_CHATBOTA.txt
 dokumentacja pracy/

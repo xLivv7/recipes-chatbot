@@ -1,0 +1,8 @@
+[
+  {"id": "routing_001", "user_message": "Mam alergię na białka mleka, znajdź bezpieczny obiad.", "expected_action": "no_tool"},
+  {"id": "routing_002", "user_message": "Poproszę kolację bez nabiału.", "expected_action": "no_tool"},
+  {"id": "routing_003", "user_message": "Znajdź deser bez mleka.", "expected_action": "no_tool"},
+  {"id": "routing_004", "user_message": "Mam alergię na orzechy, podaj bezpieczny lunch.", "expected_action": "no_tool"},
+  {"id": "routing_005", "user_message": "Jaka jest stolica Francji?", "expected_action": "no_tool"},
+  {"id": "routing_006", "user_message": "Chcę wegański obiad z mięsem, nie zamiennikiem.", "expected_action": "no_tool"}
+]

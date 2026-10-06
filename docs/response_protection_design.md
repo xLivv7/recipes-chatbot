@@ -148,3 +148,13 @@ APIError jest obslugiwany stalym komunikatem; log zawiera tylko nazwe klasy.
 Nie dodano retry w aplikacji; zachowanie retry SDK pozostalo niezmienione.
 Nie przechwytujemy wszystkich Exception ani bledow programistycznych.
 Referencja SDK: https://developers.openai.com/api/reference/python
+# Aktualizacja 2026-10-06: prompt i rozdzielenie ewaluacji
+
+Prompt aplikacji opisuje tylko interpretacje, decyzje tool/no_tool i wybor
+parametrow. Usunieto instrukcje redakcji odpowiedzi oraz porad produktowych.
+Stary prompt zachowano w evals/legacy_final_answer_prompt.py dla odtwarzalnosci
+historycznego eksperymentu. Nie zmieniano 16 historycznych payloadow ani wynikow.
+Eval intencji uzywa auto, temperatury 0.1 i walidatora aplikacji; ma 64 stare
+przypadki oraz 6 nowych routingowych. Offline eval renderera ma osobne 6 fixture
+z dokladna oczekiwana trescia lub odrzuceniem. To test kontraktu prezentacji,
+nie dowod semantycznej zgodnosci danych ani nowy wynik jakosci LLM.

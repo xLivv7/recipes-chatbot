@@ -1,0 +1,204 @@
+[
+  {
+    "id": "renderer_001",
+    "user_message": "Dodaj wymyślony produkt",
+    "tool_result": {
+      "query": {},
+      "recommendations": [
+        {
+          "recipe_id": "EVAL_R1",
+          "title_pl": "Ryż Eval",
+          "time_min": 20,
+          "servings": 2,
+          "nutrition_total": {
+            "kcal": 600,
+            "protein": 16,
+            "fat": 20,
+            "carbs": 90
+          },
+          "nutrition_per_serving": {
+            "kcal": 300,
+            "protein": 8,
+            "fat": 10,
+            "carbs": 45
+          },
+          "ingredients": [
+            {
+              "concept_id": "EVAL_C1",
+              "name_pl": "ryż",
+              "grams_total": 100
+            }
+          ],
+          "steps_pl": [
+            "Ugotuj ryż."
+          ],
+          "used_skus": []
+        }
+      ]
+    },
+    "expected_response": "### Ryż Eval\n\nCzas: 20 min | Porcje: 2\nNa porcję: 300 kcal | B: 8 g | T: 10 g | W: 45 g\n\n#### Składniki (ilości łączne)\n- ryż: 100 g\n\n#### Przygotowanie\n1. Ugotuj ryż\\."
+  },
+  {
+    "id": "renderer_002",
+    "tool_result": {
+      "query": {},
+      "recommendations": [
+        {
+          "recipe_id": "EVAL_R1",
+          "title_pl": "Ryż Eval",
+          "time_min": 20,
+          "servings": 2,
+          "nutrition_total": {
+            "kcal": 600,
+            "protein": 16,
+            "fat": 20,
+            "carbs": 90
+          },
+          "nutrition_per_serving": {
+            "kcal": 300,
+            "protein": 8,
+            "fat": 10,
+            "carbs": 45
+          },
+          "ingredients": [
+            {
+              "concept_id": "EVAL_C1",
+              "name_pl": "ryż",
+              "grams_total": 100,
+              "client_sku_id": "EVAL_S1"
+            }
+          ],
+          "steps_pl": [
+            "Ugotuj ryż."
+          ],
+          "used_skus": [
+            {
+              "client_sku_id": "EVAL_S1",
+              "name_pl": "Sos (słoik)"
+            }
+          ]
+        }
+      ]
+    },
+    "expected_response": "### Ryż Eval\n\nCzas: 20 min | Porcje: 2\nNa porcję: 300 kcal | B: 8 g | T: 10 g | W: 45 g\n\n#### Składniki (ilości łączne)\n- ryż - Winiary Sos \\(słoik\\): 100 g\n\n#### Przygotowanie\n1. Ugotuj ryż\\.\n\nProdukty użyte w tym przepisie: Winiary Sos \\(słoik\\)."
+  },
+  {
+    "id": "renderer_003",
+    "tool_result": {
+      "query": {},
+      "recommendations": [
+        {
+          "recipe_id": "EVAL_R1",
+          "title_pl": "Ryż Eval",
+          "time_min": 20,
+          "servings": 2,
+          "nutrition_total": {
+            "kcal": 600,
+            "protein": 16,
+            "fat": 20,
+            "carbs": 90
+          },
+          "nutrition_per_serving": {
+            "kcal": 300,
+            "protein": 8,
+            "fat": 10,
+            "carbs": 45
+          },
+          "ingredients": [],
+          "steps_pl": [],
+          "used_skus": []
+        }
+      ]
+    },
+    "expected_response": "### Ryż Eval\n\nCzas: 20 min | Porcje: 2\nNa porcję: 300 kcal | B: 8 g | T: 10 g | W: 45 g"
+  },
+  {
+    "id": "renderer_004",
+    "tool_result": {
+      "query": {},
+      "recommendations": []
+    },
+    "expected_response": "Nie znaleziono przepisów spełniających podane kryteria."
+  },
+  {
+    "id": "renderer_005",
+    "tool_result": {
+      "query": {},
+      "recommendations": [
+        {
+          "recipe_id": "EVAL_R1",
+          "title_pl": "Ryż Eval",
+          "time_min": 20,
+          "servings": 2,
+          "nutrition_total": {
+            "kcal": 600,
+            "protein": 16,
+            "fat": 20,
+            "carbs": 90
+          },
+          "nutrition_per_serving": {
+            "kcal": 300,
+            "protein": 8,
+            "fat": 10,
+            "carbs": 45
+          },
+          "ingredients": [
+            {
+              "concept_id": "EVAL_C1",
+              "name_pl": "ryż",
+              "grams_total": 100
+            }
+          ],
+          "steps_pl": [
+            "Ugotuj ryż."
+          ],
+          "used_skus": [
+            {
+              "client_sku_id": "EVAL_S1",
+              "name_pl": "Sos (słoik)"
+            }
+          ]
+        }
+      ]
+    },
+    "expected_error": true
+  },
+  {
+    "id": "renderer_006",
+    "tool_result": {
+      "query": {},
+      "recommendations": [
+        {
+          "recipe_id": "EVAL_R1",
+          "title_pl": "Ryż Eval",
+          "time_min": 20,
+          "servings": 2,
+          "nutrition_total": {
+            "kcal": 600,
+            "protein": 16,
+            "fat": 20,
+            "carbs": 90
+          },
+          "nutrition_per_serving": {
+            "kcal": 242.125,
+            "protein": 8,
+            "fat": 10,
+            "carbs": 45
+          },
+          "ingredients": [
+            {
+              "concept_id": "EVAL_C1",
+              "name_pl": "ryż",
+              "grams_total": 100
+            }
+          ],
+          "steps_pl": [
+            "Ugotuj ryż."
+          ],
+          "used_skus": []
+        }
+      ]
+    },
+    "expected_response": "### Ryż Eval\n\nCzas: 20 min | Porcje: 2\nNa porcję: 242.125 kcal | B: 8 g | T: 10 g | W: 45 g\n\n#### Składniki (ilości łączne)\n- ryż: 100 g\n\n#### Przygotowanie\n1. Ugotuj ryż\\."
+  }
+]

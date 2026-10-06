@@ -2,7 +2,7 @@ import unittest
 import argparse
 
 from evals.run_final_answer_eval import DEFAULT_CASES_PATH, load_cases, score_case, sku_is_mentioned
-from main import build_system_prompt
+from evals.legacy_final_answer_prompt import build_legacy_final_answer_prompt
 from evals.run_final_answer_eval import summarize, positive_int
 
 
@@ -35,7 +35,7 @@ class FinalAnswerEvalTests(unittest.TestCase):
         self.assertEqual(set(self.cases), {f"final_{index:03d}" for index in range(1, 17)})
 
     def test_prompt_omits_sections_missing_from_tool_payload(self):
-        prompt = build_system_prompt("Winiary")
+        prompt = build_legacy_final_answer_prompt("Winiary")
 
         self.assertIn("całkowicie pomiń nagłówek i treść sekcji składników", prompt.casefold())
         self.assertIn(

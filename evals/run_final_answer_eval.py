@@ -15,7 +15,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from main import build_system_prompt
+from evals.legacy_final_answer_prompt import build_legacy_final_answer_prompt
 
 
 DEFAULT_CASES_PATH = Path(__file__).with_name("final_answer_cases.json")
@@ -116,7 +116,7 @@ def load_cases(path: Path) -> list[dict[str, Any]]:
 def build_messages(case: dict[str, Any], brand_name: str) -> list[dict[str, Any]]:
     tool_call_id = "eval_tool_call_1"
     return [
-        {"role": "system", "content": build_system_prompt(brand_name)},
+        {"role": "system", "content": build_legacy_final_answer_prompt(brand_name)},
         {"role": "user", "content": case["user_message"]},
         {
             "role": "assistant",
@@ -320,6 +320,7 @@ def run_eval(args: argparse.Namespace) -> dict[str, Any]:
 
     return {
         "dry_run": False,
+        "evaluation_kind": "historical_llm_final_answer",
         "model": args.model,
         "brand_name": args.brand_name,
         "repeats": args.repeats,
@@ -334,7 +335,7 @@ def print_summary(report: dict[str, Any]) -> None:
         print(f"Dry run OK. Loaded {summary['total']} cases; planned calls: {summary['planned_calls']}.")
         return
 
-    print("LLM final-answer eval")
+    print("Historical LLM final-answer eval (not the application renderer)")
     print("=" * 40)
     print(f"Model: {report['model']}")
     print(f"Cases: {summary['total']}")
