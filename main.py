@@ -9,6 +9,7 @@ from core.recommendation_normalization import normalize_recommendations_output
 from core.recommendations import get_recommendations
 from core.response_renderer import ResponsePayloadError, render_recommendations
 from core.tool_call_validation import ToolArgumentsError, parse_recipe_tool_arguments
+from core.request_safety import mentions_unsupported_allergy
 
 
 load_dotenv()
@@ -23,6 +24,12 @@ NO_TOOL_RESPONSE = (
 )
 INVALID_TOOL_RESPONSE = "Nie udało się odczytać parametrów zapytania. Doprecyzuj wymagania i spróbuj ponownie."
 API_ERROR_RESPONSE = "Usługa interpretacji zapytań jest obecnie niedostępna. Spróbuj ponownie później."
+UNSUPPORTED_ALLERGY_RESPONSE = (
+    "Nie wyszukano przepisów. W zapytaniu pojawia się temat alergii lub uczulenia. "
+    "Ten chatbot nie obsługuje doboru przepisów pod kątem alergii ani ryzyka kontaktu z alergenami. "
+    "Nie zastępuje takich wymagań filtrami bez glutenu, bez laktozy ani dietą wegańską. "
+    "Obsługa alergii wymaga osobnej weryfikacji, której ten katalog nie zapewnia."
+)
 
 
 def build_system_prompt(brand_name: str) -> str:
@@ -72,6 +79,8 @@ def run_recommendation_tool(function_args: dict) -> dict:
 
 
 def chat_with_bot(user_message: str, brand_name: str) -> str:
+    if mentions_unsupported_allergy(user_message):
+        return UNSUPPORTED_ALLERGY_RESPONSE
     messages = [
         {"role": "system", "content": build_system_prompt(brand_name)},
         {"role": "user", "content": user_message},

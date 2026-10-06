@@ -158,3 +158,11 @@ Eval intencji uzywa auto, temperatury 0.1 i walidatora aplikacji; ma 64 stare
 przypadki oraz 6 nowych routingowych. Offline eval renderera ma osobne 6 fixture
 z dokladna oczekiwana trescia lub odrzuceniem. To test kontraktu prezentacji,
 nie dowod semantycznej zgodnosci danych ani nowy wynik jakosci LLM.
+# Aktualizacja 2026-10-06: alergie przed interpretacja
+
+Dodano preflight w chat_with_bot i core/request_safety.py. Wykrywana wzmianka
+o alergii/uczuleniu/anafilaksji blokuje API oraz backend i zwraca staly komunikat.
+To konserwatywna regula leksykalna obejmujaca takze negacje, nie pelny
+klasyfikator ani gwarancja. Kontrakt i granice: docs/allergy_request_boundary.md.
+Oryginalny routing_004 pokrywa test regresyjny. Surowy eval LLM pozostaje
+niezmieniony, aby nie maskowac bledu modelu wynikami preflight.
