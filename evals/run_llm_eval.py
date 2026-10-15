@@ -84,8 +84,8 @@ def load_cases(path: Path) -> list[dict[str, Any]]:
     return cases
 
 
-def extract_tool_args(client: OpenAI, model: str, user_message: str, brand_name: str) -> dict[str, Any] | None:
-    response = client.chat.completions.create(
+def request_intent_response(client: OpenAI, model: str, user_message: str, brand_name: str):
+    return client.chat.completions.create(
         model=model,
         messages=[
             {"role": "system", "content": build_eval_system_prompt(brand_name)},
@@ -97,6 +97,9 @@ def extract_tool_args(client: OpenAI, model: str, user_message: str, brand_name:
         temperature=0.1,
     )
 
+
+def extract_tool_args(client: OpenAI, model: str, user_message: str, brand_name: str) -> dict[str, Any] | None:
+    response = request_intent_response(client, model, user_message, brand_name)
     if not response.choices:
         raise ValueError("Empty choices.")
     message = response.choices[0].message

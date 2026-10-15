@@ -1,5 +1,31 @@
 # Evaluation: Current Architecture and Historical Baselines
 
+## Recommended Separated Evaluation (2026-10-15)
+
+Use `run_routing_eval.py` for new measurements. It separates raw model quality
+from actual application guards/validation/dispatch, with a stub at the recipe
+tool boundary. It does not evaluate SQL results or send database payloads.
+The earlier `run_llm_eval.py` remains compatible, but its coarse metrics and
+historical `application_intent_routing` label do not measure the preflight.
+
+```powershell
+venv\Scripts\python.exe evals\run_routing_eval.py --mode raw --dry-run
+venv\Scripts\python.exe evals\run_routing_eval.py --mode application --dry-run
+```
+
+Both modes load 76 cases. Dry-runs plan 76 raw vs 66 application API calls.
+Actual live measurements require removing `--dry-run` and are paid separately.
+Reports default to `raw_routing_eval_report.json` and
+`application_routing_eval_report.json` (ignored, each overwritten per run).
+Use `--output` to keep separate attempts. No live run was made in this stage.
+
+Diagnostics preserve raw calls/counts and distinguish API, protocol, argument,
+decision, semantic and preflight errors. Guarded cases are not counted as
+model successes. Conditional field metrics exclude unassessable cases while
+overall pass counts retain all failures. Two deliberate false-positive cases
+remain failures, rather than changing their expected labels to match guards.
+See `docs/separated_routing_evaluation.md` for denominators, costs and limits.
+
 ## Current Architecture (2026-10-06)
 
 Update 2026-10-15 (time/goal stage): prompt and parameter descriptions now

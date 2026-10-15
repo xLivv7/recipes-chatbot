@@ -1,0 +1,52 @@
+[
+  {
+    "id": "guard_001",
+    "user_message": "Kolacja bez orzechów",
+    "expected_action": "no_tool"
+  },
+  {
+    "id": "guard_002",
+    "user_message": "Deser bez jaj",
+    "expected_action": "no_tool"
+  },
+  {
+    "id": "guard_003",
+    "user_message": "Obiad bez mleka",
+    "expected_action": "no_tool"
+  },
+  {
+    "id": "guard_004",
+    "user_message": "Lunch bez nabiału i bez glutenu",
+    "expected_action": "no_tool"
+  },
+  {
+    "id": "guard_005",
+    "user_message": "Nie musi być bez jaj, chcę kolację",
+    "expected_action": "tool",
+    "expected": {
+      "diet": "none",
+      "protein_preference": "none",
+      "restrictions": [],
+      "nutrition_goal": "standard",
+      "category": "kolacja",
+      "time_max": null,
+      "top_n": 3
+    }
+  },
+  {
+    "id": "guard_006",
+    "user_message": "Bez laktozy i szybki obiad",
+    "expected_action": "tool",
+    "expected": {
+      "diet": "none",
+      "protein_preference": "none",
+      "restrictions": [
+        "lactose_free"
+      ],
+      "nutrition_goal": "standard",
+      "category": "obiad",
+      "time_max": 30,
+      "top_n": 3
+    }
+  }
+]

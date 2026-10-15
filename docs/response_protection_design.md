@@ -196,3 +196,12 @@ Dodano krotkie przyklady, w tym bledy intent_008/015/025 i kontrprzyklady.
 Backend i walidator nie dopisuja brakujacego time_max ani nie zmieniaja celu.
 evals/time_goal_cases.json to 16 przypadkow regresyjnych, nie holdout.
 Bez live pomiaru nie deklarujemy poprawy skutecznosci modelu.
+
+# Aktualizacja 2026-10-15: rozdzielona ewaluacja
+
+Nowy evals/run_routing_eval.py mierzy raw model lub rzeczywisty routing
+chat_with_bot z ochrona. Narzedzie rekomendacji jest stubowane na granicy
+backendu; to nie pelny end-to-end. Raport zachowuje surowe calle, rozdziela
+protokol/argumenty/znaczenie/API i nie przypisuje blokad ochrony modelowi.
+Uwzgledniono znane false positives preflight jako bledy, nie sukcesy.
+Metodologia i polecenia: docs/separated_routing_evaluation.md.
