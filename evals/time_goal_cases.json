@@ -1,0 +1,210 @@
+[
+  {
+    "id": "intent_008",
+    "user_message": "śniadanie keto, najlepiej szybkie",
+    "expected": {
+      "diet": "none",
+      "protein_preference": "none",
+      "restrictions": [],
+      "nutrition_goal": "keto",
+      "category": "śniadanie",
+      "time_max": 30,
+      "top_n": 3
+    }
+  },
+  {
+    "id": "intent_015",
+    "user_message": "lekka kolacja wegetariańska do pół godziny",
+    "expected": {
+      "diet": "vegetarian",
+      "protein_preference": "none",
+      "restrictions": [],
+      "nutrition_goal": "low_kcal",
+      "category": "kolacja",
+      "time_max": 30,
+      "top_n": 3
+    }
+  },
+  {
+    "id": "intent_025",
+    "user_message": "coś na szybko, wegańskie",
+    "expected": {
+      "diet": "vegan",
+      "protein_preference": "none",
+      "restrictions": [],
+      "nutrition_goal": "standard",
+      "category": "kolacja",
+      "time_max": 30,
+      "top_n": 3
+    }
+  },
+  {
+    "id": "time_goal_001",
+    "user_message": "Szybki obiad",
+    "expected": {
+      "diet": "none",
+      "protein_preference": "none",
+      "restrictions": [],
+      "nutrition_goal": "standard",
+      "category": "obiad",
+      "time_max": 30,
+      "top_n": 3
+    }
+  },
+  {
+    "id": "time_goal_002",
+    "user_message": "Szybka kolacja",
+    "expected": {
+      "diet": "none",
+      "protein_preference": "none",
+      "restrictions": [],
+      "nutrition_goal": "standard",
+      "category": "kolacja",
+      "time_max": 30,
+      "top_n": 3
+    }
+  },
+  {
+    "id": "time_goal_003",
+    "user_message": "Lekkie śniadanie",
+    "expected": {
+      "diet": "none",
+      "protein_preference": "none",
+      "restrictions": [],
+      "nutrition_goal": "low_kcal",
+      "category": "śniadanie",
+      "time_max": null,
+      "top_n": 3
+    }
+  },
+  {
+    "id": "time_goal_004",
+    "user_message": "Lekki lunch",
+    "expected": {
+      "diet": "none",
+      "protein_preference": "none",
+      "restrictions": [],
+      "nutrition_goal": "low_kcal",
+      "category": "lunch",
+      "time_max": null,
+      "top_n": 3
+    }
+  },
+  {
+    "id": "time_goal_005",
+    "user_message": "Ekspresowa przekąska",
+    "expected": {
+      "diet": "none",
+      "protein_preference": "none",
+      "restrictions": [],
+      "nutrition_goal": "standard",
+      "category": "przekąska",
+      "time_max": 30,
+      "top_n": 3
+    }
+  },
+  {
+    "id": "time_goal_006",
+    "user_message": "Szybki obiad do 15 minut",
+    "expected": {
+      "diet": "none",
+      "protein_preference": "none",
+      "restrictions": [],
+      "nutrition_goal": "standard",
+      "category": "obiad",
+      "time_max": 15,
+      "top_n": 3
+    }
+  },
+  {
+    "id": "time_goal_007",
+    "user_message": "Szybka lekka kolacja do 45 minut",
+    "expected": {
+      "diet": "none",
+      "protein_preference": "none",
+      "restrictions": [],
+      "nutrition_goal": "low_kcal",
+      "category": "kolacja",
+      "time_max": 45,
+      "top_n": 3
+    }
+  },
+  {
+    "id": "time_goal_008",
+    "user_message": "Keto kolacja",
+    "expected": {
+      "diet": "none",
+      "protein_preference": "none",
+      "restrictions": [],
+      "nutrition_goal": "keto",
+      "category": "kolacja",
+      "time_max": null,
+      "top_n": 3
+    }
+  },
+  {
+    "id": "time_goal_009",
+    "user_message": "Wysokobiałkowy obiad",
+    "expected": {
+      "diet": "none",
+      "protein_preference": "none",
+      "restrictions": [],
+      "nutrition_goal": "high_protein",
+      "category": "obiad",
+      "time_max": null,
+      "top_n": 3
+    }
+  },
+  {
+    "id": "time_goal_010",
+    "user_message": "Fit lunch",
+    "expected": {
+      "diet": "none",
+      "protein_preference": "none",
+      "restrictions": [],
+      "nutrition_goal": "low_kcal",
+      "category": "lunch",
+      "time_max": null,
+      "top_n": 3
+    }
+  },
+  {
+    "id": "time_goal_011",
+    "user_message": "Kolacja nie musi być szybka",
+    "expected": {
+      "diet": "none",
+      "protein_preference": "none",
+      "restrictions": [],
+      "nutrition_goal": "standard",
+      "category": "kolacja",
+      "time_max": null,
+      "top_n": 3
+    }
+  },
+  {
+    "id": "time_goal_012",
+    "user_message": "Nie szukam lekkiego dania, chcę kolację",
+    "expected": {
+      "diet": "none",
+      "protein_preference": "none",
+      "restrictions": [],
+      "nutrition_goal": "standard",
+      "category": "kolacja",
+      "time_max": null,
+      "top_n": 3
+    }
+  },
+  {
+    "id": "time_goal_013",
+    "user_message": "Lekka kolacja, nie musi być szybka",
+    "expected": {
+      "diet": "none",
+      "protein_preference": "none",
+      "restrictions": [],
+      "nutrition_goal": "low_kcal",
+      "category": "kolacja",
+      "time_max": null,
+      "top_n": 3
+    }
+  }
+]

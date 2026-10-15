@@ -185,3 +185,14 @@ jest odrzucana przed backendem. Raport eval zapisuje ustawienie parallel_tool_ca
 Testy regresyjne intent_007 i intent_059 uzywaja mockowanych odpowiedzi modelu;
 nie dowodza poprawnej ekstrakcji liczby przez model bez nowego live pomiaru.
 Referencja: https://developers.openai.com/api/docs/guides/function-calling
+
+# Aktualizacja 2026-10-15: czas i cel zywieniowy
+
+Prompt aplikacji i opisy time_max/nutrition_goal jawnie rozdzielaja czas i cel.
+Szybki/szybka/szybkie/na szybko bez liczby oznaczaja 30, jawny limit ma
+pierwszenstwo, a lekki/lekka/lekkie ustawiaja low_kcal, nie time_max.
+Negacje nie dodaja zanegowanego celu ani domyslnego limitu szybkosci.
+Dodano krotkie przyklady, w tym bledy intent_008/015/025 i kontrprzyklady.
+Backend i walidator nie dopisuja brakujacego time_max ani nie zmieniaja celu.
+evals/time_goal_cases.json to 16 przypadkow regresyjnych, nie holdout.
+Bez live pomiaru nie deklarujemy poprawy skutecznosci modelu.

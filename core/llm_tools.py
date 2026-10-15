@@ -30,7 +30,7 @@ RECIPE_TOOLS = [
                     "nutrition_goal": {
                         "type": "string",
                         "enum": ["standard", "low_kcal", "high_protein", "keto"],
-                        "description": "Cel sylwetkowy/żywieniowy. Słowa 'lekki', 'fit', 'niskokaloryczny', 'mało kalorii' i 'na redukcję' oznaczają 'low_kcal'. Dla dużej ilości białka użyj 'high_protein'. Dla diety ketogenicznej użyj 'keto'. Jeśli brak wytycznych, użyj 'standard'."
+                        "description": "Cel żywieniowy niezależny od czasu. 'Lekki', 'lekka', 'lekkie', 'lekką', 'fit', 'niskokaloryczny', 'mało kalorii' i 'na redukcję' oznaczają 'low_kcal', także z dietą i limitem czasu. Zanegowana prośba o lekkie danie nie dodaje low_kcal. Dla dużej ilości białka użyj 'high_protein', dla keto 'keto', bez celu 'standard'. Sama szybkość nie oznacza low_kcal, a low_kcal nie oznacza limitu czasu."
                     },
                     "category": {
                         "type": "string",
@@ -40,7 +40,7 @@ RECIPE_TOOLS = [
                     "time_max": {
                         "type": "integer",
                         "minimum": 1,
-                        "description": "Maksymalny czas przygotowania w minutach. Ustawiaj tylko wtedy, gdy użytkownik jawnie podaje limit czasu (np. 'do 15 minut', 'do 30 minut') albo używa słów 'szybki', 'na szybko' lub 'ekspresowy'; przy takiej prośbie bez liczby użyj 30. Nie wymyślaj limitu 30 minut dla słów 'lekki', 'fit', 'niskokaloryczny', 'na redukcję', 'keto' ani 'wysokobiałkowy'. Jeśli nie ma jawnego ograniczenia czasu lub szybkości, pomiń to pole."
+                        "description": "Maksymalny czas w minutach, niezależny od celu i diety. Jawny dodatni limit ma pierwszeństwo: do 15 minut -> 15, do pół godziny -> 30, szybkie do 45 minut -> 45. Bez liczby 'szybki', 'szybka', 'szybkie', 'szybką', 'na szybko' i formy 'ekspresowy/ekspresowa/ekspresowe' oznaczają 30. Zanegowana szybkość sama nie ustawia limitu. Same 'lekki/lekka/lekkie', fit, niskokaloryczny, na redukcję, keto i wysokobiałkowy nie ustawiają czasu. Bez prośby o szybkość lub jawnego limitu pomiń pole (nie podawaj null)."
                     },
                     "top_n": {
                         "type": "integer",

@@ -2,6 +2,32 @@
 
 ## Current Architecture (2026-10-06)
 
+Update 2026-10-15 (time/goal stage): prompt and parameter descriptions now
+explicitly cover szybki/szybka/szybkie, na szybko and lekki/lekka/lekkie.
+Speed without a number means 30 minutes; an explicit limit takes precedence.
+Low-calorie wording alone never supplies a time limit; negated speed does not
+supply one either. Runtime arguments are not repaired or defaulted to 30.
+
+`time_goal_cases.json` contains 16 development/regression cases: unchanged
+intent_008/015/025 plus 13 variants and contrasts (including no-time, negations
+and explicit 15/45-minute limits). This is not a holdout. The baseline 64-case
+file remains unchanged. Run a targeted dry-run with:
+
+```powershell
+venv\Scripts\python.exe evals\run_llm_eval.py --cases evals\time_goal_cases.json --dry-run
+```
+
+This loads 22 cases because the six default routing cases are also included.
+To measure live later without overwriting the baseline report:
+
+```powershell
+venv\Scripts\python.exe evals\run_llm_eval.py --cases evals\time_goal_cases.json --output "dokumentacja pracy\time_goal_live_report.json"
+```
+
+Verification: 189 tests OK, baseline dry-run 70, targeted dry-run 22; no new
+live LLM measurement. Mocked tests establish argument preservation and absence
+of runtime repair, not the model's ability to interpret these utterances.
+
 Update 2026-10-15: application and raw intent eval both send
 `parallel_tool_calls=false`, with `tool_choice=auto` unchanged. The prompt and
 top_n description explicitly distinguish proposal count from call count:
