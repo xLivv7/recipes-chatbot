@@ -25,6 +25,7 @@ from evals.run_llm_eval import (DEFAULT_CASES_PATH, DEFAULT_ROUTING_CASES_PATH,
                                FIELDS, load_cases, request_intent_response, score_case)
 
 GUARD_CASES_PATH = Path(__file__).with_name("application_routing_cases.json")
+HOLDOUT_CASES_PATH = Path(__file__).with_name("holdout_cases_v1.json")
 
 
 def observe_response(response):
@@ -131,6 +132,8 @@ def evaluate_case(case, mode, client, model="gpt-4o-mini", brand_name="Winiary")
             "effective_action": effective_action, "decision_correct": decision_correct,
             "model_decision_correct": model_decision_correct, "semantics_correct": semantics_correct,
             "field_results": fields, "api_calls": api_calls, "backend_calls": len(backend_args),
+            "response_model": getattr(responses[0], "model", None) if responses else None,
+            "request_id": getattr(responses[0], "_request_id", None) if responses else None,
             "passed": stage is None and decision_correct is True}
 
 
@@ -142,6 +145,18 @@ def metric(values):
 
 
 def summarize(results):
+    by_case = {}
+    by_attempt = {}
+    for row in results:
+        by_case.setdefault(row["id"], []).append(row)
+        by_attempt.setdefault(row.get("attempt", 1), []).append(row)
+    stability = {}
+    for case_id, trials in by_case.items():
+        successes = sum(row["passed"] for row in trials)
+        stability[case_id] = {"passed": successes, "total": len(trials),
+                              "failure_type": "none" if successes == len(trials) else
+                              "persistent" if successes == 0 else "intermittent",
+                              "failure_stages": sorted({row["failure_stage"] for row in trials if row["failure_stage"]})}
     return {"total": len(results), "passed": sum(row["passed"] for row in results),
             "failed": sum(not row["passed"] for row in results),
             "api_calls": sum(row["api_calls"] for row in results),
@@ -151,11 +166,18 @@ def summarize(results):
                 "decision_correct", "model_decision_correct", "protocol_valid",
                 "arguments_valid", "semantics_correct")},
             "field_accuracy_conditional": {
-                field: metric(row["field_results"][field] for row in results) for field in FIELDS}}
+                field: metric(row["field_results"][field] for row in results) for field in FIELDS},
+            "case_count": len(by_case), "stable_cases": sum(item["failure_type"] == "none" for item in stability.values()),
+            "case_stability": stability,
+            "attempts": {str(attempt): {"passed": sum(row["passed"] for row in rows), "total": len(rows)}
+                         for attempt, rows in by_attempt.items()}}
 
 
 def run_eval(args):
-    paths = [args.cases, args.routing_cases, args.guard_cases]
+    paths = [HOLDOUT_CASES_PATH] if getattr(args, "holdout", False) else [args.cases, args.routing_cases, args.guard_cases]
+    repeats = getattr(args, "repeats", 1)
+    if repeats < 1:
+        raise ValueError("Repeats must be positive.")
     cases = [case for path in paths for case in load_cases(path)]
     if len({case["id"] for case in cases}) != len(cases):
         raise ValueError("Duplicate ids across datasets.")
@@ -164,7 +186,9 @@ def run_eval(args):
     # Application currently fixes this model; do not silently compare a different one.
     if args.mode == "application" and args.model != "gpt-4o-mini":
         raise ValueError("Application mode requires its configured model gpt-4o-mini.")
-    report = {"schema_version": 1, "evaluation_kind": f"separated_{args.mode}_routing",
+    report = {"schema_version": 2, "evaluation_kind": f"separated_{args.mode}_routing",
+              "dataset_role": "holdout_v1" if getattr(args, "holdout", False) else "regression",
+              "repeats": repeats,
               "scope": "routing_only_with_stubbed_recommendation_tool",
               "mode": args.mode, "dry_run": args.dry_run,
               "created_at_utc": datetime.now(timezone.utc).isoformat(),
@@ -182,13 +206,28 @@ def run_eval(args):
         from core.request_safety import mentions_unsupported_allergy, mentions_unsupported_exclusion
         guarded = sum(mentions_unsupported_allergy(c["user_message"]) or
                       mentions_unsupported_exclusion(c["user_message"]) for c in cases)
-        report["summary"] = {"total": len(cases), "planned_api_calls": len(cases) - guarded
-                             if args.mode == "application" else len(cases)}
+        report["summary"] = {"total": len(cases) * repeats, "planned_api_calls":
+                             (len(cases) - guarded if args.mode == "application" else len(cases)) * repeats}
         return report
     load_dotenv()
     client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
-    report["results"] = [evaluate_case(c, args.mode, client, args.model, args.brand_name) for c in cases]
+    for attempt in range(1, repeats + 1):
+        for index, case in enumerate(cases, 1):
+            result = evaluate_case(case, args.mode, client, args.model, args.brand_name)
+            report["results"].append({**result, "attempt": attempt})
+            output = getattr(args, "output", None)
+            if output:
+                report["summary"] = summarize(report["results"])
+                report["complete"] = False
+                output.parent.mkdir(parents=True, exist_ok=True)
+                output.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
+            if index == 1 or index % 10 == 0 or index == len(cases):
+                print(f"{args.mode} attempt {attempt}/{repeats}: {index}/{len(cases)}", flush=True)
     report["summary"] = summarize(report["results"])
+    report["complete"] = True
+    report["completed_at_utc"] = datetime.now(timezone.utc).isoformat()
+    if getattr(args, "output", None):
+        args.output.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
     return report
 
 
@@ -205,17 +244,22 @@ def main():
     parser.add_argument("--cases", type=Path, default=DEFAULT_CASES_PATH)
     parser.add_argument("--routing-cases", type=Path, default=DEFAULT_ROUTING_CASES_PATH)
     parser.add_argument("--guard-cases", type=Path, default=GUARD_CASES_PATH)
+    parser.add_argument("--holdout", action="store_true", help="Use only frozen holdout v1, without development cases.")
+    parser.add_argument("--repeats", type=positive_int, default=1)
     parser.add_argument("--model", default="gpt-4o-mini")
     parser.add_argument("--brand-name", default="Winiary")
     parser.add_argument("--limit", type=positive_int)
     parser.add_argument("--output", type=Path)
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args()
+    if args.output is None:
+        suffix = "holdout" if args.holdout else "routing"
+        args.output = Path(__file__).with_name(f"{args.mode}_{suffix}_eval_report.json")
     report = run_eval(args)
     print(f"Routing eval mode: {args.mode}")
     print(json.dumps(report["summary"], ensure_ascii=False, indent=2))
     if not args.dry_run:
-        output = args.output or Path(__file__).with_name(f"{args.mode}_routing_eval_report.json")
+        output = args.output
         output.parent.mkdir(parents=True, exist_ok=True)
         output.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
     return 0 if args.dry_run or report["summary"]["failed"] == 0 else 1
