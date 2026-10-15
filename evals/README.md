@@ -1,5 +1,26 @@
 # Evaluation: Current Architecture and Historical Baselines
 
+## Repeats and Holdout v1 (Measured 2026-10-15)
+
+`run_routing_eval.py` now supports `--repeats 3` and `--holdout` (only the
+frozen 24-case dataset, without development cases). Reports contain attempts,
+per-case persistent/intermittent failures, stable-case counts and checkpoints.
+Partial checkpoints have complete=false; completed reports have complete=true.
+Default holdout reports use separate ignored filenames. Each run overwrites
+its output path; preserve attempts using `--output` under dokumentacja pracy.
+
+```powershell
+venv\Scripts\python.exe evals\run_routing_eval.py --mode raw --repeats 3 --dry-run
+venv\Scripts\python.exe evals\run_routing_eval.py --mode application --holdout --repeats 3 --dry-run
+```
+
+The live campaign is complete. Clean full holdout reruns: raw 51/72 (17/24
+stable), application 59/72 (19/24 stable). Earlier runs had substantial API
+connection failures and remain documented, not discarded. No prompt or labels
+were changed during measurement. Holdout v1 is now exposed; future tuning
+requires a new v2 for independent testing. See `docs/holdout_v1_protocol.md`
+and `docs/evaluation_results_2026-10-15.md` for all runs, caveats and findings.
+
 ## Recommended Separated Evaluation (2026-10-15)
 
 Use `run_routing_eval.py` for new measurements. It separates raw model quality
