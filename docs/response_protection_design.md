@@ -205,3 +205,13 @@ backendu; to nie pelny end-to-end. Raport zachowuje surowe calle, rozdziela
 protokol/argumenty/znaczenie/API i nie przypisuje blokad ochrony modelowi.
 Uwzgledniono znane false positives preflight jako bledy, nie sukcesy.
 Metodologia i polecenia: docs/separated_routing_evaluation.md.
+
+# Aktualizacja 2026-10-15: kompletne przyklady argumentow
+
+Po kampanii ujawniajacej brak protein_preference zastapiono piec fragmentow
+argumentow pelnymi obiektami JSON dla tych samych zapytan. Kazdy przyklad
+ma wszystkie wymagane pola; dwa przyklady bez limitu pomijaja tylko time_max.
+Prompt jawnie przypomina o protein_preference=none takze dla vegan/vegetarian.
+Nie zmieniono schematu, walidatora ani domyslnych wartosci backendu; brak
+pola nadal odrzuca tool call. Testy sprawdzaja przyklady parserem produkcyjnym.
+Bez nowego live pomiaru nie deklarujemy usuniecia pomijania pola przez model.

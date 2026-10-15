@@ -1,5 +1,16 @@
 # Evaluation: Current Architecture and Historical Baselines
 
+## Post-Measurement Prompt Correction (2026-10-15)
+
+The current prompt now contains five complete JSON argument examples instead
+of partial argument fragments. All include protein_preference and every other
+required field; no-time examples omit only optional time_max. The schema and
+runtime validation were not relaxed and no missing fields are silently repaired.
+211 tests pass, including five new prompt-completeness checks. A dry-run loads
+76 regression cases. No live measurement of this corrected prompt has been made.
+The reports below describe the earlier frozen prompt, not this new version;
+keep them unchanged and use new output paths for future measurements.
+
 ## Repeats and Holdout v1 (Measured 2026-10-15)
 
 `run_routing_eval.py` now supports `--repeats 3` and `--holdout` (only the
