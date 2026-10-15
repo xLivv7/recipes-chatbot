@@ -89,8 +89,8 @@ class ChatResponseProtectionTests(unittest.TestCase):
         self.assertNotIn("SKU_SECRET", result)
         self.assertNotIn("999", result)
 
-    def test_no_tool_explains_unsupported_milk_constraints(self):
-        result = self.assert_no_tool_response("Porada modelu", [], "Poprosze kolacje bez mleka")
+    def test_no_tool_explains_catalog_limitations(self):
+        result = self.assert_no_tool_response("Porada modelu", [], "Doprecyzuj wymagania")
         self.assertIn("Bez laktozy nie oznacza bez mleka", result)
         self.assertIn("nie obsługuje", result)
         self.assertNotIn("Nie znaleziono", result)

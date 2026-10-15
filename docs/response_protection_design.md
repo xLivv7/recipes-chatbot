@@ -166,3 +166,11 @@ To konserwatywna regula leksykalna obejmujaca takze negacje, nie pelny
 klasyfikator ani gwarancja. Kontrakt i granice: docs/allergy_request_boundary.md.
 Oryginalny routing_004 pokrywa test regresyjny. Surowy eval LLM pozostaje
 niezmieniony, aby nie maskowac bledu modelu wynikami preflight.
+
+# Aktualizacja 2026-10-15: nieobslugiwane wykluczenia
+
+chat_with_bot po preflight alergii sprawdza mentions_unsupported_exclusion.
+Rozpoznane nieobslugiwane lub niejednoznaczne wykluczenie zatrzymuje API
+i backend. Staly komunikat nie proponuje zamiennika filtra ani pominiecia
+koniecznego wymagania. Szczegoly gramatyki, negacji, false positives i luk:
+docs/unsupported_exclusions_contract.md. Nie zmieniano promptu ani backendu.

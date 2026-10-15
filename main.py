@@ -9,7 +9,7 @@ from core.recommendation_normalization import normalize_recommendations_output
 from core.recommendations import get_recommendations
 from core.response_renderer import ResponsePayloadError, render_recommendations
 from core.tool_call_validation import ToolArgumentsError, parse_recipe_tool_arguments
-from core.request_safety import mentions_unsupported_allergy
+from core.request_safety import mentions_unsupported_allergy, mentions_unsupported_exclusion
 
 
 load_dotenv()
@@ -29,6 +29,14 @@ UNSUPPORTED_ALLERGY_RESPONSE = (
     "Ten chatbot nie obsługuje doboru przepisów pod kątem alergii ani ryzyka kontaktu z alergenami. "
     "Nie zastępuje takich wymagań filtrami bez glutenu, bez laktozy ani dietą wegańską. "
     "Obsługa alergii wymaga osobnej weryfikacji, której ten katalog nie zapewnia."
+)
+UNSUPPORTED_EXCLUSION_RESPONSE = (
+    "Nie wyszukano przepisów. W zapytaniu rozpoznano wykluczenie, którego ten katalog "
+    "nie obsługuje, lub niejednoznaczny zapis ograniczeń. Nie zastępuję go innym filtrem "
+    "ani nie pomijam go podczas wyszukiwania. Obsługiwane są bez glutenu, bez laktozy "
+    "oraz dostępne diety. Bez laktozy nie oznacza bez mleka ani bez nabiału. "
+    "Doprecyzuj wymagania; jeśli nieobsługiwane wykluczenie jest konieczne, "
+    "ten chatbot nie może dobrać zgodnych z nim przepisów."
 )
 
 
@@ -81,6 +89,8 @@ def run_recommendation_tool(function_args: dict) -> dict:
 def chat_with_bot(user_message: str, brand_name: str) -> str:
     if mentions_unsupported_allergy(user_message):
         return UNSUPPORTED_ALLERGY_RESPONSE
+    if mentions_unsupported_exclusion(user_message):
+        return UNSUPPORTED_EXCLUSION_RESPONSE
     messages = [
         {"role": "system", "content": build_system_prompt(brand_name)},
         {"role": "user", "content": user_message},

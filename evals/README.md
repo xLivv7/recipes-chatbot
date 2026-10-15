@@ -5,8 +5,10 @@
 The application now has a conservative allergy-mention preflight before the
 LLM call (see `docs/allergy_request_boundary.md`). `run_llm_eval.py` deliberately
 continues to measure the raw model, without this guard. Passing application
-guard tests must not be counted as improved LLM routing accuracy. Unsupported
-exclusions without allergy wording still require a separate protection stage.
+guard tests must not be counted as improved LLM routing accuracy. Since
+2026-10-15, a separate limited lexical exclusion preflight also runs before
+the model; see `docs/unsupported_exclusions_contract.md` for coverage, deliberate
+false positives and missed paraphrases. Raw-model evals still bypass both guards.
 
 The application uses one LLM call for intent and tool selection. Backend results
 are rendered locally; no final-answer LLM call is made. The shared current prompt

@@ -1,5 +1,10 @@
 # Granica obslugi zapytan dotyczacych alergii
 
+Aktualizacja 2026-10-15: po ochronie alergii dodano oddzielna ochrone
+nieobslugiwanych wykluczen. Aktualny zakres i ograniczenia opisuje
+docs/unsupported_exclusions_contract.md. Ponizsze uwagi o braku ochrony
+"bez orzechow" i "bez mleka" opisuja historyczny stan etapu alergii.
+
 Status: wdrozona konserwatywna ochrona leksykalna, 2026-10-06.
 
 ## Kontrakt
