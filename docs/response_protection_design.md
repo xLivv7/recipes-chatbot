@@ -174,3 +174,14 @@ Rozpoznane nieobslugiwane lub niejednoznaczne wykluczenie zatrzymuje API
 i backend. Staly komunikat nie proponuje zamiennika filtra ani pominiecia
 koniecznego wymagania. Szczegoly gramatyki, negacji, false positives i luk:
 docs/unsupported_exclusions_contract.md. Nie zmieniano promptu ani backendu.
+
+# Aktualizacja 2026-10-15: pojedyncze wywolanie rekomendacji
+
+Aplikacja i surowy eval intencji wysylaja parallel_tool_calls=false.
+tool_choice=auto pozostaje, aby zachowac sciezke bez narzedzia. Prompt i opis
+top_n wyjasniaja: dwie propozycje to jeden call z top_n=2, nie dwa wyszukiwania.
+Nie dodano scalania ani wyboru pierwszego calla; lista dluzsza niz jeden nadal
+jest odrzucana przed backendem. Raport eval zapisuje ustawienie parallel_tool_calls.
+Testy regresyjne intent_007 i intent_059 uzywaja mockowanych odpowiedzi modelu;
+nie dowodza poprawnej ekstrakcji liczby przez model bez nowego live pomiaru.
+Referencja: https://developers.openai.com/api/docs/guides/function-calling

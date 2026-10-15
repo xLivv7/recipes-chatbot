@@ -45,7 +45,7 @@ RECIPE_TOOLS = [
                     "top_n": {
                         "type": "integer",
                         "minimum": 1,
-                        "description": "Liczba propozycji do wyszukania w bazie. Domyślnie użyj 3, chyba że użytkownik chce więcej/mniej."
+                        "description": "Liczba propozycji w jednym wyszukiwaniu. Dwa przepisy, dwie przekąski lub dwa desery oznaczają top_n=2 w jednym wywołaniu, nie dwa wywołania. Domyślnie użyj 3, chyba że użytkownik chce więcej/mniej."
                     }
                 },
                 "required": ["diet", "protein_preference", "restrictions", "nutrition_goal", "category", "top_n"]

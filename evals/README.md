@@ -2,6 +2,15 @@
 
 ## Current Architecture (2026-10-06)
 
+Update 2026-10-15: application and raw intent eval both send
+`parallel_tool_calls=false`, with `tool_choice=auto` unchanged. The prompt and
+top_n description explicitly distinguish proposal count from call count:
+two proposals mean one call with top_n=2. Reports now record this API setting.
+Six new mocked regression tests cover intent_007/intent_059, one backend call,
+two rendered results, and rejection of multiple calls. Full suite: 182 tests OK;
+dry-run: 70 cases. This is not a new live LLM quality measurement. Old reports
+without the flag describe the earlier configuration and remain unchanged.
+
 The application now has a conservative allergy-mention preflight before the
 LLM call (see `docs/allergy_request_boundary.md`). `run_llm_eval.py` deliberately
 continues to measure the raw model, without this guard. Passing application

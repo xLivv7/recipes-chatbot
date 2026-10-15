@@ -93,6 +93,7 @@ def extract_tool_args(client: OpenAI, model: str, user_message: str, brand_name:
         ],
         tools=RECIPE_TOOLS,
         tool_choice="auto",
+        parallel_tool_calls=False,
         temperature=0.1,
     )
 
@@ -218,6 +219,7 @@ def run_eval(args: argparse.Namespace) -> dict[str, Any]:
         "dry_run": False,
         "evaluation_kind": "application_intent_routing",
         "temperature": 0.1,
+        "parallel_tool_calls": False,
         "system_prompt": build_eval_system_prompt(args.brand_name),
         "model": args.model,
         "brand_name": args.brand_name,

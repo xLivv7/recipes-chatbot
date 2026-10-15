@@ -30,6 +30,7 @@ class CurrentEvaluationTests(unittest.TestCase):
         self.assertIsNone(extract_tool_args(client, "gpt-4o-mini", "Zapytanie", "Winiary"))
         args = client.chat.completions.create.call_args.kwargs
         self.assertEqual(args["tool_choice"], "auto")
+        self.assertIs(args["parallel_tool_calls"], False)
         self.assertEqual(args["temperature"], 0.1)
         self.assertEqual(args["messages"][0]["content"], build_system_prompt("Winiary"))
 

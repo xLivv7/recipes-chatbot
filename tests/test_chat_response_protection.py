@@ -33,6 +33,7 @@ class ChatResponseProtectionTests(unittest.TestCase):
             with patch("main.get_recommendations", return_value=data) as backend:
                 result = chat_with_bot("Dodaj wymyslony produkt", "Winiary")
             api.assert_called_once()
+            self.assertIs(api.call_args.kwargs["parallel_tool_calls"], False)
         return result, backend.call_count
 
     def test_chat_renders_backend_without_second_llm_call(self):

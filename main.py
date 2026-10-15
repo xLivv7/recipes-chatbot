@@ -46,6 +46,9 @@ def build_system_prompt(brand_name: str) -> str:
         "Twoją jedyną rolą jest decyzja o wywołaniu get_recommendations i wybór jego parametrów. "
         "Odpowiedź końcową tworzy aplikacja, nie ty. Nie redaguj przepisów, porad, SKU ani kalorii. "
         "Dla obsługiwanej prośby o posiłek wywołaj dokładnie jedno narzędzie. "
+        "Liczbę propozycji ustaw w top_n, nie w liczbie wywołań: dwa przepisy, "
+        "dwie przekąski lub dwa desery oznaczają jeden call z top_n=2. "
+        "Nie wykonuj osobnego calla dla każdej propozycji. "
         "Nie wywołuj narzędzia dla rozmowy niezwiązanej z przepisami lub nieobsługiwanych ograniczeń.\n"
         "PARAMETRY: stosuj wyłącznie słowniki i typy ze schematu. Uzupełnij wymagane pola. "
         "Bez określonej diety użyj none, bez źródła białka none, bez ograniczeń [], "
@@ -102,6 +105,7 @@ def chat_with_bot(user_message: str, brand_name: str) -> str:
             messages=messages,
             tools=RECIPE_TOOLS,
             tool_choice="auto",
+            parallel_tool_calls=False,
             temperature=0.1,
         )
     except APIError as exc:
