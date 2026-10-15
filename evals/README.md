@@ -1,5 +1,15 @@
 # Evaluation: Current Architecture and Historical Baselines
 
+## Latest Measurement: Complete Examples Regressed Routing
+
+The corrected prompt at 6e73a65 has now been measured in 3 x 76 regression
+trials per mode, without API failures. Raw: 145/228 (63.6%); application:
+141/228 (61.8%). intent_015/025 pass all attempts and returned argument objects
+are valid, but many supported requests now receive no tool call. This prompt
+change is **not accepted as an overall improvement**. No automatic rollback
+or tuning was performed during evaluation; current code remains reproducible.
+See `docs/evaluation_complete_examples_2026-10-15.md`. Prior reports are retained.
+
 ## Post-Measurement Prompt Correction (2026-10-15)
 
 The current prompt now contains five complete JSON argument examples instead
@@ -7,8 +17,8 @@ of partial argument fragments. All include protein_preference and every other
 required field; no-time examples omit only optional time_max. The schema and
 runtime validation were not relaxed and no missing fields are silently repaired.
 211 tests pass, including five new prompt-completeness checks. A dry-run loads
-76 regression cases. No live measurement of this corrected prompt has been made.
-The reports below describe the earlier frozen prompt, not this new version;
+76 regression cases. The latest measurement is summarized above.
+The earlier campaign reports describe the earlier frozen prompt, not this version;
 keep them unchanged and use new output paths for future measurements.
 
 ## Repeats and Holdout v1 (Measured 2026-10-15)
