@@ -1,5 +1,18 @@
 # Evaluation: Current Architecture and Historical Baselines
 
+## No-Tool Diagnostic (2026-10-15)
+
+Report schema v3 preserves no_tool_content, no_tool_refusal and finish_reason
+for controlled evaluation cases. No production response logging was added.
+A targeted 16-call run with the unchanged prompt showed that six failing
+queries each returned correct argument JSON as ordinary assistant content
+twice, instead of a tool call. Two controls called the tool in both attempts.
+This is a channel/protocol-selection issue in that sample, not a refusal or
+missing arguments. Text JSON is still scored as no_tool and is not executed.
+See `docs/no_tool_diagnosis_2026-10-15.md`; no prompt repair was made here.
+Do not use diagnostic content logging for private real-user conversations
+without a separate privacy decision. Old reports cannot recover missing text.
+
 ## Latest Measurement: Complete Examples Regressed Routing
 
 The corrected prompt at 6e73a65 has now been measured in 3 x 76 regression

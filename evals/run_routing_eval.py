@@ -31,10 +31,15 @@ HOLDOUT_CASES_PATH = Path(__file__).with_name("holdout_cases_v1.json")
 def observe_response(response):
     observation = {"model_action": None, "tool_call_count": None, "raw_tool_calls": [],
                    "protocol_valid": None, "arguments_valid": None, "actual": None,
+                   "no_tool_content": None, "no_tool_refusal": None, "finish_reason": None,
                    "failure_stage": None}
     if not response.choices:
         return {**observation, "protocol_valid": False, "failure_stage": "protocol"}
     calls = response.choices[0].message.tool_calls or []
+    observation["finish_reason"] = getattr(response.choices[0], "finish_reason", None)
+    if not calls:
+        observation["no_tool_content"] = getattr(response.choices[0].message, "content", None)
+        observation["no_tool_refusal"] = getattr(response.choices[0].message, "refusal", None)
     observation.update(model_action="tool" if calls else "no_tool", tool_call_count=len(calls),
                        raw_tool_calls=[{"name": call.function.name,
                                         "arguments": call.function.arguments} for call in calls])
@@ -92,6 +97,7 @@ def evaluate_case(case, mode, client, model="gpt-4o-mini", brand_name="Winiary")
 
     observation = {"model_action": None, "tool_call_count": None, "raw_tool_calls": [],
                    "protocol_valid": None, "arguments_valid": None, "actual": None,
+                   "no_tool_content": None, "no_tool_refusal": None, "finish_reason": None,
                    "failure_stage": None}
     if api_errors:
         observation.update(failure_stage="api", error=api_errors[0])
@@ -186,7 +192,7 @@ def run_eval(args):
     # Application currently fixes this model; do not silently compare a different one.
     if args.mode == "application" and args.model != "gpt-4o-mini":
         raise ValueError("Application mode requires its configured model gpt-4o-mini.")
-    report = {"schema_version": 2, "evaluation_kind": f"separated_{args.mode}_routing",
+    report = {"schema_version": 3, "evaluation_kind": f"separated_{args.mode}_routing",
               "dataset_role": "holdout_v1" if getattr(args, "holdout", False) else "regression",
               "repeats": repeats,
               "scope": "routing_only_with_stubbed_recommendation_tool",
