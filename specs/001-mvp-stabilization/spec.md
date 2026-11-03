@@ -1,7 +1,7 @@
 # Specyfikacja — stabilizacja istniejącego MVP
 
 Data: 2026-10-22<br>
-Wersja dokumentu: 0.6; aktualizacja T008: 2026-11-03<br>
+Wersja dokumentu: 0.7; iteracja poprawy routingu T014: 2026-11-03<br>
 Status: zakres, progi i DEC-01–03 zatwierdzone; wymagania integralności
 i błędów wdrożone w T006; protokół T008 opracowany. Pięć SKU pozostaje wstrzymanych.
 
@@ -353,6 +353,31 @@ W przyszłej pełnej ocenie rozdzielamy routing, deterministyczną poprawność
 logiki i danych oraz czytelność i zgodność odpowiedzi. Pełny przepływ na
 rzeczywistym katalogu dopełnia te oceny, zamiast zastępować je jednym procentem.
 
+### Iteracja T014 — poprawa kanału bez utraty granic obsługi
+
+T014 jest nowym zadaniem wynikającym z zakończonego T009P, nie wznowieniem
+pełnej kampanii T009 i nie zmianą jej historycznej oceny. Celem jest
+przygotowanie V3 na podstawie V2: zachować poprawę wywoływania narzędzia,
+usuwając ujawnione pomijanie nieobsługiwanych wymagań.
+
+| ID | Wymaganie | Powiązanie i weryfikacja |
+| --- | --- | --- |
+| ROU-07 | Nieobsługiwana prośba dotycząca alergii lub wykluczenia oraz sprzeczne preferencje mają pierwszeństwo przed instrukcją użycia narzędzia dla prośby o posiłek. Model nie może pomijać takiego wymagania ani zastępować go dietą lub innym filtrem. | ACC-09/11; raw: wszystkie próby no_tool, w szczególności routing_004, bez zmiany expected. |
+| ROU-08 | V3 zachowuje znaczenie parametrów i pełne przykłady z V2. Modyfikacja dotyczy doprecyzowania pierwszeństwa granic obsługi; bez zmiany schematu, parsera, preflight i wykonywania JSON-a z content. | ROU-01–06; przegląd diffu V2/V3 i testy offline, potem poprawność kanału i wszystkich argumentów. |
+| ROU-09 | Sam sukces preflight w application nie dowodzi poprawnej odmowy modelu. Błąd modelu widoczny w raw pozostaje błędem diagnostycznym, nawet gdy aplikacja go blokuje. | Oddzielne raw i application, liczby wywołań modelu i backendu, poprawne i fałszywe blokady. |
+| ROU-10 | Nowy prompt nie jest wdrażany automatycznie po wzroście procentu. Wymagane są pozytywny wynik uzgodnionego porównania, przegląd regresji, osobna decyzja o wdrożeniu i aktualizacja dowodów. | Protokół T014 w planie, stan w tasks, raport z decyzją. Brak wyniku lub porażka pozostawia V0. |
+
+Warunki ukończenia T014: wariant V3 zamrożony po przeglądzie offline,
+porównanie według wcześniej ustalonej reguły, wyniki raw i application,
+przegląd regresji oraz jawna decyzja „wdrożyć / pozostawić V0 / potrzebna
+kolejna hipoteza”. Ukończenie zadania nie wymaga pozytywnej hipotezy,
+ale wymaga dowodów i decyzji. Nie jest końcową akceptacją MVP.
+
+T014.1 obejmuje tę specyfikację; T014.2 przygotowanie V3 i instrumentacji
+offline; T014.3 osobno zatwierdzony pomiar; T014.4 ocenę i ewentualne wdrożenie.
+Zgoda na poprzednie 120 wywołań V0/V2 została wykorzystana i nie jest zgodą
+na następne wywołania. T009 i analiza pięciu SKU pozostają wstrzymane.
+
 ## 6. Granice obsługi
 
 Ograniczenia bez glutenu i bez laktozy oznaczają zgodność z udokumentowaną
@@ -407,8 +432,9 @@ nie stanowi akceptacji MVP.
 
 Stan zastany, kontrola bazowa, wymagania T005, wdrożenie T006 i specyfikacja
 T008 są zapisane. Część offline T009 jest wykonana; płatną kampanię
-wstrzymano na decyzję autorki (DEC-05). T007 i T011 pozostają niezależnymi
-zadaniami gotowymi do rozpoczęcia.
+wstrzymano na decyzję autorki (DEC-05). T009P jest zakończone.
+Następna iteracja routingu to T014; najbliższy krok T014.2 jest wyłącznie
+offline. T007 i T011 pozostają niezależnymi zadaniami.
 Kolejność opisuje [plan](plan.md), a stan prac
 [zadania](tasks.md). Nie uruchamiamy ponownie wykonanych etapów na podstawie
 dawnych notatek.

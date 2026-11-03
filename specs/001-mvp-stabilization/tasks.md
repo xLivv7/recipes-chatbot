@@ -39,6 +39,11 @@ Pozostałe stany: **gotowe do rozpoczęcia**, **oczekuje na zależność**,
 
 ## Najbliższe zadanie
 
+**T014.2 — przygotowanie V3 i weryfikacji offline.** Wymagania T014.1
+są zapisane w specyfikacji, etapy i reguła wyboru w sekcji 7 planu.
+T014 obejmuje cztery kroki kolejnej iteracji routingu i nie wznawia T009.
+Teraz nie uruchamiamy płatnego pomiaru ani nie zmieniamy aktywnego promptu.
+
 **T009P zakończone po zatwierdzeniu płatnego pilotażu przez autorkę.**
 V2: 57/60, ale 15/18 poprawnych no_tool; V0: 42/60 i 18/18 no_tool.
 Zgodnie z regułą pozostaje V0. [Raport](../../docs/reports/routing_pilot_2026-11-03.md).
@@ -55,6 +60,22 @@ nadal wymaga zamknięcia pozostałych luk; T012 jest wstrzymane.
 
 ## Kolejne zadania
 
+- [ ] **T014 — poprawa routingu bez utraty granic obsługi.**
+  Zakres: ROU-07–ROU-10; zależność: zakończony T009P.
+  Gotowe po raporcie porównania, przeglądzie regresji i jawnej decyzji
+  o kandydacie/wdrożeniu; brak poprawy także musi być odnotowany.
+  - [x] **T014.1 — specyfikacja i plan.** Zapisano wymagania, zależności,
+    regułę oceny i granice zmian. Bez kodu, danych i wywołań API.
+  - [ ] **T014.2 — V3 i przygotowanie offline.** Stan: **gotowe do rozpoczęcia**.
+    Ograniczony diff V2/V3, izolowana instrumentacja raw/application,
+    testy, manifest i kosztorys według sekcji 7 `plan.md`.
+    Gotowe po testach i dry-run, bez podmiany promptu aplikacji.
+  - [ ] **T014.3 — małe porównanie raw/application.** Stan: **oczekuje na T014.2
+    i zgodę na konkretny pomiar**. Zamrożone dane i reguła, osobne wyniki,
+    bez użycia holdoutu i bez selektywnego ponawiania porażek.
+  - [ ] **T014.4 — przegląd i decyzja o wdrożeniu.** Stan: **oczekuje na T014.3**.
+    Sprawdzić warunki kandydata, regresję i rozbieżności raw/application.
+    Ewentualne wdrożenie dopiero po jawnej decyzji; inaczej pozostaje V0.
 - [ ] **T007 — przegląd używanych konceptów z ostrzeżeniami kcal.**
   Stan: **gotowe do rozpoczęcia**. Sprawdzić źródła C012/C338/C357/C367;
   zapisać uzasadnioną akceptację albo propozycję korekty. Nie zmieniać kcal

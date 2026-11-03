@@ -202,3 +202,37 @@ holdout, osobno testy backendu i katalogu, ocena renderera i czytelności,
 a na końcu scenariusze całego przepływu. To rozwinięcie obecnej mapy ACC,
 nie nowa funkcjonalność ani obietnica wykazania poprawy. Mniejszy pilotaż
 ma inne limity generacji i retry niż pełny plan, więc wymaga własnego raportu.
+
+## 7. T014 — następna iteracja poprawy routingu
+
+1. **T014.1 — wymagania:** zapisane ROU-07–ROU-10 w specyfikacji. Wyniki
+   T009P pozostają bez zmian. Doprecyzowanie dotyczy instrukcji modelu,
+   nie dodania obsługi alergii ani zmiany reguł aplikacji.
+2. **T014.2 — przygotowanie offline:** zaprojektować V3 jako ograniczony diff
+   względem V2, ujednoznaczniający priorytet no_tool. Zachować te same przykłady,
+   słowniki i znaczenie argumentów. Dodać izolowaną obsługę V3 w ewaluacji,
+   testy treści i wspólnego promptu w obu trybach, kosztorys i dry-run.
+   Nie zmieniać aktywnego `main.build_system_prompt`, preflight ani danych.
+3. **T014.3 — porównanie:** propozycja zakresu do zamrożenia przed pomiarem:
+   V0/V3, te same 20 przypadków rozwojowych, 3 rundy, raw i application.
+   To 240 ocen i planowo 216 wywołań API przy obecnych 4 blokadach
+   preflight w tym podzbiorze. Liczby potwierdzić offline. Limit odpowiedzi
+   512, retry 0; policzyć nową rezerwę kosztu. Wykonanie dopiero po
+   przedstawieniu i zatwierdzeniu konkretnego manifestu, payloadu i kosztu.
+4. **T014.4 — decyzja:** przejrzeć wyniki i regresję; dopiero wtedy rozważyć
+   zastąpienie V0. Dla wdrożenia potrzebna jest odrębna jawna decyzja,
+   testy aplikacji z nowym promptem i zapis wersji. Sam pomiar nie wdraża V3.
+
+Reguła kandydata, do sprawdzenia przed kampanią: komplet ocen bez błędów
+API, jeden resolved model, brak ucięć; wszystkie 18 prób no_tool poprawne
+osobno w raw i application; wynik raw V3 lepszy od równocześnie mierzonego
+V0, liczba stabilnych przypadków raw nie mniejsza oraz wynik application
+nie gorszy. Brak nowego stałego niepowodzenia przypadku poprawnego 3/3
+w kontroli. Jeśli warunki nie są spełnione, pozostaje V0; nie zmieniać
+reguły ani etykiet po obejrzeniu wyników. Progi końcowej akceptacji ACC
+pozostają bez zmian — ta reguła dotyczy tylko kandydata w małej iteracji.
+
+Zestaw był już ujawniony i służy rozwojowi V3, więc nie jest holdoutem.
+Raport ma pokazać per-case również błąd raw zatrzymany przez preflight,
+bez zaliczania ochrony jako sukcesu modelu. Pełna niezależna ocena nadal
+należy do późniejszych zadań; T014 nie uruchamia wstrzymanej kampanii T009.

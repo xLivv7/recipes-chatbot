@@ -101,6 +101,18 @@ Końcowy niezależny holdout pozostaje T010/T013, poza wyborem wariantu.
 
 ## 4. Metody zbierania dowodów
 
+### Plan dowodów dla T014
+
+| Wymaganie | Kryterium | Dowód do uzyskania |
+| --- | --- | --- |
+| ROU-07 | ACC-09/11 | Raw i application: wszystkie próby no_tool, ze szczególnym wskazaniem routing_004. Obecny wynik V2 15/18 nie zalicza tego wymagania. |
+| ROU-08 | ACC-06/09 | Diff V2/V3, kompletność i zgodność przykładów, niezmieniony parser/schemat/preflight, test izolacji wariantu. W T014.2 przed API. |
+| ROU-09 | ACC-09/11 | Oddzielne wyniki modelu i aplikacji, liczby blokad i dispatch; błędy raw zachowane mimo poprawnej blokady. Mały zbiór pozostaje rozwojowy. |
+| ROU-10 | Reguła iteracji; ACC bez zmian | Manifest, kompletny raport zgodny z sekcją 7 planu, przegląd regresji i osobna decyzja o wdrożeniu lub pozostawieniu V0. |
+
+Stan: T014.1 zapisane; brak V3, jego testów, nowych wyników lub wdrożenia.
+Nie przenosimy wyników V2 na nieistniejący V3. Najbliższe T014.2 jest offline.
+
 ### Mały pilotaż T009P
 
 Osobny podzbiór 20 istniejących przypadków i expected, bez holdoutu.
