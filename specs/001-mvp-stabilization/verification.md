@@ -67,6 +67,28 @@ Warianty obejmują przypisanie do innego klienta, innego konceptu, brak SKU
 i brak mapowania konceptu. `client_id` SKU jest odczytywany z istniejącej bazy;
 nie zmieniono schematu ani danych.
 
+### Routing T008 — plan weryfikacji T009
+
+Stan na 2026-11-03: specyfikacja i protokół gotowe; kod instrumentacji,
+testy wariantów i żywe pomiary nie są jeszcze wykonane. Wejścia offline:
+[plan_inputs.json](../../dokumentacja%20pracy/2026-11-03_t008/plan_inputs.json).
+Odczytano pliki przypadków i lokalne reguły; nie importowano aplikacji
+ani nie łączono się z bazą lub API. To nie jest dry-run nowej instrumentacji.
+
+| Wymaganie | Kryterium / scenariusze | Istniejący punkt zaczepienia i brakujący dowód |
+| --- | --- | --- |
+| ROU-01 | ACC-06/09; RSC-01 | `test_single_recommendation_call.py`, `test_current_evaluation.py`; potrzebne pomiary V0/V1/V2 i agregaty poprawności wszystkich argumentów. |
+| ROU-02 | ACC-06/09; RSC-02 | `test_no_tool_diagnostics.py`, `test_chat_response_protection.py`; potwierdzić zachowanie w instrumentacji każdego wariantu. Nie zaliczać tekstowego JSON-a. |
+| ROU-03 | ACC-09/11; RSC-03/04/05 | Istniejące przypadki guard/routing i testy preflight. W kampanii oddzielić 27 ocen ACC-11 i 6 znanych fałszywych blokad, bez zmiany etykiet. |
+| ROU-04 | ACC-06/09; RSC-06/07 | `test_tool_call_validation.py`, `test_complete_prompt_examples.py`; kontrola V0 nadal używa ramek, V2 potrzebuje osobnego odczytu tych samych pełnych argumentów. |
+| ROU-05 | ACC-09/10; RSC-08 | `test_routing_repeats_holdout.py` i obecne metryki per-case; potrzebne agregaty podzbiorów, łączenie rund bez duplikatów, dowód kompletności kampanii. |
+| ROU-06 | Porównywalność; RSC-07/08 | Test izolacji wariantu w raw/application, zgodność V0 z bazą, zapis i hashe pełnych promptów, manifest oraz kontrola braku API w dry-run — do wykonania w T009. |
+
+Trzy warianty i trzy powtórzenia dwóch trybów dają 1368 ocen i planowo
+1278 wywołań SDK. W T008 faktycznie wykonano **0 wywołań API**. Nie uznano
+żadnego ROU za potwierdzony żywym pomiarem i nie zmieniono ocen ACC.
+Końcowy niezależny holdout pozostaje T010/T013, poza wyborem wariantu.
+
 ## 4. Metody zbierania dowodów
 
 Ta sekcja opisuje sposób weryfikacji. Kolejność i stan prac są utrzymywane
@@ -123,3 +145,7 @@ następnie zapisano osobny raport bazowy z kopią danych, inwentaryzacją
 holdout pozostają do przygotowania. T005 opisuje szczegółowo integralność
 i błędy; wdrożenie T006 i wykonane scenariusze są opisane w sekcji 3.
 Kod zaktualizowano zgodnie z wymaganiami; dane i progi pozostały bez zmian.
+
+T008 zakończyło przygotowanie wymagań ROU i protokołu, bez zmiany promptu
+lub kodu pomiarowego. Następna praca T009 zaczyna się od instrumentacji
+offline, a nie od wywołania płatnej kampanii.

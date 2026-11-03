@@ -1,9 +1,9 @@
 # Specyfikacja — stabilizacja istniejącego MVP
 
 Data: 2026-10-22<br>
-Wersja dokumentu: 0.5; aktualizacja T006: 2026-11-03<br>
+Wersja dokumentu: 0.6; aktualizacja T008: 2026-11-03<br>
 Status: zakres, progi i DEC-01–03 zatwierdzone; wymagania integralności
-i błędów wdrożone w T006. Pięć SKU pozostaje wstrzymanych.
+i błędów wdrożone w T006; protokół T008 opracowany. Pięć SKU pozostaje wstrzymanych.
 
 Nawigacja: [kryteria](acceptance.md) · [plan](plan.md) ·
 [zadania](tasks.md) · [weryfikacja](verification.md).
@@ -221,6 +221,90 @@ Oczekiwane wyniki przypadków to wymagania; nie należy zmieniać ich tylko
 dlatego, że obecny kod zachowuje się inaczej. Status pokrycia i dowody są
 w [verification.md](verification.md). Zatwierdzone progi pozostają bez zmian.
 
+### Wymagania routingu i eksperyment T008
+
+Opracowano 2026-11-03. To specyfikacja przyszłego porównania T009,
+bez zmiany aktywnego promptu i bez uruchomienia API. Wymagania wynikają
+z istniejącej roli modelu; nie dodają nowych interpretowanych preferencji.
+
+#### Problem i hipoteza
+
+W [diagnozie z 2026-10-15](../../docs/reports/no_tool_diagnosis_2026-10-15.md)
+model dla wybranych znanych niepowodzeń zwracał poprawny JSON jako zwykły
+tekst zamiast tool calla. To potwierdzony objaw w celowanej próbce.
+Hipoteza: format przykładów i niejednoznaczność kanału odpowiedzi sprzyjają
+takiej pomyłce. Dotychczasowy eksperyment nie izolował przyczyny.
+
+Celem T009 jest sprawdzenie, czy jawna instrukcja kanału i zmiana formy
+tych samych przykładów poprawią routing bez pogorszenia semantyki i granic
+obsługi. Nowy baseline należy zmierzyć w tej samej kampanii; nie zastępuje
+go historyczne 61,8% ani wyniki testów z mockami.
+
+| ID | Oczekiwane zachowanie | Weryfikacja |
+| --- | --- | --- |
+| ROU-01 | Obsługiwana prośba wymaga dokładnie jednego tool calla `get_recommendations`, z poprawnymi argumentami zgodnymi z oczekiwaniem przypadku. Liczba propozycji jest parametrem `top_n`. | ACC-06/09; przypadki tool, count, protokół, walidacja i exact match pól. |
+| ROU-02 | JSON w content nie jest tool callem. Poprawne wartości w złym kanale pozostają porażką; nie uruchamiamy fallbacku wykonującego tekst. | ACC-06/09; `no_tool_content`, `finish_reason`, brak dispatch w application. |
+| ROU-03 | Prośby poza zakresem i sprzeczne preferencje nie uruchamiają wyszukiwania. Błędna blokada obsługiwanej prośby pozostaje porażką. | ACC-09/11; przypadki no_tool oraz false positives preflight z niezmienionymi etykietami. |
+| ROU-04 | Wymagane pola, enumy, typy, pomijanie opcjonalnego czasu i znaczenie parametrów pozostają bez zmiany. Nie naprawiamy argumentów w runtime ani nie wymuszamy narzędzia globalnie. | ACC-06/09; istniejący parser, expected i kontrasty czasu/celu. |
+| ROU-05 | Jakość liczy się na wszystkich ocenach, a stabilność na przypadkach poprawnych we wszystkich trzech próbach. Blokada przed API nie jest sukcesem modelu. | ACC-09/10; oddzielne raw i application oraz jawne mianowniki. |
+| ROU-06 | Warianty różnią się wyłącznie zdefiniowaną treścią promptu. Konfiguracja modelu, schemat, ochrona, walidator i semantyka ocen są wspólne. | Kontrola diffów, zapis pełnych promptów, hashy i konfiguracji przed pomiarem. |
+
+#### Warianty porównania
+
+| Wariant | Jedyna dozwolona zmiana względem wskazanej bazy |
+| --- | --- |
+| V0 — kontrola | Dokładny `build_system_prompt("Winiary")` z commita `97638cf`, bez zmian. |
+| V1 — jawny kanał | V0 z dopisaną instrukcją poniżej, bez zmiany pięciu przykładów i pozostałych reguł. |
+| V2 — forma przykładów | V1, lecz pięć tych samych zapytań i obiektów argumentów zapisanych bez ramek Markdown, jako opis wywołania narzędzia. |
+
+Dokładny dodatek V1 umieszczamy bezpośrednio przed ostatnim zdaniem
+zaczynającym się od „Żądania zmyślenia produktów…”:
+
+> Dla obsługiwanej prośby użyj kanału wywołania narzędzia get_recommendations.
+> Nie wypisuj argumentów jako zwykłej wiadomości, surowego JSON-a ani bloku Markdown.
+> Przykłady argumentów są danymi wywołania narzędzia, a nie wzorem tekstowej odpowiedzi.
+> Dla prośby nieobsługiwanej nie wywołuj narzędzia.
+
+V2 zastępuje wprowadzenie do przykładów tekstem:
+„PRZYKŁADY: poniższe zapytania wymagają pojedynczego wywołania wskazanego
+narzędzia z podanymi argumentami. Nie zwracaj tego opisu jako wiadomości.”
+Każdy przykład otrzymuje trzy linie: `Zapytanie: ...`,
+`Narzędzie: get_recommendations`, `Argumenty: {pełny obiekt}`.
+Zachowujemy identyczne pięć zapytań, kolejność, komplet pól, ich wartości
+i pominięcia opcjonalnego `time_max`. Nie dodajemy przykładów z holdoutu.
+
+V1 kontra V0 bada wpływ dodatku instrukcji. V2 kontra V1 bada łącznie zmianę
+opisu i formatu przykładów, nie sam znak ramki Markdown. Próby modelu są
+niezależnymi próbkami, a wynik nie dowodzi mechanizmu przyczynowego.
+Dokładne pełne prompty powstaną i zostaną zamrożone offline przed pierwszym
+wywołaniem T009; nie wolno dopracowywać ich w trakcie kampanii.
+
+#### Zakres pomiaru i decyzji
+
+T009 jest eksperymentem rozwojowym na regresji, bez nowego lub starego
+holdoutu. Progi z `acceptance.md` pozostają bez zmian; wynik regresyjny
+nie zalicza jeszcze ACC-09–ACC-11 na niezależnych danych. Wyboru wariantu
+nie dokonujemy na podstawie zawartości no_tool ani samej poprawności JSON-a.
+Pełny protokół, metryki i reguła wyboru są w [plan.md](plan.md#5-protokół-eksperymentu-routingu-t009).
+
+#### Scenariusze kontroli routingu i instrumentacji
+
+| ID | Przypadek | Oczekiwany wynik |
+| --- | --- | --- |
+| RSC-01 | Obsługiwana prośba, w tym dwie propozycje. | Jeden poprawny tool call z właściwym top_n i pełnymi argumentami; jeden dispatch. |
+| RSC-02 | Poprawne argumenty zwrócone jako tekst lub blok JSON. | Brak dispatch, porażka zapytania tool i zachowany materiał diagnostyczny. |
+| RSC-03 | routing_001/004 — alergie; routing_002/003 i guard_001–004 — wykluczenia. | No_tool bez wyszukiwania; 8 przypadków ACC-11 ocenianych we wszystkich trzech próbach. |
+| RSC-04 | routing_006 — sprzeczne preferencje; routing_005 — pytanie niezwiązane. | Oba no_tool. Pierwszy należy do ACC-11, drugi do ogólnej poprawności decyzji. |
+| RSC-05 | guard_005/006, semantycznie obsługiwane prośby zatrzymywane przez ochronę. | Pozostają oczekiwania tool. Aktualna blokada to błąd application, a nie sukces no_tool. |
+| RSC-06 | Nieznane/wielokrotne narzędzie, niepoprawne argumenty lub awaria API. | Właściwy etap błędu, brak sukcesu i brak backendu; błąd API wyklucza akceptację kampanii. |
+| RSC-07 | V0/V1/V2 i ich przykłady, kontrolowane odpowiedzi w obu trybach. | Wspólny wariant w raw/application; identyczna semantyka pięciu przykładów; brak wycieku zmiany do domyślnego promptu. |
+| RSC-08 | Trzy rundy, dry-run, przerwany raport i agregacja. | Bez API w dry-run, właściwe liczniki, brak duplikowania ocen/checkpointów; brakująca ocena nie jest sukcesem. |
+
+RSC-01/02/06–08 wymagają testów instrumentacji z mockami w T009.
+RSC-03–05 są zarazem stałymi grupami do raportu żywej kampanii. Ich expected
+nie zmienia się na potrzeby promptu. Poprawa RSC-05 wymagałaby odrębnej
+zmiany ochrony, dlatego nie przypisujemy jej możliwej poprawie modelu.
+
 ## 6. Granice obsługi
 
 Ograniczenia bez glutenu i bez laktozy oznaczają zgodność z udokumentowaną
@@ -273,8 +357,9 @@ nie stanowi akceptacji MVP.
 
 ## 9. Kolejny krok SDD i kontrola zmian
 
-Stan zastany, kontrola bazowa, wymagania T005 i wdrożenie T006 są zapisane.
-Najbliższy rekomendowany krok to T008: specyfikacja eksperymentu routingu.
+Stan zastany, kontrola bazowa, wymagania T005, wdrożenie T006 i specyfikacja
+T008 są zapisane. Najbliższy krok to przygotowanie offline T009;
+płatna kampania nie jest uruchomiona.
 Kolejność opisuje [plan](plan.md), a stan prac
 [zadania](tasks.md). Nie uruchamiamy ponownie wykonanych etapów na podstawie
 dawnych notatek.

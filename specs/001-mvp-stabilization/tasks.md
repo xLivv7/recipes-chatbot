@@ -27,10 +27,16 @@ Pozostałe stany: **gotowe do rozpoczęcia**, **oczekuje na zależność**,
   Wdrożono INT/ERR, dodano scenariusze SC. Końcowa regresja: 230 testów,
   0 błędów i pominięć; renderer 6/6, walidator 0 ERROR / 20 WARNING / 9 INFO.
   [Raport i dowody](../../docs/reports/t006_2026-11-03.md). Dane i pięć SKU bez zmian.
+- [x] **T008 — specyfikacja eksperymentu routingu.** Wykonano 2026-11-03.
+  ROU-01–ROU-06, RSC-01–RSC-08, warianty V0/V1/V2 i protokół wyboru
+  opisano w `spec.md` i `plan.md`. Offline sprawdzono 76 przypadków
+  i planowane liczebności. Prompt, kod i zbiory bez zmian; 0 wywołań API.
 
 ## Najbliższe zadanie
 
-Najbliższy niezależny krok: **T008 — specyfikacja eksperymentu routingu**.
+Najbliższy niezależny krok: **T009 — przygotowanie instrumentacji offline**.
+Najpierw zamrożenie pełnych wariantów, testy i dry-run; płatny pomiar
+jest osobnym etapem po ustaleniu kosztów. Nie uruchomiono go w T008.
 T007 i T011 także pozostają gotowe do rozpoczęcia. Końcowa akceptacja
 nadal wymaga zamknięcia pozostałych luk; T012 jest wstrzymane.
 
@@ -40,12 +46,13 @@ nadal wymaga zamknięcia pozostałych luk; T012 jest wstrzymane.
   Stan: **gotowe do rozpoczęcia**. Sprawdzić źródła C012/C338/C357/C367;
   zapisać uzasadnioną akceptację albo propozycję korekty. Nie zmieniać kcal
   automatycznie według 4/9/4. Zadanie nie obejmuje pięciu SKU.
-- [ ] **T008 — specyfikacja eksperymentu routingu.** Stan: **gotowe do rozpoczęcia**.
-  Opisać poprawny kanał wywołania i mierzone błędy. Zaplanować porównanie
-  na regresji, bez użycia holdoutu do strojenia. Sam plan nie uruchamia API.
-- [ ] **T009 — eksperyment routingu.** Stan: **oczekuje na T008**.
-  Zachować porównywalne konfiguracje i odrębne raporty; wybrać wariant
-  przed niezależnym pomiarem. Nie wykonywać tekstowego JSON-a jako fallbacku.
+- [ ] **T009 — eksperyment routingu.** Stan: **przygotowanie gotowe do rozpoczęcia**.
+  Najpierw izolowany wybór V0/V1/V2, testy RSC, metryki podzbiorów, pełne
+  prompty i manifest oraz dry-run według sekcji 5 `plan.md`. Następnie
+  osobno zaplanowana kampania: 3 rundy raw/application na regresji,
+  odrębne raporty i wybór według ustalonej reguły. Nie używać holdoutu
+  ani nie wykonywać tekstowego JSON-a jako fallbacku. Gotowe po raporcie
+  porównania i decyzji; sama instrumentacja nie kończy T009.
 - [ ] **T010 — końcowe zestawy oceny.** Stan: **oczekuje na specyfikacje ocenianych
   zachowań**. Holdout i scenariusze ręczne według `acceptance.md`, z przeglądem
   etykiet przez autorkę. Zawartość zamrozić przed kampanią.
