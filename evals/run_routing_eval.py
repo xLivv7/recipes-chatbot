@@ -2,6 +2,7 @@
 
 import argparse
 from collections import Counter
+from contextlib import ExitStack
 from datetime import datetime, timezone
 import hashlib
 import json
@@ -55,7 +56,7 @@ def observe_response(response):
     return observation
 
 
-def evaluate_case(case, mode, client, model="gpt-4o-mini", brand_name="Winiary"):
+def evaluate_case(case, mode, client, model="gpt-4o-mini", brand_name="Winiary", system_prompt=None):
     responses, backend_args, api_errors = [], [], []
     api_calls = 0
 
@@ -78,20 +79,23 @@ def evaluate_case(case, mode, client, model="gpt-4o-mini", brand_name="Winiary")
     guard = None
     app_response = None
     try:
-        if mode == "raw":
-            request_intent_response(proxy, model, case["user_message"], brand_name)
-        elif mode == "application":
-            # Execute the actual guards, tool validation and dispatch, stopping
-            # before database access. Do not reimplement application routing.
-            with patch.object(application, "client", proxy), patch.object(
-                    application, "run_recommendation_tool", side_effect=backend_stub):
-                app_response = application.chat_with_bot(case["user_message"], brand_name)
-            if app_response == application.UNSUPPORTED_ALLERGY_RESPONSE:
-                guard = "allergy"
-            elif app_response == application.UNSUPPORTED_EXCLUSION_RESPONSE:
-                guard = "exclusion"
-        else:
-            raise ValueError("Unknown evaluation mode.")
+        with ExitStack() as overrides:
+            if system_prompt is not None:
+                overrides.enter_context(patch.object(application, 'build_system_prompt', return_value=system_prompt))
+                overrides.enter_context(patch('evals.run_llm_eval.build_system_prompt', return_value=system_prompt))
+            if mode == "raw":
+                request_intent_response(proxy, model, case["user_message"], brand_name)
+            elif mode == "application":
+                # Keep the actual guards, validator and dispatch; only stub lookup.
+                with patch.object(application, "client", proxy), patch.object(
+                        application, "run_recommendation_tool", side_effect=backend_stub):
+                    app_response = application.chat_with_bot(case["user_message"], brand_name)
+                if app_response == application.UNSUPPORTED_ALLERGY_RESPONSE:
+                    guard = "allergy"
+                elif app_response == application.UNSUPPORTED_EXCLUSION_RESPONSE:
+                    guard = "exclusion"
+            else:
+                raise ValueError("Unknown evaluation mode.")
     except APIError:
         pass
 
@@ -132,6 +136,10 @@ def evaluate_case(case, mode, client, model="gpt-4o-mini", brand_name="Winiary")
         stage = "preflight" if guard else "decision"
     if stage is None and semantics_correct is False:
         stage = "semantics"
+    usage = getattr(responses[0], 'usage', None) if responses else None
+    token_usage = {name: value if type(value) is int else None
+                   for name in ('prompt_tokens', 'completion_tokens', 'total_tokens')
+                   for value in [getattr(usage, name, None)]}
     return {"id": case["id"], "user_message": case["user_message"],
             "expected_action": expected_action, "expected": case.get("expected"),
             **observation, "failure_stage": stage, "guard": guard,
@@ -140,6 +148,7 @@ def evaluate_case(case, mode, client, model="gpt-4o-mini", brand_name="Winiary")
             "field_results": fields, "api_calls": api_calls, "backend_calls": len(backend_args),
             "response_model": getattr(responses[0], "model", None) if responses else None,
             "request_id": getattr(responses[0], "_request_id", None) if responses else None,
+            "usage": token_usage,
             "passed": stage is None and decision_correct is True}
 
 

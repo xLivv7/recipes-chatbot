@@ -47,6 +47,24 @@ preflight nie są sukcesami interpretacji modelu.
 
 ## Płatne pomiary i zachowanie raportów
 
+### Kontrolowane porównanie T009
+
+`run_routing_experiment.py` obsługuje zamrożone warianty V0/V1/V2,
+rotację trzech rund i oddzielne raw/application. Nie zmienia aktywnego
+promptu aplikacji ani danych. Protokół jest w sekcji 5
+[plan.md](../specs/001-mvp-stabilization/plan.md).
+
+```powershell
+venv\Scripts\python.exe evals\run_routing_experiment.py --dry-run --output "dokumentacja pracy\NOWA_KAMPANIA"
+```
+
+Dry-run tworzy nowy katalog, pełne prompty, manifest, hashe i oszacowanie
+kosztu; nie wywołuje API. Nie nadpisuje istniejącej kampanii. Późniejsze
+`--execute --output` dla tego samego katalogu weryfikuje zamrożone wejścia
+i rozpoczyna płatne wywołania według protokołu. Błąd API zatrzymuje kampanię
+z niepełnym checkpointem; selektywne wznowienie jest zablokowane.
+Wynik porównania i wybór kandydata nie podmieniają promptu produkcyjnego.
+
 Uruchomienia routingu bez `--dry-run` wykonują płatne wywołania API.
 Wymagają osobnego planu kampanii: ustalonych zbiorów i etykiet, wersji
 kodu i promptu, konfiguracji modelu, liczby powtórzeń, progów oraz miejsc
