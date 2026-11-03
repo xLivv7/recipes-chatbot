@@ -1,34 +1,51 @@
-# Branded Recipe Chatbot SaaS
+# Branded Recipe Chatbot
 
-# This README is going to be changing, since the project is **in progress**. Some elements may change, especially the Tech Stack
+Prototyp asystenta kulinarnego dla marki spożywczej, rozwijany w ramach pracy
+inżynierskiej. Obecny etap to stabilizacja istniejących funkcji dla Winiary:
+niezawodność, poprawność rekomendacji i jakość odpowiedzi. SaaS i widget
+pozostają kierunkiem dalszego rozwoju.
 
-## 📖 Overview
+## Od czego zacząć
 
-This repository contains the source code and documentation for my engineering thesis project: a **Software-as-a-Service (SaaS) Recipe Chatbot** designed for the FMCG food industry. 
+| Potrzeba | Dokument |
+| --- | --- |
+| Co budujemy i jakie decyzje obowiązują? | [Specyfikacja MVP](specs/001-mvp-stabilization/spec.md) |
+| Po czym poznamy gotowość MVP? | [Kryteria akceptacji](specs/001-mvp-stabilization/acceptance.md) |
+| W jakiej kolejności pracujemy? | [Plan](specs/001-mvp-stabilization/plan.md) |
+| Co zrobiono, co dalej, co wstrzymano? | [Zadania](specs/001-mvp-stabilization/tasks.md) |
+| Jakie są testy i luki? | [Mapa weryfikacji](specs/001-mvp-stabilization/verification.md) |
+| Jak działa kod i gdzie są materiały techniczne? | [Dokumentacja](docs/README.md) |
 
-The chatbot is built to be easily integrated into the websites of various food brands (e.g., Knorr, Winiary, Roleski). It acts as a culinary assistant, providing users with personalized recipe recommendations based on their dietary preferences, meal types, and specific requests (e.g., "I need a low-calorie vegan dinner"). 
+## Obecna architektura
 
-The unique value proposition of this SaaS is its **Smart Brand Integration** feature: the bot intelligently substitutes generic ingredients within the recommended recipes with the client's specific branded products (e.g., automatically replacing "mayonnaise" with "Winiary mayonnaise").
+Zapytanie po polsku → lokalna kontrola zakresu → LLM wybierający narzędzie
+i argumenty → lokalna walidacja → deterministyczne rekomendacje i SKU
+→ obliczenie makro → lokalny renderer.
 
-## ✨ Key Features
+Backend korzysta z Python, SQLAlchemy i PostgreSQL. Model interpretuje
+zapytanie; nie redaguje końcowych przepisów. Nie ma drugiego wywołania LLM
+z wynikami bazy ani wyszukiwania wektorowego. Szczegóły:
+[architektura](docs/architecture.md).
 
-* **Customizable SaaS Solution:** Architecture designed to support multiple brands with distinct product portfolios.
-* **Context-Aware Recommendations:** Processes natural language queries to understand dietary restrictions, meal times, and caloric limits.
-* **Dynamic Product Placement:** Seamlessly replaces generic concepts with actual client products to drive marketing and sales.
-* **Deterministic Pre-filtering:** Ensures strict adherence to user constraints (e.g., zero meat in vegan requests) using rule-based filtering before LLM processing.
+## Uruchomienie lokalne
 
-## 🧠 System Architecture: Modified RAG
+Potrzebne są środowisko Python, istniejąca baza PostgreSQL i konfiguracja
+`DATABASE_URL` oraz `OPENAI_API_KEY` w lokalnym `.env`. Nie zapisuj sekretów
+w repozytorium. Dane są poza Git; sam klon nie odtworzy katalogu.
 
-To ensure high accuracy, prevent LLM hallucinations, and maintain strict dietary compliance, the application uses a **Modified Retrieval-Augmented Generation (RAG)** approach.
+```powershell
+venv\Scripts\python.exe main.py
+```
 
-1.  **Data Storage:** The entire recipe database is stored in a structured `JSON` file.
-2.  **Logic & Pre-filtering (Code Level):** When a user submits a prompt, the system extracts the constraints (e.g., "vegan", "dinner"). The backend logic deterministically filters the `JSON` database to exclude any recipes that violate these rules (e.g., filtering out meat dishes or breakfast options).
-3.  **Context Injection:** The pre-filtered, highly relevant subset of recipes is passed to the Large Language Model (LLM) as context.
-4.  **Selection & Brand Substitution (LLM Level):** The LLM evaluates the subset, selects the top *x* most suitable recipes, formats the output, and applies the targeted product substitutions based on the current client's profile.
+Uruchomienie wysyła zapytanie przykładowe do API i może naliczyć koszt.
+Przykład jest zapisany w `main.py`; nie jest to interaktywna konsola.
+Stan bazowy opisuje [raport](docs/reports/baseline_2026-10-22.md).
+Instrukcja przygotowania od zera i próba odtworzenia pozostają zadaniem.
 
-## 🛠️ Tech Stack
+## Sposób pracy
 
-* **Backend:** [Python]
-* **LLM Integration:** [OpenAI API]
-* **Database:** [currently local csv, json files]
-* **Frontend / Widget:** [~~React]
+Wymagania → plan → zadania → implementacja → weryfikacja.
+Aktywne ustalenia są w `specs/`, opis techniczny i dowody w `docs/`.
+[Zasady SDD](specs/README.md) określają role plików.
+Analiza pięciu SKU jest wstrzymana na prośbę autorki. Pozostałe prace
+mogą postępować, ale luka makro nie jest uznana za zamkniętą.

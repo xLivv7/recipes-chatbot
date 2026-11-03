@@ -1,5 +1,10 @@
 # Projekt ochrony odpowiedzi koncowej
 
+> ARCHIWUM: pierwotny projekt i chronologiczne aktualizacje wdrozenia.
+> Opcjonalny drugi LLM i warianty stylu nie sa obecnym zakresem MVP.
+> Obecny przeplyw: [architektura](../../architecture.md).
+> Biezace wymagania: [spec.md](../../../specs/001-mvp-stabilization/spec.md).
+
 Status: projekt do wdrozenia, 2026-10-01. Nie zmienia jeszcze chat_with_bot.
 
 Aktualizacja 2026-10-06: etap 1 wdrozony w core/response_renderer.py.
@@ -163,7 +168,7 @@ nie dowod semantycznej zgodnosci danych ani nowy wynik jakosci LLM.
 Dodano preflight w chat_with_bot i core/request_safety.py. Wykrywana wzmianka
 o alergii/uczuleniu/anafilaksji blokuje API oraz backend i zwraca staly komunikat.
 To konserwatywna regula leksykalna obejmujaca takze negacje, nie pelny
-klasyfikator ani gwarancja. Kontrakt i granice: docs/allergy_request_boundary.md.
+klasyfikator ani gwarancja. Kontrakt i granice: docs/reference/contracts/allergy_request_boundary.md.
 Oryginalny routing_004 pokrywa test regresyjny. Surowy eval LLM pozostaje
 niezmieniony, aby nie maskowac bledu modelu wynikami preflight.
 
@@ -173,7 +178,7 @@ chat_with_bot po preflight alergii sprawdza mentions_unsupported_exclusion.
 Rozpoznane nieobslugiwane lub niejednoznaczne wykluczenie zatrzymuje API
 i backend. Staly komunikat nie proponuje zamiennika filtra ani pominiecia
 koniecznego wymagania. Szczegoly gramatyki, negacji, false positives i luk:
-docs/unsupported_exclusions_contract.md. Nie zmieniano promptu ani backendu.
+docs/reference/contracts/unsupported_exclusions_contract.md. Nie zmieniano promptu ani backendu.
 
 # Aktualizacja 2026-10-15: pojedyncze wywolanie rekomendacji
 
@@ -204,7 +209,7 @@ chat_with_bot z ochrona. Narzedzie rekomendacji jest stubowane na granicy
 backendu; to nie pelny end-to-end. Raport zachowuje surowe calle, rozdziela
 protokol/argumenty/znaczenie/API i nie przypisuje blokad ochrony modelowi.
 Uwzgledniono znane false positives preflight jako bledy, nie sukcesy.
-Metodologia i polecenia: docs/separated_routing_evaluation.md.
+Metodologia i polecenia: docs/reference/evaluation/separated_routing_evaluation.md.
 
 # Aktualizacja 2026-10-15: kompletne przyklady argumentow
 

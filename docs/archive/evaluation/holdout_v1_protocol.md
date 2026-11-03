@@ -1,5 +1,9 @@
 # Holdout v1 i plan pomiaru powtarzanego
 
+> ARCHIWUM: protokół zakończonej kampanii, nie plan nowego pomiaru.
+> Holdout v1 jest ujawniony. Bieżące kryteria:
+> [acceptance.md](../../../specs/001-mvp-stabilization/acceptance.md).
+
 Data planu: 2026-10-15. Plan spisany przed pierwszym wywolaniem modelu
 na holdout_cases_v1.json. Nie zmieniac promptu, ochrony ani expected w kampanii.
 

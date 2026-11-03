@@ -1,7 +1,7 @@
 # Powtorzenia i holdout v1: wyniki 2026-10-15
 
 Protokol zamrozono przed wywolaniami: commit 42067e5,
-docs/holdout_v1_protocol.md. Prompt/ochrona/expected niezmienione w kampanii.
+docs/archive/evaluation/holdout_v1_protocol.md. Prompt/ochrona/expected niezmienione w kampanii.
 Model zwrocony przez API: gpt-4o-mini-2024-07-18, temperatura 0.1.
 Routing-only ze stubem narzedzia; zadnych wynikow bazy nie wysylano do API.
 

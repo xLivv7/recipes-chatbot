@@ -1,6 +1,10 @@
 # Ryzyka i nastepne kroki
 
-[Powrot do indeksu](../data_contract.md)
+> ARCHIWUM: dawny plan etapu walidacji. Wzmianki o braku testow i walidatora
+> nie opisuja aktualnego projektu. Nie wykonywac tej listy jako backlogu.
+> Biezace zadania: [tasks.md](../../../specs/001-mvp-stabilization/tasks.md).
+
+[Powrot do indeksu](../../reference/data-contract/README.md)
 
 ## Znane ryzyka obecnego stanu
 

@@ -1,6 +1,6 @@
 # Kontrakt JSONB przepisow
 
-[Powrot do indeksu](../data_contract.md)
+[Powrot do indeksu](README.md)
 
 ## `recipes.ingredients_data`
 

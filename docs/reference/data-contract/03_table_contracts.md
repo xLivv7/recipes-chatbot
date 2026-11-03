@@ -1,6 +1,6 @@
 # Kontrakty tabel
 
-[Powrot do indeksu](../data_contract.md)
+[Powrot do indeksu](README.md)
 
 Ten dokument opisuje kontrakt rekordow dla tabel i plikow zrodlowych. Kryteria w bardziej implementacyjnym ukladzie sa w pliku [Kryteria walidatorow](07_validator_criteria.md).
 

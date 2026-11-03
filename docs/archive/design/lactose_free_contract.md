@@ -1,5 +1,10 @@
 # Kontrakt lactose_free i audyt danych
 
+> ARCHIWUM: historia projektu i wdrozenia, zawierajaca kolejne aktualizacje.
+> Opisy „planowane” i „obecny backend” dotycza roznych etapow.
+> Biezacy zakres i decyzje: [spec.md](../../../specs/001-mvp-stabilization/spec.md).
+> Nie jest to aktualna lista zadan ani polecenie dopuszczania kolejnych SKU.
+
 Status: decyzja projektowa do implementacji. Data audytu: 2026-10-01.
 Aktualizacja: dodano nullable kolumny i import polityk; filtrowanie oraz
 obsluga parametru lactose_free sa wdrozone w backendzie i toolu LLM.

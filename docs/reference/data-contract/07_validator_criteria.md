@@ -1,6 +1,6 @@
 # Kryteria walidatorow
 
-[Powrot do indeksu](../data_contract.md)
+[Powrot do indeksu](README.md)
 
 Ten plik jest robocza checklista dla implementacji `validate_db.py`. Jesli trzeba cos znalezc podczas pisania walidatora, zaczynaj tutaj.
 

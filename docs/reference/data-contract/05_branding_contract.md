@@ -1,6 +1,6 @@
 # Kontrakt brandyfikacji
 
-[Powrot do indeksu](../data_contract.md)
+[Powrot do indeksu](README.md)
 
 ## Wejscie do brandyfikacji
 

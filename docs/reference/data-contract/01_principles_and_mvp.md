@@ -1,6 +1,6 @@
 # Zasady i MVP
 
-[Powrot do indeksu](../data_contract.md)
+[Powrot do indeksu](README.md)
 
 ## Cel kontraktu danych
 
@@ -14,26 +14,13 @@ Kontrakt ma trzy funkcje:
 
 ## Zakres MVP
 
-Minimalny zakres systemu, ktory powinien zostac doprowadzony do stabilnosci przed budowa frontendu:
-
-- rekomendacje przepisow z bazy PostgreSQL,
-- filtrowanie po preferencji dietetycznej, celu zywieniowym, kategorii posilku i czasie,
-- brandyfikacja skladnikow przez SKU klienta,
-- przeliczanie kcal i makro z danych w bazie,
-- brak halucynowania produktow i wartosci odzywczych przez LLM,
-- walidator danych obejmujacy wszystkie tabele,
-- testy najwazniejszej logiki domenowej.
-
-## Poza MVP
-
-Poza minimalnym zakresem zostaja:
-
-- rozbudowany frontend/widget,
-- panel administracyjny,
-- billing i pelna obsluga kont SaaS,
-- duzy katalog wielu marek,
-- zaawansowane wyszukiwanie semantyczne,
-- analytics dashboard.
+Zakres pierwszej wersji, elementy poza MVP i warunki ukonczenia opisuje
+[Zakres MVP](../../../specs/001-mvp-stabilization/spec.md). Uzgodniony kierunek to stabilizacja obecnych
+funkcji bez dodawania nowych mozliwosci uzytkowych. Kryteria i progi zapisano
+w [acceptance.md](../../../specs/001-mvp-stabilization/acceptance.md).
+Specyfikacja jest nadrzednym opisem granic MVP.
+Ten kontrakt rozwija wymagania dotyczace danych; nie utrzymuje osobnej listy
+funkcji MVP.
 
 ## Podzial odpowiedzialnosci
 
@@ -42,8 +29,10 @@ Poza minimalnym zakresem zostaja:
 LLM odpowiada za:
 
 - rozpoznanie intencji uzytkownika,
-- wypelnienie parametrow narzedzia `get_recommendations`,
-- redakcje finalnej odpowiedzi w przyjaznym jezyku.
+- decyzje o wywolaniu narzedzia `get_recommendations` i wypelnienie jego parametrow.
+
+Odpowiedz koncowa jest tworzona lokalnie przez renderer na podstawie danych
+backendu. Swobodny tekst modelu nie jest prezentowany jako wynik rekomendacji.
 
 LLM nie moze:
 
@@ -61,7 +50,7 @@ Backend odpowiada za:
 - sprawdzanie zgodnosci dietetycznej,
 - wybor SKU wedlug regul biznesowych,
 - obliczanie wartosci odzywczych,
-- przygotowanie ustrukturyzowanego JSON dla LLM.
+- przygotowanie ustrukturyzowanego wyniku dla lokalnego renderera.
 
 ### Baza danych
 

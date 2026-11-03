@@ -1,6 +1,6 @@
 # Kontrakt wartosci odzywczych
 
-[Powrot do indeksu](../data_contract.md)
+[Powrot do indeksu](README.md)
 
 ## Zrodlo wartosci
 

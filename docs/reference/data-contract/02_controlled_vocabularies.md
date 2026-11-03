@@ -1,6 +1,6 @@
 # Slowniki kontrolowane
 
-[Powrot do indeksu](../data_contract.md)
+[Powrot do indeksu](README.md)
 
 Slowniki kontrolowane ograniczaja dryf danych, np. mieszanie wartosci `vegan`, `weganskie`, `plant_based`.
 

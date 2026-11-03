@@ -41,7 +41,7 @@ def mentions_unsupported_exclusion(user_message: str) -> bool:
     """Recognize a limited exclusion grammar, rejecting unsupported clauses.
 
     Negated unsupported exclusions are deliberately rejected too. This is not
-    general parsing: see docs/unsupported_exclusions_contract.md for limits.
+    general parsing: see docs/reference/contracts/unsupported_exclusions_contract.md for limits.
     """
     text = _plain_polish(user_message)
     for word in re.findall(r"\bbez\w+\b", text):
