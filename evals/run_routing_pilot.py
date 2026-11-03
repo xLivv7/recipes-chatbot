@@ -1,4 +1,4 @@
-"""Frozen V0/V2 diagnostic and V0/V3 raw/application profiles; no active prompt changes."""
+"""Frozen routing comparison profiles; preparation never changes the active prompt."""
 import argparse
 import json
 import os
@@ -25,7 +25,9 @@ OUTPUT_LIMIT = 512
 PROFILES = {
     'pilot': dict(variants=('V0', 'V2'), modes=('raw',), calls=120),
     't014': dict(variants=('V0', 'V3'), modes=('raw', 'application'), calls=216),
+    't015': dict(variants=('V0', 'V4'), modes=('raw', 'application'), calls=216),
 }
+T015_TARGETS = ('intent_004', 'intent_010', 'intent_032')
 
 
 def campaign_schedule(profile):
@@ -78,6 +80,8 @@ def prepare(directory, profile='pilot'):
         'evals/routing_prompts/' + v + '.txt' for v in config['variants'])
     if profile == 't014':
         files += ('evals/routing_prompts/V2.txt',)
+    elif profile == 't015':
+        files += ('evals/routing_prompts/V3.txt',)
     manifest = dict(prepared_at_utc=now(), status='prepared', profile=profile,
         git_commit=subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, encoding='utf-8').strip(),
         files={p: digest(ROOT / p) for p in files}, prompts=prompts,
@@ -88,6 +92,8 @@ def prepare(directory, profile='pilot'):
         budget_guard_usd=BUDGET, estimated_max_output_cost_usd=reservation,
         pricing_source='https://developers.openai.com/api/docs/models/gpt-4o-mini', pricing_checked_on='2026-11-03',
         cost_limit_note='Local conservative reservation guard, excludes taxes and other account usage; not a billing guarantee')
+    if profile == 't015':
+        manifest['selection_rule'] = 'T015-v1'
     write_json(directory / 'manifest.json', manifest)
     return manifest
 
@@ -95,6 +101,8 @@ def prepare(directory, profile='pilot'):
 def summarize_pilot(rows, profile='pilot'):
     if profile == 't014':
         return summarize_t014(rows)
+    if profile == 't015':
+        return summarize_t015(rows)
     if len(rows) != 120 or len({(r['attempt'], r['variant'], r['id']) for r in rows}) != 120:
         raise ValueError('Incomplete or duplicate pilot results')
     expected_ids = {c['id'] for c in load_cases(ROOT / CASES)}
@@ -112,21 +120,27 @@ def summarize_pilot(rows, profile='pilot'):
         truncated_responses=sum(r.get('finish_reason') == 'length' for r in rows))
 
 
-def summarize_t014(rows):
+def pair_observations(rows, profile):
     ids = {c['id'] for c in load_cases(ROOT / CASES)}
-    expected = {(r, v, mode, cid) for r, v, mode in campaign_schedule('t014') for cid in ids}
+    expected = {(r, v, mode, cid) for r, v, mode in campaign_schedule(profile) for cid in ids}
     observed = {(r['attempt'], r['variant'], r['mode'], r['id']) for r in rows}
     if len(rows) != 240 or observed != expected:
-        raise ValueError('Incomplete, duplicate or unexpected T014 results')
+        raise ValueError('Incomplete, duplicate or unexpected pair results')
     labels = {c['id']: c for c in load_cases(ROOT / CASES)}
-    if any(r['expected'] != labels[r['id']].get('expected') or
+    if any(r['user_message'] != labels[r['id']]['user_message'] or
+           r['expected'] != labels[r['id']].get('expected') or
            r['expected_action'] != labels[r['id']].get('expected_action', 'tool') for r in rows):
         raise ValueError('Result labels changed')
     summaries = {v: {mode: group_summary([r for r in rows if r['variant'] == v and r['mode'] == mode])
-                    for mode in PROFILES['t014']['modes']} for v in PROFILES['t014']['variants']}
+                    for mode in PROFILES[profile]['modes']} for v in PROFILES[profile]['variants']}
     models = {r['response_model'] for r in rows if r['api_calls']}
     valid = (len(models) == 1 and None not in models
              and not any(r['failure_stage'] == 'api' or r.get('finish_reason') == 'length' for r in rows))
+    return summaries, models, valid
+
+
+def summarize_t014(rows):
+    summaries, models, valid = pair_observations(rows, 't014')
     baseline, candidate = summaries['V0'], summaries['V3']
     regressions = {mode: [cid for cid, value in baseline[mode]['case_stability'].items()
                   if value['passed'] == 3 and candidate[mode]['case_stability'][cid]['passed'] == 0]
@@ -144,6 +158,48 @@ def summarize_t014(rows):
             for r in rows if r['mode']=='raw' and not r['passed'] and any(a['mode']=='application' and
                 a['variant']==r['variant'] and a['attempt']==r['attempt'] and a['id']==r['id'] and
                 a['guard'] is not None and a['passed'] for a in rows)])
+
+
+def summarize_t015(rows):
+    summaries, models, valid = pair_observations(rows, 't015')
+    modes = PROFILES['t015']['modes']
+    baseline, candidate = summaries['V0'], summaries['V4']
+    regressions = {mode: [dict(id=cid, baseline_passed=value['passed'],
+                              candidate_passed=candidate[mode]['case_stability'][cid]['passed'])
+                         for cid, value in baseline[mode]['case_stability'].items()
+                         if candidate[mode]['case_stability'][cid]['passed'] < value['passed']]
+                   for mode in modes}
+    target_results = {v: {mode: {cid: summaries[v][mode]['case_stability'][cid]
+                                for cid in T015_TARGETS} for mode in modes}
+                      for v in PROFILES['t015']['variants']}
+    semantic_dispatches = {v: [dict(id=r['id'], attempt=r['attempt'], expected=r['expected'], actual=r['actual'])
+                              for r in rows if r['variant'] == v and r['mode'] == 'application'
+                              and r['expected_action'] == 'tool' and r['backend_calls'] > 0
+                              and r['semantics_correct'] is False]
+                           for v in PROFILES['t015']['variants']}
+    app = candidate['application']
+    conditions = dict(
+        valid_comparison=valid,
+        no_tool_all=all(candidate[m]['no_tool'] == dict(passed=18, total=18) for m in modes),
+        targets_all=all(target_results['V4'][m][cid]['passed'] == 3 for m in modes for cid in T015_TARGETS),
+        scores_improve=all(candidate[m]['passed'] > baseline[m]['passed'] for m in modes),
+        stability_not_worse=all(candidate[m]['stable_cases'] >= baseline[m]['stable_cases'] for m in modes),
+        application_accuracy=app['passed'] * 10 >= app['total'] * 9,
+        supported_accuracy=app['supported']['passed'] * 10 >= app['supported']['total'] * 9,
+        application_stability=app['stable_cases'] * 100 >= app['case_count'] * 85,
+        no_case_regression=not any(regressions.values()),
+        no_semantic_dispatch=not semantic_dispatches['V4'])
+    qualifies = all(conditions.values())
+    return dict(complete=True, valid_comparison=valid, variants=summaries,
+        rule='T015-v1', candidate='V4' if qualifies else 'V0', candidate_qualifies=qualifies,
+        conditions=conditions, case_regressions=regressions, target_cases=target_results,
+        semantic_dispatch_errors=semantic_dispatches,
+        resolved_models=sorted(m for m in models if m), active_prompt_changed=False,
+        scope='development_iteration_not_MVP_acceptance',
+        raw_failures_blocked_in_application=[dict(variant=r['variant'], attempt=r['attempt'], id=r['id'])
+            for r in rows if r['mode'] == 'raw' and not r['passed'] and any(a['mode'] == 'application'
+                and a['variant'] == r['variant'] and a['attempt'] == r['attempt'] and a['id'] == r['id']
+                and a['guard'] is not None and a['passed'] for a in rows)])
 
 
 class BudgetedClient:
@@ -180,6 +236,8 @@ def execute(directory):
             raise ValueError('Frozen input changed: ' + path)
     if manifest['configuration'] != configuration(profile):
         raise ValueError('Manifest configuration changed')
+    if profile == 't015' and manifest.get('selection_rule') != 'T015-v1':
+        raise ValueError('Manifest selection rule changed')
     for variant in config['variants']:
         if digest(directory / (variant + '.txt')) != manifest['prompt_hashes'][variant]:
             raise ValueError('Frozen prompt changed')

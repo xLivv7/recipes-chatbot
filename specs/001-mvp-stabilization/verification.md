@@ -101,6 +101,115 @@ Końcowy niezależny holdout pozostaje T010/T013, poza wyborem wariantu.
 
 ## 4. Metody zbierania dowodów
 
+### T015 — przygotowanie V4 offline zakończone
+
+Data: 2026-11-03. Najpierw zapisano H-T015 i RSC-09–RSC-12 w `spec.md`
+oraz protokół T015-v1 w sekcji 8 `plan.md`; następnie przygotowano kod.
+Baza zmian: commit `bf7b971`; nowe pliki i instrumentacja są jeszcze
+w drzewie roboczym, z dokładnymi hashami zamrożonymi w manifeście.
+
+[V4](../../evals/routing_prompts/V4.txt) to V3 z jednym akapitem
+`OBSŁUGIWANE PREFERENCJE` przed parametrami. Utrzymuje pełny pozostały tekst,
+pięć przykładów i pierwszeństwo granic obsługi. Nowy akapit przypomina
+niezależność diety od kategorii, obsługę ryby i jawnej liczby propozycji;
+nie kopiuje dosłownych zapytań `intent_004/010/032`. Skuteczności hipotezy
+nie potwierdzono modelem. Wskazówki dotyczące jasnego opisu parametrów,
+warunków wywołania i przypadków problematycznych wspiera
+[oficjalna dokumentacja function calling](https://developers.openai.com/api/docs/guides/function-calling);
+to podstawa projektowania instrukcji, nie dowód działania V4.
+
+[Runner](../../evals/run_routing_pilot.py) ma nowy profil `t015`: V0/V4,
+ta sama konfiguracja i przypadki, prompt wspólny dla obu trybów. Raport
+T015-v1 pokaże każdy warunek wyboru, wyniki trzech docelowych przypadków,
+wszystkie pogorszenia per-case i wywołania backendu z błędną semantyką.
+Nie blokuje ani nie poprawia argumentów w runtime; to kryterium oceny.
+T014 zachowuje swoją wcześniejszą regułę.
+
+| Scenariusz / wymaganie | Dowód offline | Granica dowodu |
+| --- | --- | --- |
+| RSC-09–RSC-11; ROU-01/04/08 | V4 zachowuje przykłady V3, a pełny przebieg na atrapach przesyła dokładny prompt w raw/application. Reguła odrzuca każdy z trzech przypadków poniżej 3/3 w dowolnym trybie. | Mocki nie dowodzą, że model rzeczywiście wybierze vegetarian, fish lub top_n=4. Potrzebny pomiar T016. |
+| RSC-12; ROU-05/09/10 | Wykrywane 3/3 → 2/3 oraz 2/3 → 1/3; osobny warunek odrzuca błędne argumenty przekazane do backendu mimo poprawy wyniku ogólnego. | Ocena na podstawie niezmienionych expected; bez pomiaru jakości wyszukanych przepisów. |
+| Granice i progi | Pełne no_tool w obu trybach, dokładne ułamki 90%/90%/85%, błędy API, ucięcia, zmiany modelu i niekompletne/zduplikowane oceny. | Progi małej iteracji nie zaliczają ACC na pełnej regresji i holdoucie. |
+| Integralność przygotowania | Dry-run bez klienta, hashe V0/V4 i źródłowego V3, konfiguracja, etykiety, treści zapytań i identyfikator reguły. Zmieniona reguła jest odrzucana przed utworzeniem klienta. | Nie jest zgodą na koszt przyszłego wykonania. |
+
+Testy: [test_routing_t015.py](../../tests/test_routing_t015.py), **11/11**.
+Pełna regresja: **265 testów, 0 niepowodzeń, 0 błędów, 0 pominięć**.
+Rzeczywiste żądania API były zablokowane. Dowody:
+[wynik nowych testów](../../dokumentacja%20pracy/2026-11-03_t006/t015_targeted.json),
+[pełny wynik](../../dokumentacja%20pracy/2026-11-03_t006/t015_full.json),
+[pełny log](../../dokumentacja%20pracy/2026-11-03_t006/t015_full.log).
+Osobna [kontrola historii](../../dokumentacja%20pracy/2026-11-03_t015/history_check.json)
+potwierdziła integralność 26 plików T014 i identyczny agregat jego 240 zapisanych
+ocen po wydzieleniu wspólnego czytnika par wariantów. Starych wyników nie zmieniono.
+
+Dry-run przygotował
+[pierwotny manifest T016](../../dokumentacja%20pracy/2026-11-03_t016_campaign_01/prepared_manifest.json)
+i kopie promptów. W chwili przygotowania: status `prepared`, `actual_calls=0`,
+bez wyników kampanii. Późniejszy pomiar opisuje sekcja T016 poniżej:
+
+- 20 ujawnionych zapytań × V0/V4 × 3 rundy × raw/application = **240 ocen**;
+- **216 planowanych wywołań**, 120 raw + 96 application; retry 0;
+- model gpt-4o-mini, temperatura 0,1, auto, parallel_tool_calls=false,
+  limit 512 tokenów odpowiedzi, timeout 30 s;
+- konserwatywna rezerwa **0,4310442 USD**, lokalny próg **0,50 USD**.
+
+Kosztorys stosuje sprawdzone 2026-11-03
+[stawki modelu](https://developers.openai.com/api/docs/models/gpt-4o-mini):
+0,15 USD/milion tokenów wejściowych i 0,60 USD/milion wyjściowych.
+Proxy wejścia: bajty UTF-8 zserializowanego żądania + 2000 tokenów narzutu;
+wyjście przy limicie 512, bez cache. To szacunek rezerwy, nie gwarancja
+rachunku; podatki i inne użycie konta są poza nim.
+
+T016 będzie przesyłać do `https://api.openai.com/v1` treści tych 20
+kontrolowanych zapytań, systemowy V0 lub V4 i schemat `get_recommendations`.
+Nie przesyła katalogu bazy ani rzeczywistych rozmów użytkowników w treści
+zapytań. W samym T015 wykonano **0 rzeczywistych wywołań API**; nie uzyskano
+wówczas wyników jakości ani kandydata, aktywny V0 pozostał. Nie zmieniono
+schematu, preflight, parsera, etykiet, danych ani progów końcowej akceptacji.
+T016 następnie wykonano po poleceniu autorki; T009 i T012 pozostają wstrzymane.
+
+### T016 — pomiar i przegląd zakończone
+
+Data: 2026-11-03. Autorka poleciła „Wykonaj T016” po przedstawieniu
+216 wywołań i rezerwy około 0,43 USD. Pełny
+[raport](../../docs/reports/t016_routing_2026-11-03.md) zawiera warunki,
+tabelę 20 przypadków, wszystkie warunki T015-v1, przegląd i decyzję.
+240 ocen / 216 wywołań, 0 błędów API i ucięć, jeden resolved model.
+
+| Wynik | V0 raw | V4 raw | V0 application | V4 application |
+| --- | --- | --- | --- | --- |
+| Poprawne oceny | 41/60 | 58/60 | 40/60 | 57/60 |
+| Obsługiwane prośby | 23/42 | 40/42 | 22/42 | 39/42 |
+| No_tool | 18/18 | 18/18 | 18/18 | 18/18 |
+| Przypadki stabilne 3/3 | 13/20 | 19/20 | 13/20 | 19/20 |
+
+**DEC-08: V4 nie kwalifikuje się według T015-v1; pozostawić V0.**
+`intent_004/010` poprawne 3/3 w obu trybach. `intent_032` dostał poprawne
+top_n=4, lecz niezamówione protein_preference=fish: raw 1/3, application 0/3
+wobec 3/3 V0. Wszystkie pięć błędów V4 to ta sama semantyka; trzy application
+trafiły do atrapy backendu. Nie badano, jakie przepisy zwróciłaby baza.
+
+Siedem flag T015-v1 jest spełnionych, trzy nie: `targets_all`,
+`no_case_regression`, `no_semantic_dispatch`. 95% application, 92,86%
+obsługiwanych i 95% stabilności nie zastępuje tych warunków i nie zalicza ACC
+na pełnej regresji lub nowym holdoucie. Reguła i expected pozostają bez zmian.
+Przegląd w raporcie uzasadnia pozostawienie V0; jego znane wady nie są zamknięte.
+
+[Audyt offline](../../dokumentacja%20pracy/2026-11-03_t016_campaign_01/audit.json)
+niezależnie potwierdził źródła i ich kopie, oryginalny manifest, kompletność,
+etykiety, semantykę pól, wszystkie flagi reguły i regresje. Usage: 556 830
+tokenów wejściowych i 8894 wyjściowe; koszt obliczony bez cache 0,0888609 USD,
+bez podatków i odczytu rachunku. Rezerwa 0,4310442 USD.
+Dokładne źródła niezacommitowanego T015 zachowano w `frozen_inputs/`,
+a bazowy commit `bf7b971` i stan drzewa w kontekście wykonania.
+Nie zmieniano kodu, wejść ani reguły w trakcie pomiaru. Dokumentację wyniku
+zaktualizowano po audycie. Nie wykonano wdrożenia, nowych testów aplikacji
+ani drugiej kampanii; przed pomiarem obowiązywał wynik offline 265/265.
+
+T016 zakończono pomiarem, audytem i decyzją. T017 to osobna, zaplanowana
+diagnoza kontrastów diet/protein i specyfikacja następnej poprawki offline,
+bez automatycznej kolejnej zmiany promptu lub płatnego pomiaru.
+
 ### Plan dowodów dla T014
 
 | Wymaganie | Kryterium | Dowód do uzyskania |

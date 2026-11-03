@@ -79,6 +79,24 @@ oraz payload. Nie uruchamia pełnego T009 ani nie wdraża V3.
 Reguła kandydata: sekcja 7 [planu](../specs/001-mvp-stabilization/plan.md).
 Stan i dowody: [mapa weryfikacji](../specs/001-mvp-stabilization/verification.md#t0142--przygotowanie-offline-zakończone).
 
+### Przygotowanie V4 w T015
+
+```powershell
+venv\Scripts\python.exe evals\run_routing_pilot.py --profile t015 --dry-run --output "dokumentacja pracy\NOWE_T016"
+```
+
+Profil `t015` przygotowuje V0/V4: te same 20 przypadków i etykiety, trzy
+rundy raw/application, 240 ocen / 216 planowanych wywołań. Limit 512 tokenów,
+retry 0 i lokalny próg rezerw 0,50 USD pozostają bez zmian. V3 jest źródłem
+V4, ale jego historyczny wynik nie jest kontrolą nowego pomiaru.
+
+Reguła `T015-v1` wymaga m.in. poprawy trzech problematycznych przypadków,
+braku nawet pojedynczego pogorszenia per-case i braku dispatch z błędnymi
+argumentami semantycznymi. Pełna reguła jest w sekcji 8
+[planu](../specs/001-mvp-stabilization/plan.md); wynik nie zalicza MVP.
+Przygotowanie nie wywołuje API ani nie zmienia aktywnego V0. Przyszłe
+wykonanie jest T016 i wymaga zgody na konkretny payload oraz kosztorys.
+
 ### Pełna kampania T009 — wstrzymana
 
 `run_routing_experiment.py` obsługuje zamrożone warianty V0/V1/V2,

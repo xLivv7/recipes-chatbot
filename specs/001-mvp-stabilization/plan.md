@@ -266,7 +266,7 @@ podmiana; przegląd wykonano offline na zapisanych odpowiedziach.
 
 ## 8. T015 — przygotowanie kolejnej hipotezy routingu
 
-Zadanie planowane, nie realizacja w ramach T014.4. Kolejność:
+T015 jest odrębnym zadaniem po T014.4. Kolejność realizacji:
 
 1. Opisać hipotezę i ograniczony zakres kolejnego wariantu na podstawie
    `intent_004/010/032`; odróżnić brak wywołania od wywołania z błędną dietą.
@@ -280,3 +280,79 @@ Zadanie planowane, nie realizacja w ramach T014.4. Kolejność:
 4. Zamrozić wejścia i przygotować dry-run oraz kosztorys kolejnego pomiaru.
    V0 pozostaje aktywny. Płatny etap wymaga osobnej decyzji dotyczącej
    konkretnego zakresu; T015 go nie obejmuje i nie wznawia T009 ani T012.
+
+### Zamrożony protokół do przygotowania w T015
+
+Hipoteza i scenariusze RSC-09–RSC-12 są w specyfikacji. Porównanie V0/V4
+sprawdza cały wariant względem aktywnej konfiguracji; nie izoluje nowego
+akapitu względem V3. Ten sam podzbiór 20 przypadków i expected, bez holdoutu.
+Trzy rundy V0/V4, V4/V0, V0/V4; w każdym wariancie raw, potem application.
+240 ocen / 216 planowanych wywołań przy obecnych czterech blokadach preflight.
+Model gpt-4o-mini, temperatura 0,1, auto, parallel_tool_calls=false,
+limit odpowiedzi 512, retry 0, timeout 30 s; lokalny próg rezerw 0,50 USD.
+Kosztorys przeliczyć dla V4; nie uruchamiać API w T015.
+
+Reguła kandydata **T015-v1**, ustalona przed nowym pomiarem:
+
+1. Pełne 240 ocen, niezmienione etykiety i wejścia, bez błędów API i ucięć,
+   jeden resolved model dla odpowiedzi z rzeczywistym wywołaniem.
+2. V4: wszystkie 18 no_tool poprawne osobno w raw i application.
+3. Każdy z `intent_004/010/032` poprawny 3/3 osobno w obu trybach.
+4. V4 lepszy łączny wynik od równocześnie zmierzonego V0 w obu trybach;
+   liczba przypadków stabilnych nie mniejsza od V0 osobno w obu trybach.
+5. Application V4: co najmniej 90% wszystkich ocen, 90% obsługiwanych
+   i 85% przypadków stabilnych. Porównywać ułamki, nie zaokrąglone procenty.
+   To warunek małego porównania, bez zaliczania ACC na regresji lub holdoucie.
+6. **Brak jakiegokolwiek pogorszenia per-case** względem V0: kandydat nie może
+   mieć mniej poprawnych prób dla żadnego ID, osobno w raw i application.
+   Dotyczy także 3/3 → 2/3 i pogorszeń już niestabilnego przypadku.
+7. **Zero wywołań backendu z błędną semantyką** dla obsługiwanych próśb V4
+   w application. Raportować takie wywołania także dla V0. Brak wywołania
+   pozostaje błędem wyniku ogólnego, a nie sukcesem naprawy semantyki.
+
+V4 kwalifikuje się wyłącznie przy spełnieniu wszystkich warunków. W przeciwnym
+razie wybór pozostawia V0 i pokazuje przyczyny. Kwalifikacja nie wdraża promptu:
+wymagany jest przegląd raportu oraz jawna decyzja. Reguła T014.3 pozostaje
+historycznie bez zmian; nie przeliczać jej według T015-v1.
+
+T016 jest odrębnym zadaniem pomiaru V0/V4 i przeglądu kandydata. Przygotowanie
+T015 nie upoważnia do jego kosztu; przed startem przedstawić konkretny manifest,
+payload i kosztorys do zatwierdzenia. Zachować raport niepełny i zatrzymać się
+po błędzie API, bez selektywnego wznawiania lub zmiany expected.
+
+T015 zakończono offline 2026-11-03: V4 dodaje do V3 jeden akapit, zachowując
+pięć przykładów. Profil `t015` w `run_routing_pilot.py` przygotowuje V0/V4
+i stosuje T015-v1; T014 nadal korzysta ze swojej pierwotnej reguły.
+Wykonano 11 nowych testów i pełną regresję 265/265 bez pominięć.
+Manifest, kosztorys i dowody są w sekcji T015 `verification.md`.
+W samym T015 nie wykonano pomiaru jakości V4 ani zmiany aktywnego promptu.
+
+T016 wykonano 2026-11-03 na polecenie autorki: 240 ocen, 216 wywołań,
+bez błędów API i ucięć. V4 poprawił wynik do 58/60 raw i 57/60 application,
+ale nie przeszedł T015-v1. `intent_032` dostał niezamówione fish:
+regresja raw 3/3 → 1/3, application 3/3 → 0/3 i trzy błędne wywołania
+atrapy backendu. Docelowe `intent_004/010` przeszły poprawnie 3/3 w obu trybach.
+DEC-08 pozostawia V0, bez zmiany reguły lub expected po wynikach.
+[Raport i przegląd](../../docs/reports/t016_routing_2026-11-03.md).
+
+## 9. T017 — diagnoza relacji diet/protein i specyfikacja poprawki
+
+Zadanie planowane po DEC-08, wyłącznie offline. Nie zakłada z góry,
+że dopisanie kolejnej instrukcji wystarczy. Najpierw:
+
+1. Przejrzeć nieobsłużoną semantykę `intent_032`: dieta dopuszcza ryby,
+   natomiast protein_preference wymaga jawnej preferencji. Oddzielić ten
+   błąd od naprawionego w tym pomiarze `top_n=4` i wcześniejszej odmowy.
+2. Zestawić istniejące kontrasty rozwojowe: `intent_011/020/032/050`
+   (pescetarian, none) i `intent_010/016/029/045/060` (jawna ryba, fish),
+   a także zachować diety i granice no_tool. Poza podzbiorem T016 nie
+   przypisywać przypadkom wyników V4. Nie używać holdoutu do projektowania.
+3. Zapisać ograniczoną hipotezę i wybrany zakres następnej poprawki oraz
+   scenariusze i regułę porównania przed implementacją. Zachować expected,
+   rozdzielenie pól, istniejące ROU i zakaz wykonywania JSON-a z content.
+   Nie poprawiać problemu przez bezwarunkową zamianę fish na none.
+
+Warunek ukończenia T017: udokumentowana diagnoza, hipoteza, granice zmian,
+scenariusze i plan weryfikacji. To przygotowanie specyfikacji; implementacja
+i ewentualny pomiar dostaną osobne zadania. T017 nie zmienia aktywnego V0,
+nie uruchamia API i nie wznawia T009 ani T012.

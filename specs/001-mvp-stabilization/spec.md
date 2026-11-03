@@ -1,7 +1,7 @@
 # Specyfikacja — stabilizacja istniejącego MVP
 
 Data: 2026-10-22<br>
-Wersja dokumentu: 0.8; przegląd i decyzja T014.4: 2026-11-03<br>
+Wersja dokumentu: 0.10; pomiar i przegląd T016: 2026-11-03<br>
 Status: zakres, progi i DEC-01–03 zatwierdzone; wymagania integralności
 i błędów wdrożone w T006; protokół T008 opracowany. Pięć SKU pozostaje wstrzymanych.
 
@@ -69,6 +69,7 @@ ale nie zastępują jej ani stanów w `tasks.md`.
 | DEC-05 | Zatwierdzona 2026-11-03 | T009 pozostaje wyłącznie przygotowaniem offline. Płatna kampania API jest wstrzymana; wznowienie wymaga jawnej decyzji autorki. Nie oceniono progów jakości modelu. |
 | DEC-06 | Pilotaż zatwierdzony i wykonany 2026-11-03 | Po jednoznacznej zgodzie wykonano 120 wywołań V0/V2 na 20 przypadkach. Wybór pozostawia V0: V2 poprawił kanał, ale nie spełnił warunku wszystkich no_tool. Duża kampania pozostaje wstrzymana; wynik nie zalicza MVP ani nie podmienia promptu. |
 | DEC-07 | Decyzja przeglądu T014.4, 2026-11-03 | Pozostawić aktywny V0; V3 zachowuje kwalifikację kandydata T014.3, ale wymaga dalszego dopracowania. W application pomija dietę w intent_004, błędnie odmawia obsługi intent_010 i ma niestabilną regresję intent_032. Nie wdrażać V3 na podstawie tego pomiaru. Uzasadnienie i dowody w sekcji T014.4 mapy weryfikacji; ACC i reguła wyboru pozostają bez zmian. |
+| DEC-08 | Decyzja przeglądu T016, 2026-11-03 | V4 nie kwalifikuje się według T015-v1 mimo 57/60 application. W intent_032 dodaje fish bez jawnej prośby: regresja application 3/3 → 0/3 i trzy wywołania backendu z błędną semantyką. Pozostawić V0; dalsza diagnoza relacji diety i preferencji białka w T017 offline. Zachować progi, expected i regułę oraz raport T016. |
 
 W tym etapie dopuszczalne są poprawki błędów, zmiany promptu, refaktoryzacja,
 korekty istniejących danych, testy, narzędzia pomiarowe i dokumentacja,
@@ -386,14 +387,50 @@ regresji: `intent_032` pogorszył się do 2/3, a w `intent_004` błędne
 argumenty V3 przeszły walidację i trafiły do atrapy backendu.
 Wynik tego zadania jest decyzją o konfiguracji, nie zaliczeniem jakości MVP.
 
-Kolejna praca nad routingiem otrzymuje ID T015 i pozostaje offline:
-przed zmianą promptu określić hipotezę naprawy `intent_004/010/032`,
-regułę porównania i scenariusze dla istniejących ROU-01–ROU-04/07–ROU-10.
+Następna praca T015 została wykonana offline: najpierw zapisano hipotezę,
+regułę porównania i scenariusze, następnie przygotowano V4 i instrumentację.
 Nie pomijać diety ze względu na kategorię deseru; nie odmawiać obsługiwanej
 preferencji ryby ani `top_n=4`. To obecna semantyka, nie nowe funkcje.
-Zachować rozdzielenie raw/application, granice no_tool i brak wykonywania
-tekstu JSON. Implementacja wariantu eksperymentalnego wymaga najpierw
-tego uzupełnienia specyfikacji; żaden kolejny pomiar nie startuje automatycznie.
+Zachowano rozdzielenie raw/application, granice no_tool i brak wykonywania
+tekstu JSON. Żaden kolejny pomiar nie startuje automatycznie.
+
+### T015 — zachowanie jawnych preferencji w wariancie V4
+
+Hipoteza H-T015: doprecyzowanie w V3 niezależności preferencji od kategorii
+oraz zakresu parametrów zmniejszy pomijanie diety i błędne odmowy, zachowując
+poprawę kanału oraz pierwszeństwo nieobsługiwanych wymagań. Hipoteza dotyczy
+całego dodatkowego akapitu; nie rozdziela przyczynowego wpływu każdej reguły.
+
+V4 zachowuje cały V3 i dodaje jeden akapit przed `PARAMETRY`, bez nowych
+przykładów i bez dosłownego kopiowania trzech zapytań pomiarowych.
+Akapit ma przypomnieć przenoszenie jawnej diety niezależnie od kategorii,
+obsługę preferencji ryby i dodatniej liczby propozycji, bez wymyślania limitów.
+Nie zmienia znaczenia istniejących słowników; blokada nieobsługiwanego
+wymagania nadal ma pierwszeństwo. Nie wymaga wyjaśnienia toku rozumowania.
+
+| Scenariusz | Wymaganie już obowiązujące | Oczekiwanie i kontrola |
+| --- | --- | --- |
+| RSC-09 — dieta a kategoria | ROU-01/04/08; ACC-01/09 | `intent_004`: vegetarian także dla deseru. Nie zastępować jawnej diety przypuszczeniem o składzie kategorii; zachować kontrasty intent_059 i pozostałe diety. |
+| RSC-10 — obsługiwana ryba | ROU-01/03/04; ACC-09 | `intent_010`: jedno narzędzie, fish, kolacja, time_max=20. Nie odmawiać z powodu ryby; zachować no_tool dla alergii i sprzeczności. |
+| RSC-11 — liczba propozycji | ROU-01/04; ACC-09 | `intent_032`: pescetarian, protein_preference=none, top_n=4. Nie wymyślać limitu trzech; nie zamieniać liczby propozycji w liczbę wywołań. |
+| RSC-12 — regresja i pominięte wymagania | ROU-05/09/10 | Raportować każde zmniejszenie liczby sukcesów per-case, także 3/3 → 2/3, oraz każde przekazanie do backendu argumentów niezgodnych z expected. |
+
+T015 zakończyło specyfikację, V4, instrumentację, testy offline i manifest.
+Samo przygotowanie nie dowodzi skuteczności H-T015 i nie wdraża V4.
+T016 porównał V0/V4 na tych samych 20 ujawnionych przypadkach według
+reguły ustalonej w sekcji 8 planu. V3 pozostaje źródłem hipotezy, a jego
+historyczny wynik nie był równoczesną kontrolą tego pomiaru.
+
+T016 zakończono pełnym pomiarem, audytem i przeglądem (DEC-08).
+V4: raw 58/60, application 57/60, no_tool 18/18 w obu trybach.
+`intent_004/010` poprawne 3/3 w obu trybach; `intent_032` raw 1/3,
+application 0/3. Liczba propozycji jest poprawna, ale V4 nieuzasadnienie
+ustawia fish z samej diety pescetarian. H-T015 uzyskała częściowe wsparcie,
+lecz pełny cel nie został osiągnięty. Trzy warunki T015-v1 są niespełnione:
+docelowe przypadki 3/3, brak regresji oraz brak dispatch z błędną semantyką.
+Aktywny V0 pozostaje; nie zaliczono ACC ani nie wdrożono V4.
+T017 ma najpierw zdiagnozować kontrasty diet/protein i określić następną
+hipotezę oraz sposób weryfikacji, bez automatycznego kolejnego pomiaru.
 
 ## 6. Granice obsługi
 
@@ -451,10 +488,11 @@ Stan zastany, kontrola bazowa, wymagania T005, wdrożenie T006 i specyfikacja
 T008 są zapisane. Część offline T009 jest wykonana; płatną kampanię
 wstrzymano na decyzję autorki (DEC-05). T009P jest zakończone.
 Iteracja routingu T014 jest zakończona: przygotowanie offline, zatwierdzony
-pomiar i decyzja przeglądu T014.4 (DEC-07). Aktywny prompt pozostaje V0;
-V3 jest kandydatem wymagającym dopracowania. Następna iteracja T015 zaczyna
-się od specyfikacji hipotezy i przygotowania offline, bez wdrożenia lub nowej
-kampanii API. T007 i T011 pozostają niezależnymi zadaniami.
+pomiar i decyzja przeglądu T014.4 (DEC-07). T015 przygotowało V4 offline,
+a T016 zakończyło jego pomiar i przegląd: V4 nie zakwalifikował się
+według T015-v1 (DEC-08). Aktywny prompt pozostaje V0. Następny T017
+dotyczy diagnozy i specyfikacji poprawki relacji diet/protein offline.
+T007 i T011 pozostają niezależnymi zadaniami.
 Kolejność opisuje [plan](plan.md), a stan prac
 [zadania](tasks.md). Nie uruchamiamy ponownie wykonanych etapów na podstawie
 dawnych notatek.

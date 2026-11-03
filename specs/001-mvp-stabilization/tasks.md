@@ -59,14 +59,30 @@ Pozostałe stany: **gotowe do rozpoczęcia**, **oczekuje na zależność**,
     DEC-07: pozostawić V0; potrzebna kolejna hipoteza. Kod bez zmian,
     0 nowych wywołań API; bez akceptacji MVP. Dowody w `verification.md`.
 
+- [x] **T015 — kolejna iteracja routingu: specyfikacja i przygotowanie offline.**
+  Wykonano 2026-11-03. Zapisano H-T015, RSC-09–RSC-12 i regułę T015-v1,
+  następnie przygotowano V4 (jeden akapit ponad V3), profil porównania i testy.
+  11 nowych testów, pełna regresja 265/265 bez błędów i pominięć;
+  historyczny agregat T014 identyczny. Manifest 240 ocen / 216 wywołań,
+  rezerwa 0,4310442 USD; 0 rzeczywistych wywołań. Aktywny V0 bez zmian.
+  [Dowody](verification.md#t015--przygotowanie-v4-offline-zakończone).
+
+- [x] **T016 — pomiar V0/V4 i przegląd kandydata.** Wykonano 2026-11-03
+  po poleceniu autorki. 240 ocen / 216 wywołań, 0 błędów API i ucięć;
+  kompletne wyniki, audyt i przegląd T015-v1. V4 raw 58/60, application 57/60,
+  no_tool 18/18 w obu trybach, lecz regresja `intent_032` i trzy wywołania
+  backendu z błędnym fish. DEC-08: V4 nie kwalifikuje się, pozostaje V0.
+  Koszt z usage bez cache: 0,0888609 USD; ACC bez zmian.
+  [Raport](../../docs/reports/t016_routing_2026-11-03.md).
+
 ## Najbliższe zadanie
 
-**T015 — kolejna iteracja routingu: specyfikacja i przygotowanie offline.**
-T014 zakończono decyzją DEC-07: pozostawić V0, V3 wymaga dopracowania.
-Następna praca dotyczy pomijanej diety, błędnych odmów i niestabilności
-`intent_004/010/032`, przy zachowaniu poprawy kanału i granic no_tool.
-[Przegląd i decyzja](verification.md#t0144--przegląd-i-decyzja-zakończone).
-Bez nowych funkcji i automatycznego pomiaru API; T007 i T011 są niezależne.
+**T017 — diagnoza relacji diet/protein i specyfikacja poprawki offline.**
+T016 zakończono DEC-08: V4 nie zakwalifikował się mimo 95% application.
+Pozostał błąd `intent_032`: dieta pescetarian została potraktowana jak jawne
+żądanie ryby. Najpierw analiza kontrastów i hipoteza, potem osobno implementacja.
+[Raport i decyzja](../../docs/reports/t016_routing_2026-11-03.md).
+Aktywny V0 pozostaje; bez automatycznego API. T007 i T011 są niezależne.
 
 **T009P zakończone po zatwierdzeniu płatnego pilotażu przez autorkę.**
 V2: 57/60, ale 15/18 poprawnych no_tool; V0: 42/60 i 18/18 no_tool.
@@ -84,13 +100,13 @@ nadal wymaga zamknięcia pozostałych luk; T012 jest wstrzymane.
 
 ## Kolejne zadania
 
-- [ ] **T015 — kolejna iteracja routingu: specyfikacja i przygotowanie offline.**
-  Stan: **gotowe do rozpoczęcia**; zależność: DEC-07 / T014.4.
-  Najpierw zapisać hipotezę dla `intent_004/010/032`, zakres wariantu i regułę
-  porównania; następnie przygotować wariant eksperymentalny, testy, manifest
-  i kosztorys. Zachować ROU, expected, V0 oraz dotychczasowe raporty.
-  Gotowe po aktualizacji specyfikacji i planu, testach offline oraz dry-run;
-  nie obejmuje wdrożenia, płatnego pomiaru ani wznowienia T009/T012.
+- [ ] **T017 — diagnoza relacji diet/protein i specyfikacja poprawki.**
+  Stan: **gotowe do rozpoczęcia**; zależność: DEC-08 / wykonane T016.
+  Offline przejrzeć `intent_032` i kontrasty jawnej preferencji ryby wobec
+  diety dopuszczającej ryby. Zapisać diagnozę, ograniczoną hipotezę, granice
+  zmian, scenariusze i regułę weryfikacji według sekcji 9 planu.
+  Gotowe po aktualizacji specyfikacji i planu; bez implementacji, API,
+  zmiany expected, wdrożenia lub wznowienia T009/T012.
 - [ ] **T007 — przegląd używanych konceptów z ostrzeżeniami kcal.**
   Stan: **gotowe do rozpoczęcia**. Sprawdzić źródła C012/C338/C357/C367;
   zapisać uzasadnioną akceptację albo propozycję korekty. Nie zmieniać kcal
