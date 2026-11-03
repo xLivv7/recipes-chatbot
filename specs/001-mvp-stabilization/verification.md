@@ -69,8 +69,11 @@ nie zmieniono schematu ani danych.
 
 ### Routing T008 — plan weryfikacji T009
 
-Stan na 2026-11-03: specyfikacja i protokół gotowe; kod instrumentacji,
-testy wariantów i żywe pomiary nie są jeszcze wykonane. Wejścia offline:
+Stan na 2026-11-03: specyfikacja, instrumentacja i testy wariantów gotowe.
+Pełna regresja: 240 testów bez błędów i pominięć; żywego pomiaru nie wykonano.
+Manifest zamrożony, ale uruchomienie odrzuciła automatyczna kontrola uprawnień.
+Stan i dowody: [raport przygotowania](../../docs/reports/t009_preparation_2026-11-03.md).
+Wejścia pierwotnej analizy offline:
 [plan_inputs.json](../../dokumentacja%20pracy/2026-11-03_t008/plan_inputs.json).
 Odczytano pliki przypadków i lokalne reguły; nie importowano aplikacji
 ani nie łączono się z bazą lub API. To nie jest dry-run nowej instrumentacji.
@@ -83,6 +86,13 @@ ani nie łączono się z bazą lub API. To nie jest dry-run nowej instrumentacji
 | ROU-04 | ACC-06/09; RSC-06/07 | `test_tool_call_validation.py`, `test_complete_prompt_examples.py`; kontrola V0 nadal używa ramek, V2 potrzebuje osobnego odczytu tych samych pełnych argumentów. |
 | ROU-05 | ACC-09/10; RSC-08 | `test_routing_repeats_holdout.py` i obecne metryki per-case; potrzebne agregaty podzbiorów, łączenie rund bez duplikatów, dowód kompletności kampanii. |
 | ROU-06 | Porównywalność; RSC-07/08 | Test izolacji wariantu w raw/application, zgodność V0 z bazą, zapis i hashe pełnych promptów, manifest oraz kontrola braku API w dry-run — do wykonania w T009. |
+
+Testy instrumentacji są w [test_routing_experiment.py](../../tests/test_routing_experiment.py),
+kod porównania w [run_routing_experiment.py](../../evals/run_routing_experiment.py).
+Sprawdzono izolację wariantów, zgodność przykładów, błędy kanału/protokołu,
+dry-run, rotację, kompletność i regułę wyboru oraz checkpoint po błędzie API.
+Sformułowania „potrzebny pomiar” w tabeli nadal dotyczą żywego modelu;
+planowane kontrole instrumentacji zostały wykonane, wyniki jakości pozostają otwarte.
 
 Trzy warianty i trzy powtórzenia dwóch trybów dają 1368 ocen i planowo
 1278 wywołań SDK. W T008 faktycznie wykonano **0 wywołań API**. Nie uznano
@@ -146,6 +156,6 @@ holdout pozostają do przygotowania. T005 opisuje szczegółowo integralność
 i błędy; wdrożenie T006 i wykonane scenariusze są opisane w sekcji 3.
 Kod zaktualizowano zgodnie z wymaganiami; dane i progi pozostały bez zmian.
 
-T008 zakończyło przygotowanie wymagań ROU i protokołu, bez zmiany promptu
-lub kodu pomiarowego. Następna praca T009 zaczyna się od instrumentacji
-offline, a nie od wywołania płatnej kampanii.
+T008 zakończyło wymagania i protokół. W T009 wykonano część offline;
+płatny etap oczekuje na jednoznaczną zgodę po odmowie automatycznej kontroli.
+Aktywny prompt, dane i progi pozostają bez zmian.

@@ -34,9 +34,10 @@ Pozostałe stany: **gotowe do rozpoczęcia**, **oczekuje na zależność**,
 
 ## Najbliższe zadanie
 
-Najbliższy niezależny krok: **T009 — przygotowanie instrumentacji offline**.
-Najpierw zamrożenie pełnych wariantów, testy i dry-run; płatny pomiar
-jest osobnym etapem po ustaleniu kosztów. Nie uruchomiono go w T008.
+T009: instrumentacja, testy i manifest przygotowane. Płatna kampania
+oczekuje na jednoznaczną zgodę po odrzuceniu jej uruchomienia przez
+automatyczną kontrolę uprawnień. Wyniki offline i szacunek kosztu:
+[raport przygotowania](../../docs/reports/t009_preparation_2026-11-03.md).
 T007 i T011 także pozostają gotowe do rozpoczęcia. Końcowa akceptacja
 nadal wymaga zamknięcia pozostałych luk; T012 jest wstrzymane.
 
@@ -46,10 +47,11 @@ nadal wymaga zamknięcia pozostałych luk; T012 jest wstrzymane.
   Stan: **gotowe do rozpoczęcia**. Sprawdzić źródła C012/C338/C357/C367;
   zapisać uzasadnioną akceptację albo propozycję korekty. Nie zmieniać kcal
   automatycznie według 4/9/4. Zadanie nie obejmuje pięciu SKU.
-- [ ] **T009 — eksperyment routingu.** Stan: **przygotowanie gotowe do rozpoczęcia**.
-  Najpierw izolowany wybór V0/V1/V2, testy RSC, metryki podzbiorów, pełne
-  prompty i manifest oraz dry-run według sekcji 5 `plan.md`. Następnie
-  osobno zaplanowana kampania: 3 rundy raw/application na regresji,
+- [ ] **T009 — eksperyment routingu.** Stan: **offline gotowe; płatny etap oczekuje na zgodę**.
+  Instrumentacja w `a1f7583`; 240 testów bez błędów i pominięć. Manifest
+  kampanii `_01` przygotowany, 0 faktycznych wywołań API. Uruchomienie
+  odrzucone przez automatyczną kontrolę; nie obchodzić blokady. Po zgodzie:
+  3 rundy raw/application na regresji,
   odrębne raporty i wybór według ustalonej reguły. Nie używać holdoutu
   ani nie wykonywać tekstowego JSON-a jako fallbacku. Gotowe po raporcie
   porównania i decyzji; sama instrumentacja nie kończy T009.
