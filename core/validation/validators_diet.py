@@ -76,7 +76,7 @@ def validate_diet_policies(ctx: ValidationContext) -> list[ValidationIssue]:
         if concept_id not in policy_by_ingredient:
             issues.append(
                 issue(
-                    Severity.WARNING,
+                    Severity.ERROR,
                     "diet_policies",
                     concept_id,
                     "ingredient_id",

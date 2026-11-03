@@ -1,16 +1,42 @@
 from __future__ import annotations
 
+import math
+
 from core.recommendation_catalog import CATALOG, RecipeCatalog
+from core.recommendation_errors import RecommendationDataError
 from core.recommendation_preferences import validate_preference_contract
 
 
+def require_policy(concept_id, catalog, recipe_id=None):
+    policy = catalog.diet_policy_by_concept.get(concept_id)
+    if policy is None:
+        raise RecommendationDataError('missing_policy', recipe_id=recipe_id, concept_id=concept_id)
+    return policy
+
+
+def require_recipe_policies(recipe, catalog):
+    # Validate all before any dietary short-circuit can hide a missing record.
+    for item in recipe['ingredients']:
+        require_policy(item['concept_id'], catalog, recipe.get('recipe_id'))
+
+
+def catalog_number(value, reason, *, positive=False, **context):
+    if isinstance(value, bool):
+        raise RecommendationDataError(reason, **context)
+    try:
+        number = float(value)
+    except (TypeError, ValueError, OverflowError):
+        raise RecommendationDataError(reason, **context) from None
+    if not math.isfinite(number) or (number <= 0 if positive else number < 0):
+        raise RecommendationDataError(reason, **context)
+    return number
+
+
 def concept_allows_diet(concept_id: str, diet: str, catalog: RecipeCatalog = CATALOG) -> bool:
+    row = require_policy(concept_id, catalog)
     if diet == "none":
         return True
 
-    row = catalog.diet_policy_by_concept.get(concept_id)
-    if row is None:
-        return True
     if diet == "vegetarian":
         return int(row["is_vegetarian_ok"]) == 1
     if diet == "vegan":
@@ -63,6 +89,7 @@ def recipe_matches_preferences(
     catalog: RecipeCatalog = CATALOG,
 ) -> bool:
     normalized_restrictions = validate_preference_contract(diet, protein_preference, restrictions)
+    require_recipe_policies(recipe, catalog)
 
     if diet == "pescetarian" and any(
         int(catalog.diet_policy_by_concept.get(item["concept_id"], {}).get("is_meat", 0)) == 1
@@ -127,7 +154,16 @@ def choose_sku(
             or (condition_type == "nutrition_goal" and condition_value == nutrition_goal)
             or condition_type == "default"
         )
-        if rule_matches and sku_allows_restrictions(
+        if not rule_matches:
+            continue
+        sku = catalog.skus_by_id.get(sku_id)
+        if sku is None:
+            raise RecommendationDataError('missing_sku', concept_id=concept_id, sku_id=sku_id)
+        if sku.get('concept_id') != concept_id:
+            raise RecommendationDataError('sku_concept_mismatch', concept_id=concept_id, sku_id=sku_id)
+        if 'client_id' in sku and sku['client_id'] != rule.get('client_id'):
+            raise RecommendationDataError('sku_client_mismatch', concept_id=concept_id, sku_id=sku_id)
+        if sku_allows_restrictions(
             sku_id,
             normalized_restrictions,
             catalog=catalog,
@@ -150,55 +186,60 @@ def orchestrate_recipe(
     if recipe is None:
         raise ValueError(f"Recipe not found: {recipe_id}")
 
+    require_recipe_policies(recipe, catalog)
     if not all(concept_allows_restrictions(item["concept_id"], normalized_restrictions, catalog)
                for item in recipe["ingredients"]):
         raise ValueError(f"Recipe {recipe_id} does not satisfy active restrictions.")
 
     total = {"kcal": 0.0, "protein": 0.0, "fat": 0.0, "carbs": 0.0}
+    servings = catalog_number(recipe.get('servings'), 'invalid_servings',
+                              positive=True, recipe_id=recipe_id)
     brandified_ingredients = []
     used_skus = []
 
     for ingredient in recipe["ingredients"]:
         concept_id = ingredient["concept_id"]
-        grams = float(ingredient["grams"])
+        context = dict(recipe_id=recipe_id, concept_id=concept_id)
+        grams = catalog_number(ingredient.get('grams'), 'invalid_grams', positive=True, **context)
         sku_id = None
 
-        if concept_id in catalog.concept_to_skus:
+        # Rules must also be checked when a broken target left no SKU mapping.
+        try:
             sku_id = choose_sku(
-                concept_id,
-                diet=diet,
-                protein_preference=protein_preference,
-                restrictions=normalized_restrictions,
-                nutrition_goal=nutrition_goal,
+                concept_id, diet=diet, protein_preference=protein_preference,
+                restrictions=normalized_restrictions, nutrition_goal=nutrition_goal,
                 catalog=catalog,
             )
+        except RecommendationDataError as exc:
+            exc.recipe_id = recipe_id
+            raise
 
         if sku_id is not None:
             sku_row = catalog.skus_by_id[sku_id]
-            kcal_100 = float(sku_row["energy_kcal_100"])
-            protein_100 = float(sku_row["protein_g_100"])
-            fat_100 = float(sku_row["fat_g_100"])
-            carbs_100 = float(sku_row["carbs_g_100"])
+            values = sku_row
+            suffix = '100'
+            context['sku_id'] = sku_id
             brandified_ingredients.append({"concept_id": concept_id, "sku_id": sku_id, "grams": grams})
             used_skus.append(sku_id)
         else:
             nutrient = catalog.nutrients_by_concept.get(concept_id)
             if nutrient is None:
-                raise ValueError(f"Missing nutrients for concept {concept_id}")
-            kcal_100 = float(nutrient["energy_kcal_100g"])
-            protein_100 = float(nutrient["protein_g_100g"])
-            fat_100 = float(nutrient["fat_g_100g"])
-            carbs_100 = float(nutrient["carbs_g_100g"])
+                raise RecommendationDataError('missing_nutrients', **context)
+            values = nutrient
+            suffix = '100g'
             brandified_ingredients.append({"concept_id": concept_id, "grams": grams})
 
         multiplier = grams / 100.0
-        total["kcal"] += kcal_100 * multiplier
-        total["protein"] += protein_100 * multiplier
-        total["fat"] += fat_100 * multiplier
-        total["carbs"] += carbs_100 * multiplier
+        for label, prefix in [('kcal', 'energy_kcal_'), ('protein', 'protein_g_'),
+                              ('fat', 'fat_g_'), ('carbs', 'carbs_g_')]:
+            value = catalog_number(values.get(prefix + suffix), 'invalid_' + label, **context)
+            total[label] += value * multiplier
+            if not math.isfinite(total[label]):
+                raise RecommendationDataError('nutrition_overflow', **context)
 
-    servings = float(recipe.get("servings", 1))
     per_serving = {key: value / servings for key, value in total.items()}
+    if not all(math.isfinite(value) for value in per_serving.values()):
+        raise RecommendationDataError('nutrition_overflow', recipe_id=recipe_id)
 
     return {
         "recipe_id": recipe["recipe_id"],
@@ -258,22 +299,15 @@ def orchestrate_top_n(
         ):
             continue
 
-        try:
-            result = orchestrate_recipe(
-                recipe["recipe_id"],
-                diet=diet,
-                protein_preference=protein_preference,
-                restrictions=normalized_restrictions,
-                nutrition_goal=nutrition_goal,
-                catalog=catalog,
-            )
-            if nutrition_goal == "keto" and float(result["nutrition_per_serving"]["carbs"]) > 15.0:
-                continue
-            if "dish_type" not in result:
-                result["dish_type"] = recipe.get("dish_type", "unknown")
-            results.append(result)
-        except Exception:
+        result = orchestrate_recipe(
+            recipe["recipe_id"], diet=diet, protein_preference=protein_preference,
+            restrictions=normalized_restrictions, nutrition_goal=nutrition_goal, catalog=catalog,
+        )
+        if nutrition_goal == "keto" and float(result["nutrition_per_serving"]["carbs"]) > 15.0:
             continue
+        if "dish_type" not in result:
+            result["dish_type"] = recipe.get("dish_type", "unknown")
+        results.append(result)
 
     results.sort(key=lambda item: score_recipe(item, nutrition_goal=nutrition_goal), reverse=True)
 

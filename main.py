@@ -7,6 +7,7 @@ from openai import APIError, OpenAI
 from core.llm_tools import RECIPE_TOOLS
 from core.recommendation_normalization import normalize_recommendations_output
 from core.recommendations import get_recommendations
+from core.recommendation_errors import RecommendationDataError
 from core.response_renderer import ResponsePayloadError, render_recommendations
 from core.tool_call_validation import ToolArgumentsError, parse_recipe_tool_arguments
 from core.request_safety import mentions_unsupported_allergy, mentions_unsupported_exclusion
@@ -153,6 +154,12 @@ def chat_with_bot(user_message: str, brand_name: str) -> str:
     try:
         function_result = run_recommendation_tool(function_args)
         return render_recommendations(function_result, brand_name)
+    except RecommendationDataError as exc:
+        logging.getLogger(__name__).warning(
+            'Recommendation data failure: reason=%s recipe=%s concept=%s sku=%s',
+            exc.reason, exc.recipe_id, exc.concept_id, exc.sku_id,
+        )
+        return "Nie udało się przygotować przepisów z powodu niespójnych danych. Spróbuj ponownie później."
     except ResponsePayloadError:
         logging.getLogger(__name__).exception("Invalid recommendation response payload")
         return "Nie udało się wyświetlić przepisów z powodu niespójnych danych. Spróbuj ponownie później."

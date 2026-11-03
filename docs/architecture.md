@@ -40,9 +40,11 @@ Brak widgetu, publicznego API i pamięci rozmowy mieści się w granicach MVP.
 Reguły tekstowe nie rozpoznają wszystkich parafraz, renderer nie potwierdza
 prawdziwości danych. Ograniczenia katalogowe nie są gwarancją alergologiczną.
 
-Kod nadal wymaga poprawek DEC-02/03: niektóre braki polityki mogą być
-dopuszczane, a błąd przygotowania przepisu pomijany. To rozbieżności względem
-specyfikacji. Przegląd pięciu SKU jest wstrzymany; luka makro pozostaje otwarta.
+DEC-02/03 wdrożono w T006: brak polityki kandydata zgłasza błąd danych,
+a błąd przygotowania nie jest pomijany. `RecommendationDataError` kończy
+zapytanie stałym komunikatem i diagnostyką; nieoczekiwane wyjątki propagują.
+Dowody: [raport T006](reports/t006_2026-11-03.md).
+Przegląd pięciu SKU jest wstrzymany; luka makro pozostaje otwarta.
 
 Dowody rozdzielają [mapa](../specs/001-mvp-stabilization/verification.md)
 i [raporty](reports/baseline_2026-10-22.md).

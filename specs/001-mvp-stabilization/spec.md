@@ -1,9 +1,9 @@
 # Specyfikacja — stabilizacja istniejącego MVP
 
 Data: 2026-10-22<br>
-Wersja dokumentu: 0.4; aktualizacja T005: 2026-11-03<br>
+Wersja dokumentu: 0.5; aktualizacja T006: 2026-11-03<br>
 Status: zakres, progi i DEC-01–03 zatwierdzone; wymagania integralności
-i błędów opisane, implementacja oczekuje w T006. Pięć SKU pozostaje wstrzymanych.
+i błędów wdrożone w T006. Pięć SKU pozostaje wstrzymanych.
 
 Nawigacja: [kryteria](acceptance.md) · [plan](plan.md) ·
 [zadania](tasks.md) · [weryfikacja](verification.md).
@@ -63,8 +63,8 @@ ale nie zastępują jej ani stanów w `tasks.md`.
 | ID | Stan | Ustalenie |
 | --- | --- | --- |
 | DEC-01 | Zatwierdzona | Nieznane statusy laktozy pozostają. Takie SKU są pomijane przy `lactose_free`. Dodawanie produktów i dopuszczanie kolejnych SKU do tej polityki pozostaje poza MVP. |
-| DEC-02 | Zasada zatwierdzona; implementacja oczekuje | Brak wymaganej polityki składnika nie oznacza zgodności. Szczegóły opisują INT-01–INT-04 i scenariusze T005. |
-| DEC-03 | Zatwierdzona; implementacja oczekuje | Błąd przygotowania przepisu przerywa zapytanie; nie zwracamy częściowego sukcesu ani pozornego braku wyników. Błędy programistyczne nie są maskowane jako poprawna odpowiedź. |
+| DEC-02 | Zatwierdzona; wdrożona w T006 | Brak wymaganej polityki składnika nie oznacza zgodności. Szczegóły opisują INT-01–INT-04. |
+| DEC-03 | Zatwierdzona; wdrożona w T006 | Błąd przygotowania przepisu przerywa zapytanie; nie zwracamy częściowego sukcesu ani pozornego braku wyników. Błędy programistyczne nie są maskowane jako poprawna odpowiedź. |
 | DEC-04 | Wstrzymana przez autorkę | Nie prowadzimy obecnie przeglądu źródeł pięciu SKU ani zależnych korekt czy wyłączeń. Luka podstawy makro pozostaje otwarta. |
 
 W tym etapie dopuszczalne są poprawki błędów, zmiany promptu, refaktoryzacja,
@@ -148,8 +148,8 @@ muszą zostać opisane w szczegółowych wymaganiach.
 
 ### Wymagania szczegółowe: integralność i błędy (T005)
 
-Opracowano 2026-11-03 na podstawie DEC-02/03. Poniższe wymagania opisują
-zachowanie docelowe do wdrożenia w T006, a nie wynik nowych testów.
+Opracowano 2026-11-03 na podstawie DEC-02/03; wdrożono w T006.
+Wymagania pozostają kontraktem zachowania, a dowody są w raporcie T006.
 Nie zmieniają interpretacji zapytań przez model, progów akceptacji ani danych SKU.
 
 #### Zakres sprawdzania
@@ -273,9 +273,9 @@ nie stanowi akceptacji MVP.
 
 ## 9. Kolejny krok SDD i kontrola zmian
 
-Stan zastany, kontrola bazowa i wymagania T005 są zapisane.
-Najbliższy krok to T006: testy i implementacja INT-01–INT-04 oraz
-ERR-01–ERR-05. Kolejność opisuje [plan](plan.md), a stan prac
+Stan zastany, kontrola bazowa, wymagania T005 i wdrożenie T006 są zapisane.
+Najbliższy rekomendowany krok to T008: specyfikacja eksperymentu routingu.
+Kolejność opisuje [plan](plan.md), a stan prac
 [zadania](tasks.md). Nie uruchamiamy ponownie wykonanych etapów na podstawie
 dawnych notatek.
 

@@ -84,7 +84,7 @@ Reguly poprawnosci:
 | `is_meat = 1` implikuje `is_vegetarian_ok = 0` oraz `is_vegan_ok = 0` | `ERROR` |
 | `is_fish = 1` implikuje `is_vegetarian_ok = 0` oraz `is_vegan_ok = 0` | `ERROR` |
 | `is_gluten_free` musi miec wartosc `0` lub `1` | `ERROR` |
-| skladnik bez polityki dietetycznej uzyty w przepisie powinien zostac zgloszony | `WARNING` teraz, docelowo `ERROR` |
+| skladnik bez polityki dietetycznej uzyty w przepisie powinien zostac zgloszony | `ERROR` (T006) |
 | skladnik keto powinien miec niska zawartosc weglowodanow albo byc swiadomym wyjatkiem | `WARNING` |
 
 Decyzja projektowa:
@@ -92,7 +92,9 @@ Decyzja projektowa:
 - Dla diety weganskiej i wegetarianskiej system powinien odrzucac przepis, jezeli jakikolwiek skladnik narusza polityke.
 - Dieta pescetarianska odrzuca mieso, ale nie wymaga obecnosci ryby.
 - `protein_preference = meat` i `protein_preference = fish` wymagaja obecnosci odpowiedniego skladnika.
-- `restrictions = [gluten_free]` wymaga `is_gluten_free = 1` dla kazdego skladnika. Brak polityki lub brak jawnego dopuszczenia powoduje odrzucenie przepisu.
+- `restrictions = [gluten_free]` wymaga `is_gluten_free = 1` dla kazdego skladnika.
+  Brak calej polityki jest bledem danych kandydata (T006). Istniejaca polityka
+  bez jawnego dopuszczenia powoduje zwykle odrzucenie przepisu.
 
 ## `clients`
 

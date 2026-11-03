@@ -75,7 +75,7 @@ Te kryteria warto zaimplementowac jako pierwsze.
 | mieso nie moze byc wegetarianskie ani weganskie | `ERROR` |
 | ryba nie moze byc wegetarianska ani weganska | `ERROR` |
 | `diet_policies.is_gluten_free` ma wartosc `0` albo `1` | `ERROR` |
-| skladnik uzyty w przepisie ma polityke dietetyczna | `WARNING` teraz, docelowo `ERROR` |
+| skladnik uzyty w przepisie ma polityke dietetyczna | `ERROR` (T006) |
 | SKU dla reguly `diet = vegan` nie moze byc jawnie nieweganskie | `WARNING` teraz, docelowo `ERROR` |
 
 ## Etap 2E: walidatory wartosci odzywczych

@@ -23,14 +23,16 @@ Pozostałe stany: **gotowe do rozpoczęcia**, **oczekuje na zależność**,
   W `spec.md` zapisano INT-01–INT-04, ERR-01–ERR-05 i SC-01–SC-12,
   powiązania ACC oraz granice zmian w `plan.md`. Mapa weryfikacji rozdziela
   istniejące dowody i planowane scenariusze. Bez zmian kodu i danych.
+- [x] **T006 — testy i poprawki DEC-02/03.** Wykonano 2026-11-03.
+  Wdrożono INT/ERR, dodano scenariusze SC. Końcowa regresja: 230 testów,
+  0 błędów i pominięć; renderer 6/6, walidator 0 ERROR / 20 WARNING / 9 INFO.
+  [Raport i dowody](../../docs/reports/t006_2026-11-03.md). Dane i pięć SKU bez zmian.
 
 ## Najbliższe zadanie
 
-- [ ] **T006 — testy i poprawki DEC-02/03.** Stan: **gotowe do rozpoczęcia**.
-  Zaimplementować wymagania INT/ERR zgodnie z `plan.md`, uzupełnić brakujące
-  scenariusze SC i zweryfikować regresję. Gotowe po przypisaniu testów do
-  wymagań, zapisaniu wyników i aktualizacji mapy. Brak pominięć nie może
-  być domniemany. Bez zmian danych pięciu SKU i bez płatnego API.
+Najbliższy niezależny krok: **T008 — specyfikacja eksperymentu routingu**.
+T007 i T011 także pozostają gotowe do rozpoczęcia. Końcowa akceptacja
+nadal wymaga zamknięcia pozostałych luk; T012 jest wstrzymane.
 
 ## Kolejne zadania
 

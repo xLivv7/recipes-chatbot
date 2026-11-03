@@ -1,6 +1,6 @@
 # Plan — stabilizacja istniejącego MVP
 
-Status: T005 wykonane 2026-11-03; następne T006. Poprawki zachowania jeszcze niewdrożone.
+Status: T005 i T006 wykonane 2026-11-03. Następny rekomendowany krok: T008.
 Zakres i decyzje: [spec.md](spec.md). Warunki ukończenia: [acceptance.md](acceptance.md).
 Szczegółowe zadania i ich stan: [tasks.md](tasks.md).
 
@@ -17,7 +17,7 @@ bez dodawania funkcji użytkowych. Wynik kontroli sprzed zmian pozostaje
 | --- | --- |
 | Punkt wyjścia — wykonany | Zakres, progi, zapis stanu zastanego, mapa dowodów i kontrola bazowa. |
 | Organizacja — wykonana | Jeden aktywny pakiet specyfikacji i indeksy dokumentacji. |
-| Integralność i błędy — specyfikacja gotowa | INT-01–INT-04, ERR-01–ERR-05 i SC-01–SC-12 zapisane. Następne: testy i poprawki T006. |
+| Integralność i błędy — wykonane | INT/ERR wdrożone i sprawdzone; [raport T006](../../docs/reports/t006_2026-11-03.md). |
 | Routing | Specyfikacja eksperymentu i porównanie wariantów na danych rozwojowych. |
 | Ocena i odtwarzalność | Zestaw ręczny, instrukcja odtworzenia i niezależna ocena po zamrożeniu wariantu. |
 
@@ -25,7 +25,10 @@ Przegląd źródeł pięciu SKU i decyzja o ich podstawie makro są wstrzymane.
 Nie podejmujemy zależnych zmian tych produktów. Pozostałe obszary mogą
 postępować, ale ACC-03 nie jest przez to uznane za spełnione.
 
-## 3. Najbliższa zmiana: integralność i błędy
+## 3. Zrealizowana zmiana T006: integralność i błędy
+
+Poniższy opis jest planem wykonanej zmiany; nie stanowi polecenia jej
+ponownego wdrażania. Wyniki są w raporcie T006, a otwarte zadania w `tasks.md`.
 
 Scenariusze i oczekiwane wyniki są w [spec.md](spec.md#scenariusze-weryfikacji-do-implementacji-w-t006).
 W T006 sprawdzić istniejące asercje i dodać testy istotnych luk. Poprawka

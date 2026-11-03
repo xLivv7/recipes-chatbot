@@ -64,6 +64,7 @@ def load_recipe_catalog() -> RecipeCatalog:
         for sku in db.query(ClientSku).all():
             skus_by_id[sku.id] = {
                 "client_sku_id": sku.id,
+                "client_id": sku.client_id,
                 "name_pl": sku.name_pl,
                 "energy_kcal_100": sku.energy_kcal_100,
                 "protein_g_100": sku.protein_g_100,

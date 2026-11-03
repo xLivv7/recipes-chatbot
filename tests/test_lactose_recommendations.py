@@ -1,4 +1,5 @@
 import unittest
+from core.recommendation_errors import RecommendationDataError
 
 from test_recommendations import build_catalog
 from core.recommendation_preferences import validate_preference_contract
@@ -33,7 +34,9 @@ class LactoseRecommendationTests(unittest.TestCase):
 
     def test_missing_policy_rejects_recipe(self):
         del self.catalog.diet_policy_by_concept["C007"]
-        self.assertFalse(recipe_matches_preferences(self.catalog.recipes[0], restrictions=["lactose_free"], catalog=self.catalog))
+        # DEC-02: a missing record is now a catalog error, not a normal rejection.
+        with self.assertRaises(RecommendationDataError):
+            recipe_matches_preferences(self.catalog.recipes[0], restrictions=["lactose_free"], catalog=self.catalog)
 
     def test_unknown_skus_are_skipped_to_generic_nutrients(self):
         result = orchestrate_recipe("R_TEST", restrictions=["lactose_free"], catalog=self.catalog)

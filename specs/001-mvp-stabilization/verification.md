@@ -30,8 +30,8 @@ asercji i jawnego wskazania scenariuszy pozytywnych, negatywnych i brzegowych.
 | ACC-04 — renderer | [Testy renderera](../../tests/test_response_renderer.py), [ochrona odpowiedzi](../../tests/test_chat_response_protection.py), [runner offline](../../evals/run_renderer_eval.py). | Uzgodnić wymagane przypadki payloadu i przypisać je do konkretnych testów; wynik offline nie potwierdza prawdziwości katalogu. |
 | ACC-05 — brak wyników i brak wyszukiwania | [Ochrona odpowiedzi](../../tests/test_chat_response_protection.py), [renderer](../../tests/test_response_renderer.py). | Sprawdzić jawnie odrębne komunikaty, zachowanie aktywnych ograniczeń i brak zastępczych wyników. |
 | ACC-06 — granica narzędzia | [Walidacja wywołań](../../tests/test_tool_call_validation.py), [pojedyncze wywołanie](../../tests/test_single_recommendation_call.py), [brak tool calla](../../tests/test_chat_response_protection.py). | Powiązać wszystkie wymienione niepoprawne wejścia z asercją braku wywołania backendu; zwykły JSON pozostaje niepoprawnym kanałem. |
-| ACC-07 — awarie | [Błędy API i argumentów](../../tests/test_tool_call_validation.py), [błędy payloadu](../../tests/test_chat_response_protection.py). | DEC-03 zatwierdzona. Pozostają scenariusze T005 i wdrożenie T006: błąd przygotowania nie może być ukryty jako brak wyników. |
-| ACC-08 — katalog | [Walidator bazy](../../validate_db.py), [walidacja flag](../../tests/test_lactose_catalog_validation.py), [curation](../../curation/README.md). | Snapshot i raport zapisano w baseline. Ostrzeżenia wymagają oceny; DEC-02 wymaga szczegółowych scenariuszy i wdrożenia. Pięć SKU pozostaje wstrzymane, DEC-01 utrzymuje nieznane statusy laktozy. |
+| ACC-07 — awarie | [Błędy API i argumentów](../../tests/test_tool_call_validation.py), [błędy payloadu](../../tests/test_chat_response_protection.py). | DEC-03 wdrożona i zweryfikowana w T006; dowody w sekcji 3. Inne awarie pozostają w ogólnym zakresie ACC-07. |
+| ACC-08 — katalog | [Walidator bazy](../../validate_db.py), [walidacja flag](../../tests/test_lactose_catalog_validation.py), [curation](../../curation/README.md). | Snapshot i raport zapisano w baseline. Ostrzeżenia wymagają oceny; DEC-02 wdrożona i zweryfikowana w T006. Pięć SKU pozostaje wstrzymane, DEC-01 utrzymuje nieznane statusy laktozy. |
 | ACC-09 — jakość routingu | [Runner raw/application](../../evals/run_routing_eval.py), [przypadki intencji](../../evals/intent_cases.json), [przypadki aplikacji](../../evals/application_routing_cases.json). | Przygotować nowy holdout, sprawdzić etykiety i zamrozić kampanię; pokazać osobno łączny wynik i obsługiwane prośby. Historyczne wyniki nie zaliczają progu. |
 | ACC-10 — stabilność | [Runner](../../evals/run_routing_eval.py), [testy powtórzeń i holdoutu](../../tests/test_routing_repeats_holdout.py). | Trzy powtórzenia regresji i nowego holdoutu; próg dotyczy przypadków poprawnych we wszystkich powtórzeniach, nie średniej z przebiegów. |
 | ACC-11 — granice obsługi | [Reguły alergii](../../tests/test_request_safety.py), [wykluczenia](../../tests/test_unsupported_exclusions.py), [rozdzielony routing](../../tests/test_separated_routing_eval.py). | Uzgodnić semantyczne etykiety przypadków, także negacji i obsługiwanych próśb błędnie blokowanych przez reguły. W kampanii sprawdzać rzeczywistą decyzję aplikacji; mocki nie zastępują pomiaru LLM. |
@@ -39,24 +39,33 @@ asercji i jawnego wskazania scenariuszy pozytywnych, negatywnych i brzegowych.
 | ACC-13 — odtwarzalność | [Zależności](../../requirements.txt), [instrukcje](../../evals/README.md), [baseline](../../docs/reports/baseline_2026-10-22.md). | Wersje i kopia danych zapisane, README zaktualizowane. Otwarte: instrukcja przygotowania od zera i próba odtworzenia w odrębnym środowisku (T011). |
 | ACC-14 — pełny przepływ | [Integracja z rzeczywistym katalogiem](../../tests/test_recommendations_integration.py), [renderowanie rzeczywistych wyników](../../tests/test_chat_response_protection.py). | Testy częściowe nie stanowią pełnej demonstracji od polskiego zapytania przez rzeczywisty LLM i backend do odpowiedzi. Wybrać scenariusze i rozdzielić żywe próby od kontrolowanych awarii. |
 
-## 3. Weryfikacja wymagań T005 — stan na 2026-11-03
+## 3. Weryfikacja wymagań T005 — wykonana w T006 (2026-11-03)
 
-Specyfikacja INT/ERR jest przygotowana. Poniższe scenariusze są planem
-weryfikacji T006, nie wykonanymi testami. Ich treść i wyniki oczekiwane
-są w [spec.md](spec.md#scenariusze-weryfikacji-do-implementacji-w-t006).
-Nie przyznajemy zaliczenia na podstawie samych nazw istniejących testów.
+Źródło scenariuszy: [spec.md](spec.md#scenariusze-weryfikacji-do-implementacji-w-t006).
+Testy: [test_recipe_data_integrity.py](../../tests/test_recipe_data_integrity.py).
+Każdy wiersz poniżej ma status **zweryfikowane w zakresie T006**.
+Wynik: 14 nowych metod testowych, warianty subTest oraz pełna regresja
+230 testów bez błędów i pominięć. Dowody:
+[raport T006](../../docs/reports/t006_2026-11-03.md).
+Nie oznacza to zaliczenia całego kryterium ACC ani pełnego MVP.
 
-| Wymaganie | Kryterium | Scenariusze / metoda | Punkt zaczepienia i luka |
+| Wymaganie | Kryterium | Scenariusze | Konkretne metody testowe (prefiks `test_`) |
 | --- | --- | --- | --- |
-| INT-01 | ACC-01/07/08 | SC-01/03/05/11: kontrola kandydatów i kolejności. | `test_recommendations.py`, `test_lactose_recipe_filter.py`; potrzebne asercje błędu przy braku całej polityki, także bez diety i dla pescetarian/meat/fish. |
-| INT-02 | ACC-01 | SC-01/02: zgodność, jawne odrzucenie i kontynuacja. | Istniejące testy diet i ograniczeń; potwierdzić zachowanie bez błędu danych. |
-| INT-03 | ACC-01/02/08 | SC-06: NULL z aktywną laktozą i bez niej. | Testy lactose rekomendacji, SKU i walidatora; zachować rozróżnienie NULL i braku rekordu. |
-| INT-04 | ACC-01/08 | SC-04/11: bezpośrednie przygotowanie i walidator. | Brak polityki jest obecnie WARNING; potrzebny dowód ERROR i braku obejścia backendu. |
-| ERR-01 | ACC-07 | SC-03/05/07/08: błędny kandydat przed i po poprawnym. | Potrzebne testy braku częściowych wyników i rozpoznanych przyczyn danych. |
-| ERR-02 | ACC-05/07 | SC-03/07/08/12: test granicy chat z mockiem LLM. | `test_chat_response_protection.py`; nowa ścieżka błędu przygotowania nie jest jeszcze zaimplementowana. |
-| ERR-03 | ACC-07 | SC-09: podstawiony RuntimeError w przygotowaniu. | Istniejąca próba błędu programistycznego API w `test_tool_call_validation.py` nie sprawdza maskowania wyjątku w backendzie. |
-| ERR-04 | ACC-05 | SC-10: kompletny katalog bez zgodnych wyników i bez kandydatów. | Testy pustych wyników; utrzymać inny komunikat niż ERR-02. |
-| ERR-05 | ACC-07 | SC-07/12: przechwycenie logu i porównanie odpowiedzi. | Potrzebny dowód ID/rodzaju błędu w logu i braku sekretów, wypowiedzi oraz szczegółów technicznych w odpowiedzi. |
+| INT-01 | ACC-01/07/08 | SC-01/03/05/11 | `sc01_complete_catalog_keeps_facts_and_calculations`, `sc03_missing_policy_fails_all_preference_dimensions`, `sc05_missing_policy_cannot_hide_behind_rejected_ingredient`, `sc11_out_of_scope_recipe_is_not_prepared` |
+| INT-02 | ACC-01 | SC-01/02 | `sc02_explicit_incompatibility_continues_to_valid_candidate` i SC-01; istniejąca regresja diet i ograniczeń. |
+| INT-03 | ACC-01/02/08 | SC-06 | `sc06_legal_null_lactose_preserves_filter_and_generic_fallback` oraz istniejące testy laktozy. |
+| INT-04 | ACC-01/08 | SC-04/11 | `sc04_direct_preparation_and_validator_detect_missing_policy`, SC-11. |
+| ERR-01 | ACC-07 | SC-03/05/07/08 | `sc07_failure_aborts_whole_query_in_both_candidate_orders`, SC-03/05 oraz trzy metody SC-08. |
+| ERR-02 | ACC-05/07 | SC-12 | `sc12_chat_data_error_and_programming_error_have_distinct_boundaries`; pozostałe scenariusze sprawdzają błąd domenowy backendu. |
+| ERR-03 | ACC-07 | SC-09/12 | `sc09_unexpected_preparation_error_propagates`, SC-12. |
+| ERR-04 | ACC-05 | SC-10 | `sc10_normal_empty_result_is_not_data_error` i istniejące testy pustego renderowania. |
+| ERR-05 | ACC-07 | SC-12 | SC-12 sprawdza rodzaj problemu, ID przepisu/konceptu w logu, brak wypowiedzi użytkownika oraz stałą odpowiedź bez renderowania i drugiego API. Logowanie korzysta tylko z pól błędu domenowego, bez wartości wejściowych i konfiguracji. |
+
+SC-08 obejmuje `sc08_invalid_numbers_are_recognized_data_failures`,
+`sc08_missing_macro_and_zero_macro` i `sc08_broken_sku_references_fail_even_with_restrictions`.
+Warianty obejmują przypisanie do innego klienta, innego konceptu, brak SKU
+i brak mapowania konceptu. `client_id` SKU jest odczytywany z istniejącej bazy;
+nie zmieniono schematu ani danych.
 
 ## 4. Metody zbierania dowodów
 
@@ -112,5 +121,5 @@ Zatwierdzone progi zapisano w kryteriach. Istnieje wstępna mapa wszystkich
 następnie zapisano osobny raport bazowy z kopią danych, inwentaryzacją
 środowiska i wynikami testów. Szczegółowe przypadki wymagane oraz nowy
 holdout pozostają do przygotowania. T005 opisuje szczegółowo integralność
-i błędy; ich wdrożenie i wykonanie nowych scenariuszy oczekuje w T006.
-Nie zmieniano logiki aplikacji ani danych.
+i błędy; wdrożenie T006 i wykonane scenariusze są opisane w sekcji 3.
+Kod zaktualizowano zgodnie z wymaganiami; dane i progi pozostały bez zmian.
