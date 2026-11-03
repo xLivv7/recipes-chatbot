@@ -1,9 +1,9 @@
 # Specyfikacja — stabilizacja istniejącego MVP
 
 Data: 2026-10-22<br>
-Wersja dokumentu: 0.3<br>
-Status: zakres, progi i DEC-01–03 zatwierdzone; wymagania szczegółowe
-rozwijane przed implementacją. Przegląd pięciu SKU wstrzymany przez autorkę.
+Wersja dokumentu: 0.4; aktualizacja T005: 2026-11-03<br>
+Status: zakres, progi i DEC-01–03 zatwierdzone; wymagania integralności
+i błędów opisane, implementacja oczekuje w T006. Pięć SKU pozostaje wstrzymanych.
 
 Nawigacja: [kryteria](acceptance.md) · [plan](plan.md) ·
 [zadania](tasks.md) · [weryfikacja](verification.md).
@@ -63,7 +63,7 @@ ale nie zastępują jej ani stanów w `tasks.md`.
 | ID | Stan | Ustalenie |
 | --- | --- | --- |
 | DEC-01 | Zatwierdzona | Nieznane statusy laktozy pozostają. Takie SKU są pomijane przy `lactose_free`. Dodawanie produktów i dopuszczanie kolejnych SKU do tej polityki pozostaje poza MVP. |
-| DEC-02 | Zasada zatwierdzona; implementacja oczekuje | Brak wymaganej polityki składnika nie oznacza zgodności. Szczegółowe scenariusze należy dopisać przed zmianą kodu. |
+| DEC-02 | Zasada zatwierdzona; implementacja oczekuje | Brak wymaganej polityki składnika nie oznacza zgodności. Szczegóły opisują INT-01–INT-04 i scenariusze T005. |
 | DEC-03 | Zatwierdzona; implementacja oczekuje | Błąd przygotowania przepisu przerywa zapytanie; nie zwracamy częściowego sukcesu ani pozornego braku wyników. Błędy programistyczne nie są maskowane jako poprawna odpowiedź. |
 | DEC-04 | Wstrzymana przez autorkę | Nie prowadzimy obecnie przeglądu źródeł pięciu SKU ani zależnych korekt czy wyłączeń. Luka podstawy makro pozostaje otwarta. |
 
@@ -146,6 +146,81 @@ muszą zostać opisane w szczegółowych wymaganiach.
 - Puste sekcje danych są pomijane. Niepoprawny payload powoduje komunikat
   błędu zamiast zgadywania brakujących informacji.
 
+### Wymagania szczegółowe: integralność i błędy (T005)
+
+Opracowano 2026-11-03 na podstawie DEC-02/03. Poniższe wymagania opisują
+zachowanie docelowe do wdrożenia w T006, a nie wynik nowych testów.
+Nie zmieniają interpretacji zapytań przez model, progów akceptacji ani danych SKU.
+
+#### Zakres sprawdzania
+
+**Kandydat** to przepis rozpatrywany przez backend po dopasowaniu kategorii
+i limitu czasu, przed kwalifikacją według polityk składników i przygotowaniem
+wyniku. Nie trzeba sprawdzać całego katalogu przy każdym zapytaniu.
+Niezależny walidator nadal sprawdza wszystkie koncepty używane w katalogu.
+
+Brak polityki oznacza brak rekordu dla `concept_id`, nie wartość `0`
+ani dozwolone `NULL` w `is_lactose_free`. Integralność wymaga polityki
+każdego składnika kandydata także wtedy, gdy nie wybrano diety. Dzięki temu
+zachowanie nie zależy od przypadkowej kolejności składników i filtrów.
+
+| ID | Wymaganie | Powiązanie |
+| --- | --- | --- |
+| INT-01 | Przed decyzją o zgodności kandydata sprawdzić obecność polityk wszystkich jego składników. Brak choć jednej jest błędem danych; nie zastępować jej wartościami domyślnymi, nie ratować przez SKU. Obowiązuje również bez diety, dla pescetarian i preferencji mięso/ryby. | DEC-02; ACC-01/07/08 |
+| INT-02 | Jawna niezgodność poprawnej polityki z dietą lub ograniczeniem normalnie wyklucza kandydata. Poprawna polityka bez wymaganej cechy mięso/ryby również normalnie wyklucza wynik. Można sprawdzać pozostałych kandydatów. | ACC-01 |
+| INT-03 | Legalne `is_lactose_free=NULL` nie jest błędem integralności. Przy `lactose_free` koncept z NULL wyklucza przepis, a SKU z NULL jest pomijane według dotychczasowych reguł; bez tego ograniczenia sam NULL nie wyklucza wyniku. Nie uzupełniać statusu. | DEC-01; ACC-01/02/08 |
+| INT-04 | Nie da się ominąć kontroli braku polityki przez bezpośrednie przygotowanie przepisu poza rankingiem. Walidator raportuje brak polityki składnika używanego w przepisach jako ERROR. Polityka nieużywanego konceptu nie jest wymagana przez to wymaganie. | ACC-01/08 |
+| ERR-01 | Rozpoznana niespójność danych podczas kwalifikacji lub przygotowania dowolnego rozpatrywanego kandydata przerywa całe zapytanie. Nie zwracać wcześniejszych poprawnych wyników, nie pomijać awarii i nie zastępować jej pustą listą. | DEC-03; ACC-07 |
+| ERR-02 | Granica aplikacji zamienia rozpoznany błąd danych na stały polski komunikat bez przepisów, produktów i szczegółów wyjątku: „Nie udało się przygotować przepisów z powodu niespójnych danych. Spróbuj ponownie później.” Nie ponawia wyszukiwania ani nie prosi LLM o zastępczą odpowiedź. | ACC-05/07 |
+| ERR-03 | Nieoczekiwany błąd programistyczny przerywa obliczenia i propaguje do kodu wywołującego oraz testu. Nie przechwytywać wszystkich Exception ani nie klasyfikować każdego ValueError/KeyError jako błędu danych bez rozpoznanej przyczyny. | DEC-03; ACC-07 |
+| ERR-04 | Jeśli wszyscy poprawnie przetworzeni kandydaci odpadają przez warunki lub nie ma kandydatów, backend zwraca zwykły pusty wynik. Aplikacja używa istniejącego komunikatu braku wyników; nie jest to błąd danych. | ACC-05 |
+| ERR-05 | Diagnostyka rozpoznanego błędu zawiera rodzaj problemu, ID przepisu i ID konceptu/SKU, jeśli dotyczy. Nie zapisuje sekretów, konfiguracji połączenia ani pełnej wypowiedzi użytkownika. Nie ujawnia tych szczegółów w odpowiedzi. | ACC-07 |
+
+Kontrola polityk wszystkich składników kandydata poprzedza krótkie
+zakończenie filtra z powodu niezgodności. Jeżeli jeden składnik jest jawnie
+niezgodny, a drugi nie ma polityki, wynikiem jest błąd integralności,
+nie zwykłe pominięcie przepisu. Kandydat poza kategorią lub limitem czasu
+nie jest przygotowywany; jego brak polityki wykrywa walidacja katalogu.
+
+**Rozpoznane błędy danych w T006:** brak polityki kandydata, brak danych
+odżywczych używanego konceptu, reguła wskazująca nieistniejący lub błędnie
+przypisany SKU, brak/niefinitywna/ujemna wartość wymaganego makro,
+niedodatnia lub niefinitywna gramatura bądź liczba porcji.
+Nieprawidłowa postać tych wartości także jest błędem danych. Wartość 0
+kcal lub makro jest legalna. Normalny brak pasującej reguły SKU nie jest
+błędem: nadal można użyć zgodnego konceptu generycznego.
+
+W T006 nie rozszerzamy walidacji runtime na wszystkie możliwe wady katalogu.
+Nie zmieniamy istniejącej obsługi błędów API, argumentów narzędzia ani
+payloadu renderera. Nieoczekiwany błąd programistyczny nie jest kontrolowanym
+komunikatem użytkowym w tym zadaniu; nie wolno jednak zwrócić po nim
+pozornego sukcesu. Niedopasowanie do filtrów ma być zwykłym wynikiem
+kwalifikacji, a nie wyjątkiem ukrywanym przez szerokie przechwycenie.
+
+#### Scenariusze weryfikacji do implementacji w T006
+
+Wszystkie scenariusze używają kontrolowanych katalogów. W testach granicy
+aplikacji odpowiedź LLM jest podstawiona; nie wymaga to API ani zmian bazy.
+
+| ID | Dane / zdarzenie | Oczekiwany wynik | Wymagania |
+| --- | --- | --- | --- |
+| SC-01 | Kompletne polityki, poprawne dane, pasujący przepis. | Dotychczasowa rekomendacja i obliczenia bez zmiany faktów. | INT-01/02 |
+| SC-02 | Poprawny kandydat jawnie niezgodny z dietą; drugi zgodny. | Pierwszy odrzucony, drugi zwrócony; brak komunikatu błędu. | INT-02 |
+| SC-03 | Brak polityki jednego składnika kandydata, kolejno dla vegan, vegetarian, pescetarian, meat, fish i bez preferencji. | Każda próba kończy się błędem danych, bez rekomendacji. | INT-01; ERR-01/02 |
+| SC-04 | Brak polityki przy bezpośrednim przygotowaniu oraz w katalogu przekazanym walidatorowi. | Przygotowanie zgłasza błąd danych; walidator zgłasza ERROR z ID konceptu. | INT-04 |
+| SC-05 | Jawnie niezgodny składnik i inny bez polityki; obie kolejności składników. | Błąd danych w obu wariantach, niezależnie od kolejności. | INT-01; ERR-01 |
+| SC-06 | Koncept/SKU ma legalne NULL laktozy, próby z aktywnym ograniczeniem i bez niego. | Dotychczasowe wykluczenie/fallback tylko przy ograniczeniu, bez awarii integralności. | INT-03 |
+| SC-07 | Poprawny przepis i kandydat z brakiem danych makro; obie kolejności kandydatów. | Całe zapytanie przerwane, brak częściowego wyniku, stały komunikat i diagnostyka. | ERR-01/02/05 |
+| SC-08 | Niedodatnia porcja/gramatura, niepoprawne makro lub błędna referencja SKU. | Rozpoznany błąd danych; brak dalszego wyniku. Dla legalnego zera makro poprawne przygotowanie. | ERR-01/02 |
+| SC-09 | W przygotowaniu kandydata występuje podstawiony RuntimeError niezwiązany z rozpoznaną wadą danych. | Wyjątek propaguje; ani backend, ani chat nie zamienia go na wynik lub ogólny komunikat danych. | ERR-03 |
+| SC-10 | Wszystkie kompletne przepisy jawnie niezgodne albo brak kategorii/czasu pasujących do zapytania. | Pusta lista i dotychczasowy komunikat braku wyników, bez błędu danych. | ERR-04 |
+| SC-11 | Przepis bez polityki poza kategorią lub limitem czasu; poprawny kandydat pasujący do zapytania. | Zapytanie zwraca poprawny wynik bez przygotowania wadliwego przepisu; walidator osobno wykrywa brak polityki. | INT-01/04 |
+| SC-12 | Rozpoznany błąd danych przechodzi przez main.chat_with_bot. | Stały komunikat ERR-02, brak renderowania częściowych wyników i dodatkowych wywołań LLM; log spełnia ERR-05. | ERR-01/02/05 |
+
+Oczekiwane wyniki przypadków to wymagania; nie należy zmieniać ich tylko
+dlatego, że obecny kod zachowuje się inaczej. Status pokrycia i dowody są
+w [verification.md](verification.md). Zatwierdzone progi pozostają bez zmian.
+
 ## 6. Granice obsługi
 
 Ograniczenia bez glutenu i bez laktozy oznaczają zgodność z udokumentowaną
@@ -198,9 +273,9 @@ nie stanowi akceptacji MVP.
 
 ## 9. Kolejny krok SDD i kontrola zmian
 
-Stan zastany, kontrola bazowa i wstępna mapa dowodów są zapisane.
-Najbliższy krok to T005: szczegółowe wymagania integralności i błędów
-wynikające z DEC-02/03. Kolejność opisuje [plan](plan.md), a stan prac
+Stan zastany, kontrola bazowa i wymagania T005 są zapisane.
+Najbliższy krok to T006: testy i implementacja INT-01–INT-04 oraz
+ERR-01–ERR-05. Kolejność opisuje [plan](plan.md), a stan prac
 [zadania](tasks.md). Nie uruchamiamy ponownie wykonanych etapów na podstawie
 dawnych notatek.
 

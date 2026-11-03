@@ -1,6 +1,6 @@
 # Plan — stabilizacja istniejącego MVP
 
-Status: dokumentacja uporządkowana; poprawki zachowania jeszcze niewdrożone.
+Status: T005 wykonane 2026-11-03; następne T006. Poprawki zachowania jeszcze niewdrożone.
 Zakres i decyzje: [spec.md](spec.md). Warunki ukończenia: [acceptance.md](acceptance.md).
 Szczegółowe zadania i ich stan: [tasks.md](tasks.md).
 
@@ -17,7 +17,7 @@ bez dodawania funkcji użytkowych. Wynik kontroli sprzed zmian pozostaje
 | --- | --- |
 | Punkt wyjścia — wykonany | Zakres, progi, zapis stanu zastanego, mapa dowodów i kontrola bazowa. |
 | Organizacja — wykonana | Jeden aktywny pakiet specyfikacji i indeksy dokumentacji. |
-| Integralność i błędy — następny | Szczegółowe wymagania dla zatwierdzonych DEC-02/03, następnie testy i poprawki. |
+| Integralność i błędy — specyfikacja gotowa | INT-01–INT-04, ERR-01–ERR-05 i SC-01–SC-12 zapisane. Następne: testy i poprawki T006. |
 | Routing | Specyfikacja eksperymentu i porównanie wariantów na danych rozwojowych. |
 | Ocena i odtwarzalność | Zestaw ręczny, instrukcja odtworzenia i niezależna ocena po zamrożeniu wariantu. |
 
@@ -27,16 +27,30 @@ postępować, ale ACC-03 nie jest przez to uznane za spełnione.
 
 ## 3. Najbliższa zmiana: integralność i błędy
 
-Przed kodowaniem rozwinąć w `spec.md` scenariusze: brak polityki, kompletna
-polityka, normalne odrzucenie kandydata przez filtr, błąd przygotowania
-jednego przepisu i brak zgodnych wyników. Określić granicę kontrolowanego
-błędu danych, diagnostyki i błędu programistycznego.
-
-Następnie sprawdzić istniejące asercje i dodać testy istotnych luk. Poprawka
+Scenariusze i oczekiwane wyniki są w [spec.md](spec.md#scenariusze-weryfikacji-do-implementacji-w-t006).
+W T006 sprawdzić istniejące asercje i dodać testy istotnych luk. Poprawka
 ma uniemożliwić zgadywanie zgodności oraz ukrywanie awarii jako pustego wyniku.
 Nie powinna zmieniać reguł poprawnych rekomendacji ani otwierać nowych funkcji.
 Po zmianie uruchomić zależne kontrole; rozszerzać weryfikację tylko w razie
 nowych niepewności.
+
+### Granice techniczne T006
+
+- `core/recommendations.py`: jawna kontrola polityk kandydatów i przygotowania,
+  odrębny rozpoznawalny błąd danych zamiast szerokiego `except Exception`.
+- Wspólny typ błędu danych w małym module bez importowania bazy lub `main`,
+  aby nie tworzyć zależności cyklicznych. Nazwa typu jest wyborem implementacyjnym.
+- `main.py`: przechwytywać wyłącznie rozpoznany błąd domenowy przy backendzie,
+  zwrócić ERR-02 i zapisać ERR-05. Nie maskować nieoczekiwanych wyjątków.
+- `core/validation/validators_diet.py`: brak polityki używanego konceptu
+  podnieść z WARNING do ERROR. Legalne NULL laktozy pozostaje bez zmiany.
+- Testy: kontrolowane katalogi, niezależne oczekiwania i mock granicy LLM;
+  brak modyfikacji rzeczywistej bazy w celu wywołania awarii.
+- Bez zmiany schematu bazy, promptu, reguł SKU, statusów laktozy,
+  wartości makro, pięciu SKU oraz progów i etykiet ewaluacyjnych.
+- Najpierw sprawdzić INT/ERR i regresję zależnych ścieżek; kontrola pełnego
+  istniejącego zestawu i walidatora kończy weryfikację poprawki. Zapisać
+  pominięcia i wersję danych. Nie ma potrzeby płatnej ewaluacji LLM.
 
 ## 4. Eksperymenty i dowody
 

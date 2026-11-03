@@ -39,7 +39,26 @@ asercji i jawnego wskazania scenariuszy pozytywnych, negatywnych i brzegowych.
 | ACC-13 — odtwarzalność | [Zależności](../../requirements.txt), [instrukcje](../../evals/README.md), [baseline](../../docs/reports/baseline_2026-10-22.md). | Wersje i kopia danych zapisane, README zaktualizowane. Otwarte: instrukcja przygotowania od zera i próba odtworzenia w odrębnym środowisku (T011). |
 | ACC-14 — pełny przepływ | [Integracja z rzeczywistym katalogiem](../../tests/test_recommendations_integration.py), [renderowanie rzeczywistych wyników](../../tests/test_chat_response_protection.py). | Testy częściowe nie stanowią pełnej demonstracji od polskiego zapytania przez rzeczywisty LLM i backend do odpowiedzi. Wybrać scenariusze i rozdzielić żywe próby od kontrolowanych awarii. |
 
-## 3. Metody zbierania dowodów
+## 3. Weryfikacja wymagań T005 — stan na 2026-11-03
+
+Specyfikacja INT/ERR jest przygotowana. Poniższe scenariusze są planem
+weryfikacji T006, nie wykonanymi testami. Ich treść i wyniki oczekiwane
+są w [spec.md](spec.md#scenariusze-weryfikacji-do-implementacji-w-t006).
+Nie przyznajemy zaliczenia na podstawie samych nazw istniejących testów.
+
+| Wymaganie | Kryterium | Scenariusze / metoda | Punkt zaczepienia i luka |
+| --- | --- | --- | --- |
+| INT-01 | ACC-01/07/08 | SC-01/03/05/11: kontrola kandydatów i kolejności. | `test_recommendations.py`, `test_lactose_recipe_filter.py`; potrzebne asercje błędu przy braku całej polityki, także bez diety i dla pescetarian/meat/fish. |
+| INT-02 | ACC-01 | SC-01/02: zgodność, jawne odrzucenie i kontynuacja. | Istniejące testy diet i ograniczeń; potwierdzić zachowanie bez błędu danych. |
+| INT-03 | ACC-01/02/08 | SC-06: NULL z aktywną laktozą i bez niej. | Testy lactose rekomendacji, SKU i walidatora; zachować rozróżnienie NULL i braku rekordu. |
+| INT-04 | ACC-01/08 | SC-04/11: bezpośrednie przygotowanie i walidator. | Brak polityki jest obecnie WARNING; potrzebny dowód ERROR i braku obejścia backendu. |
+| ERR-01 | ACC-07 | SC-03/05/07/08: błędny kandydat przed i po poprawnym. | Potrzebne testy braku częściowych wyników i rozpoznanych przyczyn danych. |
+| ERR-02 | ACC-05/07 | SC-03/07/08/12: test granicy chat z mockiem LLM. | `test_chat_response_protection.py`; nowa ścieżka błędu przygotowania nie jest jeszcze zaimplementowana. |
+| ERR-03 | ACC-07 | SC-09: podstawiony RuntimeError w przygotowaniu. | Istniejąca próba błędu programistycznego API w `test_tool_call_validation.py` nie sprawdza maskowania wyjątku w backendzie. |
+| ERR-04 | ACC-05 | SC-10: kompletny katalog bez zgodnych wyników i bez kandydatów. | Testy pustych wyników; utrzymać inny komunikat niż ERR-02. |
+| ERR-05 | ACC-07 | SC-07/12: przechwycenie logu i porównanie odpowiedzi. | Potrzebny dowód ID/rodzaju błędu w logu i braku sekretów, wypowiedzi oraz szczegółów technicznych w odpowiedzi. |
+
+## 4. Metody zbierania dowodów
 
 Ta sekcja opisuje sposób weryfikacji. Kolejność i stan prac są utrzymywane
 w `plan.md` i `tasks.md`, bez osobnej konkurencyjnej listy zadań.
@@ -69,8 +88,8 @@ w trakcie jednego przebiegu w celu uzyskania pozytywnego wyniku.
 
 1. Z istniejących kontraktów wyprowadzić konkretne wymagania i przykłady.
 2. Dla każdego wskazać ACC i dokładny test lub scenariusz pomiarowy.
-3. Rozwinąć zatwierdzone DEC-02/03 w szczegółowe scenariusze T005,
-   zanim zmieni się implementację.
+3. Dla DEC-02/03 korzystać z opracowanych INT/ERR i SC w T005;
+   w T006 uzupełnić testy i wdrożyć zachowanie.
 4. Uzupełnić tylko te testy, które sprawdzają istotną lukę zachowania.
 5. Przygotować zestaw ręcznej oceny oraz nowy holdout z przeglądem etykiet.
 
@@ -86,10 +105,12 @@ Kampania końcowa obejmuje tę samą wersję kandydującą we wszystkich dowodac
 z oceną ACC-01–ACC-14. Płatne pomiary API stanowią osobny, jawnie opisany etap;
 samo sporządzenie mapy ich nie uruchamia.
 
-## 4. Wynik tego kroku
+## 5. Wynik tego kroku
 
 Zatwierdzone progi zapisano w kryteriach. Istnieje wstępna mapa wszystkich
 14 ACC i lista luk. Początkowo opracowano ją bez wykonania kontroli;
 następnie zapisano osobny raport bazowy z kopią danych, inwentaryzacją
 środowiska i wynikami testów. Szczegółowe przypadki wymagane oraz nowy
-holdout pozostają do przygotowania. Nie zmieniano logiki aplikacji.
+holdout pozostają do przygotowania. T005 opisuje szczegółowo integralność
+i błędy; ich wdrożenie i wykonanie nowych scenariuszy oczekuje w T006.
+Nie zmieniano logiki aplikacji ani danych.

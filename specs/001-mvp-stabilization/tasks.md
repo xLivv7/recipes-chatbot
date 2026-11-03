@@ -19,22 +19,21 @@ Pozostałe stany: **gotowe do rozpoczęcia**, **oczekuje na zależność**,
   brak pominięć, renderer 6/6, walidator 0 ERROR / 20 WARNING / 9 INFO.
 - [x] **T004 — organizacja SDD.** Rozdzielono aktywne specyfikacje, materiały
   techniczne, raporty i archiwum; dodano indeksy i poprawiono referencje.
+- [x] **T005 — wymagania integralności i błędów.** Wykonano 2026-11-03.
+  W `spec.md` zapisano INT-01–INT-04, ERR-01–ERR-05 i SC-01–SC-12,
+  powiązania ACC oraz granice zmian w `plan.md`. Mapa weryfikacji rozdziela
+  istniejące dowody i planowane scenariusze. Bez zmian kodu i danych.
 
 ## Najbliższe zadanie
 
-- [ ] **T005 — doprecyzować wymagania integralności i błędów.**
-  Stan: **gotowe do rozpoczęcia**. Zakres: DEC-02/03, ACC-01/07/08,
-  ST-03/04. Rozwinąć w `spec.md` scenariusze i oczekiwane wyniki: brak polityki,
-  niezgodność z filtrem, błąd danych, błąd programistyczny i zwykły brak wyników.
-  Gotowe, gdy każdy scenariusz ma wymaganie z ID i sposób weryfikacji,
-  a plan wskazuje granice zmian. Nie zmieniać przy tym kodu ani danych.
+- [ ] **T006 — testy i poprawki DEC-02/03.** Stan: **gotowe do rozpoczęcia**.
+  Zaimplementować wymagania INT/ERR zgodnie z `plan.md`, uzupełnić brakujące
+  scenariusze SC i zweryfikować regresję. Gotowe po przypisaniu testów do
+  wymagań, zapisaniu wyników i aktualizacji mapy. Brak pominięć nie może
+  być domniemany. Bez zmian danych pięciu SKU i bez płatnego API.
 
 ## Kolejne zadania
 
-- [ ] **T006 — testy i poprawki DEC-02/03.** Stan: **oczekuje na T005**.
-  Uzupełnić istotne luki testów, poprawić domyślne dopuszczenie braku polityki
-  i maskowanie błędów. Gotowe po weryfikacji wymagań i aktualizacji mapy.
-  Bez zmiany danych pięciu SKU.
 - [ ] **T007 — przegląd używanych konceptów z ostrzeżeniami kcal.**
   Stan: **gotowe do rozpoczęcia**. Sprawdzić źródła C012/C338/C357/C367;
   zapisać uzasadnioną akceptację albo propozycję korekty. Nie zmieniać kcal
