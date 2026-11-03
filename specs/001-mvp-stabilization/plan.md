@@ -213,11 +213,11 @@ ma inne limity generacji i retry niż pełny plan, więc wymaga własnego raport
    słowniki i znaczenie argumentów. Dodać izolowaną obsługę V3 w ewaluacji,
    testy treści i wspólnego promptu w obu trybach, kosztorys i dry-run.
    Nie zmieniać aktywnego `main.build_system_prompt`, preflight ani danych.
-3. **T014.3 — porównanie:** propozycja zakresu do zamrożenia przed pomiarem:
+3. **T014.3 — porównanie:** zakres potwierdzony offline w T014.2:
    V0/V3, te same 20 przypadków rozwojowych, 3 rundy, raw i application.
    To 240 ocen i planowo 216 wywołań API przy obecnych 4 blokadach
-   preflight w tym podzbiorze. Liczby potwierdzić offline. Limit odpowiedzi
-   512, retry 0; policzyć nową rezerwę kosztu. Wykonanie dopiero po
+   preflight w tym podzbiorze. Limit odpowiedzi 512, retry 0, timeout 30 s,
+   temperatura 0,1; lokalna kontrola rezerw do 0,50 USD. Wykonanie dopiero po
    przedstawieniu i zatwierdzeniu konkretnego manifestu, payloadu i kosztu.
 4. **T014.4 — decyzja:** przejrzeć wyniki i regresję; dopiero wtedy rozważyć
    zastąpienie V0. Dla wdrożenia potrzebna jest odrębna jawna decyzja,
@@ -236,3 +236,12 @@ Zestaw był już ujawniony i służy rozwojowi V3, więc nie jest holdoutem.
 Raport ma pokazać per-case również błąd raw zatrzymany przez preflight,
 bez zaliczania ochrony jako sukcesu modelu. Pełna niezależna ocena nadal
 należy do późniejszych zadań; T014 nie uruchamia wstrzymanej kampanii T009.
+
+Przygotowanie T014.2 zakończono 2026-11-03: V3 dodaje do V2 jeden akapit
+`PRIORYTET ZAKRESU` przed parametrami; pozostały tekst, w tym pięć pełnych
+przykładów, jest identyczny. `run_routing_pilot.py --profile t014 --dry-run`
+przygotowuje V0/V3. Domyślny profil nadal opisuje wcześniejsze V0/V2.
+Kolejność wariantów w rundach: V0/V3, V3/V0, V0/V3; dla każdego wariantu
+najpierw raw, potem application. Wyszukiwanie jest atrapą, a preflight,
+walidacja i dispatch pochodzą z aplikacji. To nie pomiar jakości rekomendacji
+na rzeczywistych danych. Kosztorys i dowody są w `verification.md`.

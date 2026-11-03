@@ -39,10 +39,11 @@ Pozostałe stany: **gotowe do rozpoczęcia**, **oczekuje na zależność**,
 
 ## Najbliższe zadanie
 
-**T014.2 — przygotowanie V3 i weryfikacji offline.** Wymagania T014.1
-są zapisane w specyfikacji, etapy i reguła wyboru w sekcji 7 planu.
-T014 obejmuje cztery kroki kolejnej iteracji routingu i nie wznawia T009.
-Teraz nie uruchamiamy płatnego pomiaru ani nie zmieniamy aktywnego promptu.
+**T014.3 — małe porównanie V0/V3, oczekuje na zgodę na konkretny pomiar.**
+T014.2 zakończono offline: V3, instrumentacja, 254 testy bez błędów
+i pominięć, manifest 240 ocen / 216 planowanych wywołań.
+[Dowody i kosztorys](verification.md#t0142--przygotowanie-offline-zakończone).
+T014 nie wznawia T009. Aktywny prompt pozostaje V0; brak nowych wyników LLM.
 
 **T009P zakończone po zatwierdzeniu płatnego pilotażu przez autorkę.**
 V2: 57/60, ale 15/18 poprawnych no_tool; V0: 42/60 i 18/18 no_tool.
@@ -66,12 +67,13 @@ nadal wymaga zamknięcia pozostałych luk; T012 jest wstrzymane.
   o kandydacie/wdrożeniu; brak poprawy także musi być odnotowany.
   - [x] **T014.1 — specyfikacja i plan.** Zapisano wymagania, zależności,
     regułę oceny i granice zmian. Bez kodu, danych i wywołań API.
-  - [ ] **T014.2 — V3 i przygotowanie offline.** Stan: **gotowe do rozpoczęcia**.
-    Ograniczony diff V2/V3, izolowana instrumentacja raw/application,
-    testy, manifest i kosztorys według sekcji 7 `plan.md`.
-    Gotowe po testach i dry-run, bez podmiany promptu aplikacji.
-  - [ ] **T014.3 — małe porównanie raw/application.** Stan: **oczekuje na T014.2
-    i zgodę na konkretny pomiar**. Zamrożone dane i reguła, osobne wyniki,
+  - [x] **T014.2 — V3 i przygotowanie offline.** Wykonano 2026-11-03.
+    Jeden akapit różnicy V2/V3, izolowana instrumentacja raw/application,
+    10 nowych testów; pełna regresja 254/254 bez pominięć. Manifest i kosztorys
+    według sekcji 7 planu; 0 rzeczywistych wywołań, aktywny V0 bez zmian.
+    Dowody w sekcji T014.2 `verification.md`.
+  - [ ] **T014.3 — małe porównanie raw/application.** Stan: **oczekuje na
+    zgodę na konkretny pomiar**. Zamrożone dane i reguła, osobne wyniki,
     bez użycia holdoutu i bez selektywnego ponawiania porażek.
   - [ ] **T014.4 — przegląd i decyzja o wdrożeniu.** Stan: **oczekuje na T014.3**.
     Sprawdzić warunki kandydata, regresję i rozbieżności raw/application.

@@ -433,8 +433,10 @@ nie stanowi akceptacji MVP.
 Stan zastany, kontrola bazowa, wymagania T005, wdrożenie T006 i specyfikacja
 T008 są zapisane. Część offline T009 jest wykonana; płatną kampanię
 wstrzymano na decyzję autorki (DEC-05). T009P jest zakończone.
-Następna iteracja routingu to T014; najbliższy krok T014.2 jest wyłącznie
-offline. T007 i T011 pozostają niezależnymi zadaniami.
+Następna iteracja routingu to T014; T014.2 zakończyło przygotowanie V3
+i instrumentacji offline. Pomiar T014.3 oczekuje na osobną zgodę;
+nie powstały nowe wyniki jakości modelu ani wdrożenie. T007 i T011
+pozostają niezależnymi zadaniami.
 Kolejność opisuje [plan](plan.md), a stan prac
 [zadania](tasks.md). Nie uruchamiamy ponownie wykonanych etapów na podstawie
 dawnych notatek.

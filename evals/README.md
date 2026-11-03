@@ -62,6 +62,25 @@ a szacowany koszt rezerwowany przed każdym żądaniem podlega kontroli 0,50 USD
 To lokalna ochrona szacunku, nie limit rachunku dostawcy. Podzbiór celowany
 nie stanowi końcowej oceny generalizacji ani jakości pełnych rekomendacji.
 
+### Przygotowanie iteracji T014
+
+T009P zakończono; następna iteracja korzysta z osobnego profilu tego runnera:
+
+```powershell
+venv\Scripts\python.exe evals\run_routing_pilot.py --profile t014 --dry-run --output "dokumentacja pracy\NOWE_T014"
+```
+
+Profil `t014` zamraża V0/V3, te same 20 przypadków i etykiety, trzy rundy
+raw/application: 240 ocen i 216 planowanych wywołań (cztery blokady preflight
+na każdą grupę application). Obowiązują limity 512 tokenów, retry 0 i lokalna
+kontrola rezerw 0,50 USD. `--profile` wybiera przygotowanie; późniejsze
+wykonanie odczytuje profil z manifestu i wymaga odrębnej zgody na koszt
+oraz payload. Nie uruchamia pełnego T009 ani nie wdraża V3.
+Reguła kandydata: sekcja 7 [planu](../specs/001-mvp-stabilization/plan.md).
+Stan i dowody: [mapa weryfikacji](../specs/001-mvp-stabilization/verification.md#t0142--przygotowanie-offline-zakończone).
+
+### Pełna kampania T009 — wstrzymana
+
 `run_routing_experiment.py` obsługuje zamrożone warianty V0/V1/V2,
 rotację trzech rund i oddzielne raw/application. Nie zmienia aktywnego
 promptu aplikacji ani danych. Protokół jest w sekcji 5

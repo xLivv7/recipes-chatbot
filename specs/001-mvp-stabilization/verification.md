@@ -110,8 +110,74 @@ Końcowy niezależny holdout pozostaje T010/T013, poza wyborem wariantu.
 | ROU-09 | ACC-09/11 | Oddzielne wyniki modelu i aplikacji, liczby blokad i dispatch; błędy raw zachowane mimo poprawnej blokady. Mały zbiór pozostaje rozwojowy. |
 | ROU-10 | Reguła iteracji; ACC bez zmian | Manifest, kompletny raport zgodny z sekcją 7 planu, przegląd regresji i osobna decyzja o wdrożeniu lub pozostawieniu V0. |
 
-Stan: T014.1 zapisane; brak V3, jego testów, nowych wyników lub wdrożenia.
-Nie przenosimy wyników V2 na nieistniejący V3. Najbliższe T014.2 jest offline.
+Stan: T014.1 i przygotowanie T014.2 zakończone. V3 istnieje jako wariant
+eksperymentalny; nie powstały nowe wyniki jakości LLM ani wdrożenie.
+Nie przenosimy wyników V2 na V3. T014.3 wymaga odrębnej zgody.
+
+### T014.2 — przygotowanie offline zakończone
+
+Data: 2026-11-03. Specyfikacja T014.1 w commicie `0b313ab`;
+instrumentacja T014.2 przygotowana jako kolejne zmiany w drzewie roboczym,
+zamrożone hashami w manifeście. Nie tworzono kolejnego dokumentu zadań.
+
+[V3](../../evals/routing_prompts/V3.txt) różni się od V2 jednym akapitem
+`PRIORYTET ZAKRESU` przed parametrami. Pięć pełnych przykładów i cały
+pozostały tekst zachowano. Hipoteza: jawne pierwszeństwo granic obsługi
+ograniczy pomijanie nieobsługiwanego wymagania przy zachowaniu poprawnego
+kanału wywołania. Nie jest to potwierdzona skuteczność V3.
+
+[Runner](../../evals/run_routing_pilot.py) otrzymał profil `t014`.
+Raw i application otrzymują ten sam zamrożony prompt danego wariantu;
+application zachowuje preflight, parser i dispatch, podmieniając wyszukiwanie
+na atrapę. Aktywny `main.build_system_prompt` nadal odpowiada V0.
+Schemat, reguły aplikacji, expected przypadków, dane i pięć SKU bez zmian.
+
+[Dziesięć nowych testów](../../tests/test_routing_t014.py) sprawdza:
+
+- ograniczony diff V2/V3 i zgodność aktywnego promptu z V0;
+- przygotowanie bez API, liczebności, kosztorys i zakaz nadpisania kampanii;
+- pełny przebieg na atrapach: 240 ocen / 216 wywołań klienta, wspólne
+  prompty w obu trybach, blokady, limit odpowiedzi i odtworzenie stanu aplikacji;
+- odrzucenie zmienionej konfiguracji lub promptu przed utworzeniem klienta;
+- limit 216 wywołań oraz regułę wyboru: remis, granice no_tool, stabilność,
+  wynik application i nową stałą regresję;
+- kompletność i etykiety, zmianę modelu, błąd API i ucięcie odpowiedzi;
+- zachowanie błędu raw także przy poprawnej blokadzie application.
+
+Wyniki: **10/10 nowych testów; pełna regresja 254 testy, 0 niepowodzeń,
+0 błędów, 0 pominięć**. Rzeczywiste żądania API były zablokowane.
+To testy mechanizmu pomiaru, nie jakości odpowiedzi modelu.
+Dowody: [wynik pełny](../../dokumentacja%20pracy/2026-11-03_t006/t014_full.json),
+[log pełny](../../dokumentacja%20pracy/2026-11-03_t006/t014_full.log),
+[wynik nowych testów](../../dokumentacja%20pracy/2026-11-03_t006/t014_targeted.json).
+Katalog T006 zawiera współdzielony runner kontroli; prefiks wskazuje T014.
+
+Dry-run utworzył
+[manifest](../../dokumentacja%20pracy/2026-11-03_t014_campaign_01/manifest.json)
+oraz kopie V0/V3: status `prepared`, faktyczne wywołania **0**, brak wyników
+kampanii. Zamrożono hashe kodu, specyfikacji, zbiorów i promptów (także
+źródłowego V2), przypadki, kolejność oraz konfigurację. Plan:
+
+- 20 kontrolowanych zapytań × V0/V3 × 3 rundy × raw/application = **240 ocen**;
+- 120 wywołań raw i 96 application = **216 wywołań API**, retry 0;
+- `gpt-4o-mini`, temperatura 0,1, maksymalnie 512 tokenów odpowiedzi,
+  timeout 30 s, `tool_choice=auto`, `parallel_tool_calls=False`;
+- szacowana rezerwa **0,415881 USD**, lokalny próg zatrzymania **0,50 USD**.
+
+Kosztorys wykorzystuje stawki 0,15 USD / milion tokenów wejściowych
+i 0,60 USD / milion wyjściowych z
+[karty modelu](https://developers.openai.com/api/docs/models/gpt-4o-mini),
+sprawdzonej 2026-11-03. Wejście szacowane konserwatywnie przez bajty UTF-8
+zserializowanych żądań plus 2000 tokenów narzutu na każde wywołanie;
+wyjście przy maksymalnych 512 tokenach. Nie zakłada cache. To rezerwa
+szacunku, nie gwarancja rachunku; podatki i inne użycie konta są poza nią.
+
+Ewentualny T014.3 wysyła do `https://api.openai.com/v1` treść 20 kontrolowanych
+zapytań, prompt systemowy V0 lub V3 i schemat `get_recommendations`.
+Nie wysyła katalogu bazy ani rzeczywistych rozmów użytkowników w treści
+zapytań. Ten opis i dry-run nie są zgodą na wysłanie lub koszt.
+Zmiana zamrożonego wejścia przed T014.3 wymaga przygotowania nowego manifestu;
+nie poprawiać hashów w starym. T009 i T012 pozostają wstrzymane.
 
 ### Mały pilotaż T009P
 
