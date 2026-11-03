@@ -49,6 +49,19 @@ preflight nie są sukcesami interpretacji modelu.
 
 ### Kontrolowane porównanie T009
 
+Pełna kampania jest wstrzymana. Mniejszy pilotaż V0/V2 ma osobny runner:
+
+```powershell
+venv\Scripts\python.exe evals\run_routing_pilot.py --dry-run --output "dokumentacja pracy\NOWY_PILOTAZ"
+```
+
+20 przypadków, dwa warianty, trzy próby, tylko raw: 120 wywołań. Dry-run
+nie wywołuje API. Późniejsze `--execute` jest etapem płatnym wymagającym
+potwierdzenia. Odpowiedzi mają limit 512 tokenów, retry jest wyłączone,
+a szacowany koszt rezerwowany przed każdym żądaniem podlega kontroli 0,50 USD.
+To lokalna ochrona szacunku, nie limit rachunku dostawcy. Podzbiór celowany
+nie stanowi końcowej oceny generalizacji ani jakości pełnych rekomendacji.
+
 `run_routing_experiment.py` obsługuje zamrożone warianty V0/V1/V2,
 rotację trzech rund i oddzielne raw/application. Nie zmienia aktywnego
 promptu aplikacji ani danych. Protokół jest w sekcji 5

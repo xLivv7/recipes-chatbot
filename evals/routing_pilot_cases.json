@@ -1,0 +1,220 @@
+[
+  {
+    "id": "intent_003",
+    "user_message": "obiad z dużą ilością białka",
+    "expected": {
+      "diet": "none",
+      "protein_preference": "none",
+      "restrictions": [],
+      "nutrition_goal": "high_protein",
+      "category": "obiad",
+      "time_max": null,
+      "top_n": 3
+    }
+  },
+  {
+    "id": "intent_004",
+    "user_message": "deser bez mięsa",
+    "expected": {
+      "diet": "vegetarian",
+      "protein_preference": "none",
+      "restrictions": [],
+      "nutrition_goal": "standard",
+      "category": "deser",
+      "time_max": null,
+      "top_n": 3
+    }
+  },
+  {
+    "id": "intent_010",
+    "user_message": "rybna kolacja do 20 minut",
+    "expected": {
+      "diet": "none",
+      "protein_preference": "fish",
+      "restrictions": [],
+      "nutrition_goal": "standard",
+      "category": "kolacja",
+      "time_max": 20,
+      "top_n": 3
+    }
+  },
+  {
+    "id": "intent_013",
+    "user_message": "mam ochotę na deser",
+    "expected": {
+      "diet": "none",
+      "protein_preference": "none",
+      "restrictions": [],
+      "nutrition_goal": "standard",
+      "category": "deser",
+      "time_max": null,
+      "top_n": 3
+    }
+  },
+  {
+    "id": "intent_031",
+    "user_message": "coś na obiad",
+    "expected": {
+      "diet": "none",
+      "protein_preference": "none",
+      "restrictions": [],
+      "nutrition_goal": "standard",
+      "category": "obiad",
+      "time_max": null,
+      "top_n": 3
+    }
+  },
+  {
+    "id": "intent_051",
+    "user_message": "kolacja bez laktozy",
+    "expected": {
+      "diet": "none",
+      "protein_preference": "none",
+      "restrictions": [
+        "lactose_free"
+      ],
+      "nutrition_goal": "standard",
+      "category": "kolacja",
+      "time_max": null,
+      "top_n": 3
+    }
+  },
+  {
+    "id": "intent_015",
+    "user_message": "lekka kolacja wegetariańska do pół godziny",
+    "expected": {
+      "diet": "vegetarian",
+      "protein_preference": "none",
+      "restrictions": [],
+      "nutrition_goal": "low_kcal",
+      "category": "kolacja",
+      "time_max": 30,
+      "top_n": 3
+    }
+  },
+  {
+    "id": "intent_025",
+    "user_message": "coś na szybko, wegańskie",
+    "expected": {
+      "diet": "vegan",
+      "protein_preference": "none",
+      "restrictions": [],
+      "nutrition_goal": "standard",
+      "category": "kolacja",
+      "time_max": 30,
+      "top_n": 3
+    }
+  },
+  {
+    "id": "intent_001",
+    "user_message": "szybka kolacja wegańska do 30 minut",
+    "expected": {
+      "diet": "vegan",
+      "protein_preference": "none",
+      "restrictions": [],
+      "nutrition_goal": "standard",
+      "category": "kolacja",
+      "time_max": 30,
+      "top_n": 3
+    }
+  },
+  {
+    "id": "intent_007",
+    "user_message": "potrzebuję dwóch przekąsek dla wegetarian",
+    "expected": {
+      "diet": "vegetarian",
+      "protein_preference": "none",
+      "restrictions": [],
+      "nutrition_goal": "standard",
+      "category": "przekąska",
+      "time_max": null,
+      "top_n": 2
+    }
+  },
+  {
+    "id": "intent_008",
+    "user_message": "śniadanie keto, najlepiej szybkie",
+    "expected": {
+      "diet": "none",
+      "protein_preference": "none",
+      "restrictions": [],
+      "nutrition_goal": "keto",
+      "category": "śniadanie",
+      "time_max": 30,
+      "top_n": 3
+    }
+  },
+  {
+    "id": "intent_032",
+    "user_message": "proszę o 4 pomysły na kolację pescetariańską",
+    "expected": {
+      "diet": "pescetarian",
+      "protein_preference": "none",
+      "restrictions": [],
+      "nutrition_goal": "standard",
+      "category": "kolacja",
+      "time_max": null,
+      "top_n": 4
+    }
+  },
+  {
+    "id": "intent_059",
+    "user_message": "dwa desery bez laktozy do 15 minut",
+    "expected": {
+      "diet": "none",
+      "protein_preference": "none",
+      "restrictions": [
+        "lactose_free"
+      ],
+      "nutrition_goal": "standard",
+      "category": "deser",
+      "time_max": 15,
+      "top_n": 2
+    }
+  },
+  {
+    "id": "intent_063",
+    "user_message": "bezglutenowy obiad, laktoza jest dozwolona",
+    "expected": {
+      "diet": "none",
+      "protein_preference": "none",
+      "restrictions": [
+        "gluten_free"
+      ],
+      "nutrition_goal": "standard",
+      "category": "obiad",
+      "time_max": null,
+      "top_n": 3
+    }
+  },
+  {
+    "id": "routing_001",
+    "user_message": "Mam alergię na białka mleka, znajdź bezpieczny obiad.",
+    "expected_action": "no_tool"
+  },
+  {
+    "id": "routing_002",
+    "user_message": "Poproszę kolację bez nabiału.",
+    "expected_action": "no_tool"
+  },
+  {
+    "id": "routing_003",
+    "user_message": "Znajdź deser bez mleka.",
+    "expected_action": "no_tool"
+  },
+  {
+    "id": "routing_004",
+    "user_message": "Mam alergię na orzechy, podaj bezpieczny lunch.",
+    "expected_action": "no_tool"
+  },
+  {
+    "id": "routing_005",
+    "user_message": "Jaka jest stolica Francji?",
+    "expected_action": "no_tool"
+  },
+  {
+    "id": "routing_006",
+    "user_message": "Chcę wegański obiad z mięsem, nie zamiennikiem.",
+    "expected_action": "no_tool"
+  }
+]

@@ -67,6 +67,7 @@ ale nie zastępują jej ani stanów w `tasks.md`.
 | DEC-03 | Zatwierdzona; wdrożona w T006 | Błąd przygotowania przepisu przerywa zapytanie; nie zwracamy częściowego sukcesu ani pozornego braku wyników. Błędy programistyczne nie są maskowane jako poprawna odpowiedź. |
 | DEC-04 | Wstrzymana przez autorkę | Nie prowadzimy obecnie przeglądu źródeł pięciu SKU ani zależnych korekt czy wyłączeń. Luka podstawy makro pozostaje otwarta. |
 | DEC-05 | Zatwierdzona 2026-11-03 | T009 pozostaje wyłącznie przygotowaniem offline. Płatna kampania API jest wstrzymana; wznowienie wymaga jawnej decyzji autorki. Nie oceniono progów jakości modelu. |
+| DEC-06 | Kierunek uzgodniony 2026-11-03 | Przygotowujemy odrębny mały pilotaż V0/V2: 20 istniejących przypadków × 3 próby, raw. Duża kampania pozostaje wstrzymana. Dokładny payload i koszt pilotażu wymagają potwierdzenia przed API; sam wynik nie zalicza MVP ani nie podmienia aktywnego promptu. |
 
 W tym etapie dopuszczalne są poprawki błędów, zmiany promptu, refaktoryzacja,
 korekty istniejących danych, testy, narzędzia pomiarowe i dokumentacja,
@@ -305,6 +306,48 @@ RSC-01/02/06–08 wymagają testów instrumentacji z mockami w T009.
 RSC-03–05 są zarazem stałymi grupami do raportu żywej kampanii. Ich expected
 nie zmienia się na potrzeby promptu. Poprawa RSC-05 wymagałaby odrębnej
 zmiany ochrony, dlatego nie przypisujemy jej możliwej poprawie modelu.
+
+### Mały pilotaż diagnostyczny zamiast dużej kampanii
+
+Pilotaż jest osobną procedurą, nie wybiórczym wykonaniem ani wznowieniem
+kampanii `_01`. Porównuje V0 z V2 na dokładnie 20 przypadkach zapisanych
+w `evals/routing_pilot_cases.json`, bez zmiany ich expected:
+
+- Znane błędy kanału: intent_003/004/010/013/031/051.
+- Kontrole z wcześniejszej diagnozy: intent_015/025.
+- Kontrasty: intent_001/007/008/032/059/063.
+- Granice obsługi: routing_001–006 (dwie alergie, dwa wykluczenia,
+  pytanie niezwiązane i sprzeczne preferencje).
+
+To celowo dobrany zestaw rozwojowy znanych problemów i kontroli, nie losowa
+próbka ani niezależny holdout. Wynik nie szacuje skuteczności dla wszystkich
+użytkowników. Surowe próby mierzą interpretację i decyzję modelu; nie oceniają
+preflight, bazy, doboru SKU ani czytelności odpowiedzi.
+
+Oba warianty: gpt-4o-mini, temperatura 0.1, auto, parallel_tool_calls=false,
+max_completion_tokens=512, brak retry SDK, timeout 30 s. Limit odpowiedzi
+i retry różnią się od starego protokołu, dlatego wyników nie należy mieszać.
+Trzy rundy, kolejność wariantów V0/V2, V2/V0, V0/V2; łącznie 120 wywołań.
+Ucięcie odpowiedzi przez limit jest porażką i ma być raportowane oddzielnie.
+
+Budżet ochronny pilotażu: 0,50 USD według konserwatywnego szacowania wejścia
+(bajty UTF-8 + narzut) i maksymalnie 512 tokenów wyjścia na wywołanie.
+Runner rezerwuje koszt przed wysłaniem żądania i nie uruchamia go, jeżeli
+przekroczyłby budżet. To lokalna kontrola szacunku, nie gwarancja rachunku
+dostawcy; nie obejmuje podatków ani innych równoległych wydatków na koncie.
+Przed wykonaniem zapisujemy pełny manifest i kwotę planowanych rezerw.
+
+Reguła wyboru: tylko kompletna kampania bez API errors i z jedną wersją
+resolved model może wskazać kandydata. Wariant musi poprawnie obsłużyć
+wszystkie 18 prób no_tool. Spośród dopuszczonych wygrywa więcej poprawnych
+ocen z 60, następnie więcej stabilnych przypadków z 20; remis zachowuje V0.
+Jeśli żaden wariant nie spełnia warunku granic, nie wybieramy kandydata.
+Wynik to rekomendacja do dalszej regresji; nie deklarujemy naprawy całego
+routingu ani automatycznie nie wdrażamy V2. Nie zmieniamy progów ACC.
+
+W przyszłej pełnej ocenie rozdzielamy routing, deterministyczną poprawność
+logiki i danych oraz czytelność i zgodność odpowiedzi. Pełny przepływ na
+rzeczywistym katalogu dopełnia te oceny, zamiast zastępować je jednym procentem.
 
 ## 6. Granice obsługi
 

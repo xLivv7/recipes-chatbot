@@ -101,6 +101,25 @@ Końcowy niezależny holdout pozostaje T010/T013, poza wyborem wariantu.
 
 ## 4. Metody zbierania dowodów
 
+### Mały pilotaż T009P
+
+Osobny podzbiór 20 istniejących przypadków i expected, bez holdoutu.
+Kod [run_routing_pilot.py](../../evals/run_routing_pilot.py), przypadki
+[routing_pilot_cases.json](../../evals/routing_pilot_cases.json).
+Testy [test_routing_pilot.py](../../tests/test_routing_pilot.py) sprawdzają:
+zgodność podzbioru z oryginałem, brak API w dry-run, rezerwację budżetu
+przed wysłaniem, limit odpowiedzi, 120 kontrolowanych wywołań i kolejność,
+niezmieniony prompt aplikacji, decyzję przy remisie, zakaz selektywnego
+wznawiania, odrzucenie zmienionego manifestu oraz klasyfikację ucięcia jako błędu.
+To dowód instrumentacji, nie wynik modelu. Przed API wymagany jest osobny
+manifest pilotażu i potwierdzenie payloadu/kosztu. Pełna kampania T009
+pozostaje wstrzymana.
+
+Pełna regresja po dodaniu pilotażu: **244 testy, 0 niepowodzeń, 0 błędów,
+0 pominięć**. [Wynik](../../dokumentacja%20pracy/2026-11-03_t006/pilot_full.json)
+i [log](../../dokumentacja%20pracy/2026-11-03_t006/pilot_full.log).
+Wszystkie wywołania w testach były podstawione, rzeczywiste API zablokowane.
+
 Ta sekcja opisuje sposób weryfikacji. Kolejność i stan prac są utrzymywane
 w `plan.md` i `tasks.md`, bez osobnej konkurencyjnej listy zadań.
 

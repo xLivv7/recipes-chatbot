@@ -180,3 +180,21 @@ W każdym wariancie i trybie pokazać dokładne liczniki/mianowniki:
 
 Podstawę i scenariusze ROU utrzymujemy w `spec.md`. Realizacja tego protokołu
 jest T009, nie częścią zakończonego T008.
+
+## 6. Mały pilotaż T009P — osobno od wstrzymanej pełnej kampanii
+
+Autorka uzgodniła kierunek małego eksperymentu przed przyszłą pełną oceną.
+Protokół i reguła wyboru są w sekcji pilotażu `spec.md`. Kod:
+`evals/run_routing_pilot.py`; 20 zamrożonych przypadków w
+`evals/routing_pilot_cases.json`, V0/V2, raw, trzy próby, 120 wywołań.
+
+Etapy: specyfikacja → instrumentacja i testy offline → manifest i kosztorys
+→ potwierdzenie konkretnego payloadu/kosztu → wykonanie → raport i rekomendacja.
+Nie uruchamiać starej pełnej kampanii zamiast pilotażu. Nie zmieniać aktywnego
+promptu na podstawie samej wygranej na małym zbiorze.
+
+Po ewentualnym wyborze kandydata: szersza regresja routingu i niezależny
+holdout, osobno testy backendu i katalogu, ocena renderera i czytelności,
+a na końcu scenariusze całego przepływu. To rozwinięcie obecnej mapy ACC,
+nie nowa funkcjonalność ani obietnica wykazania poprawy. Mniejszy pilotaż
+ma inne limity generacji i retry niż pełny plan, więc wymaga własnego raportu.
