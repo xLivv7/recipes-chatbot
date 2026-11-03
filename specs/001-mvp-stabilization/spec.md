@@ -67,7 +67,7 @@ ale nie zastępują jej ani stanów w `tasks.md`.
 | DEC-03 | Zatwierdzona; wdrożona w T006 | Błąd przygotowania przepisu przerywa zapytanie; nie zwracamy częściowego sukcesu ani pozornego braku wyników. Błędy programistyczne nie są maskowane jako poprawna odpowiedź. |
 | DEC-04 | Wstrzymana przez autorkę | Nie prowadzimy obecnie przeglądu źródeł pięciu SKU ani zależnych korekt czy wyłączeń. Luka podstawy makro pozostaje otwarta. |
 | DEC-05 | Zatwierdzona 2026-11-03 | T009 pozostaje wyłącznie przygotowaniem offline. Płatna kampania API jest wstrzymana; wznowienie wymaga jawnej decyzji autorki. Nie oceniono progów jakości modelu. |
-| DEC-06 | Kierunek uzgodniony 2026-11-03 | Przygotowujemy odrębny mały pilotaż V0/V2: 20 istniejących przypadków × 3 próby, raw. Duża kampania pozostaje wstrzymana. Dokładny payload i koszt pilotażu wymagają potwierdzenia przed API; sam wynik nie zalicza MVP ani nie podmienia aktywnego promptu. |
+| DEC-06 | Pilotaż zatwierdzony i wykonany 2026-11-03 | Po jednoznacznej zgodzie wykonano 120 wywołań V0/V2 na 20 przypadkach. Wybór pozostawia V0: V2 poprawił kanał, ale nie spełnił warunku wszystkich no_tool. Duża kampania pozostaje wstrzymana; wynik nie zalicza MVP ani nie podmienia promptu. |
 
 W tym etapie dopuszczalne są poprawki błędów, zmiany promptu, refaktoryzacja,
 korekty istniejących danych, testy, narzędzia pomiarowe i dokumentacja,
@@ -308,6 +308,10 @@ nie zmienia się na potrzeby promptu. Poprawa RSC-05 wymagałaby odrębnej
 zmiany ochrony, dlatego nie przypisujemy jej możliwej poprawie modelu.
 
 ### Mały pilotaż diagnostyczny zamiast dużej kampanii
+
+**Stan: zakończony.** Poniższy opis jest zamrożonym protokołem, a nie
+poleceniem ponownego wykonania. Wyniki i decyzja:
+[raport T009P](../../docs/reports/routing_pilot_2026-11-03.md).
 
 Pilotaż jest osobną procedurą, nie wybiórczym wykonaniem ani wznowieniem
 kampanii `_01`. Porównuje V0 z V2 na dokładnie 20 przypadkach zapisanych

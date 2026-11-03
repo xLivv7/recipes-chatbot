@@ -183,6 +183,10 @@ jest T009, nie częścią zakończonego T008.
 
 ## 6. Mały pilotaż T009P — osobno od wstrzymanej pełnej kampanii
 
+Status: wykonano po zgodzie autorki; [raport](../../docs/reports/routing_pilot_2026-11-03.md).
+Reguła wyboru zachowała V0; V2 nie spełnił warunku granic no_tool.
+Poniższe etapy opisują wykonany proces, nie zgodę na kolejny pomiar.
+
 Autorka uzgodniła kierunek małego eksperymentu przed przyszłą pełną oceną.
 Protokół i reguła wyboru są w sekcji pilotażu `spec.md`. Kod:
 `evals/run_routing_pilot.py`; 20 zamrożonych przypadków w

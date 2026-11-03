@@ -111,9 +111,12 @@ zgodność podzbioru z oryginałem, brak API w dry-run, rezerwację budżetu
 przed wysłaniem, limit odpowiedzi, 120 kontrolowanych wywołań i kolejność,
 niezmieniony prompt aplikacji, decyzję przy remisie, zakaz selektywnego
 wznawiania, odrzucenie zmienionego manifestu oraz klasyfikację ucięcia jako błędu.
-To dowód instrumentacji, nie wynik modelu. Przed API wymagany jest osobny
-manifest pilotażu i potwierdzenie payloadu/kosztu. Pełna kampania T009
-pozostaje wstrzymana.
+Po zatwierdzeniu payloadu/kosztu wykonano osobny pilotaż: 120 wywołań,
+0 API errors i ucięć. V0 42/60, V2 57/60; V2 miał 3 błędne tool calle
+dla `routing_004`, dlatego reguła zachowała V0.
+[Raport i dowody](../../docs/reports/routing_pilot_2026-11-03.md).
+To wynik raw na celowanym podzbiorze, nie zaliczenie ACC na regresji
+i holdoucie. Pełna kampania T009 pozostaje wstrzymana.
 
 Pełna regresja po dodaniu pilotażu: **244 testy, 0 niepowodzeń, 0 błędów,
 0 pominięć**. [Wynik](../../dokumentacja%20pracy/2026-11-03_t006/pilot_full.json)

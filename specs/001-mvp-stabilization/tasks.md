@@ -31,17 +31,23 @@ Pozostałe stany: **gotowe do rozpoczęcia**, **oczekuje na zależność**,
   ROU-01–ROU-06, RSC-01–RSC-08, warianty V0/V1/V2 i protokół wyboru
   opisano w `spec.md` i `plan.md`. Offline sprawdzono 76 przypadków
   i planowane liczebności. Prompt, kod i zbiory bez zmian; 0 wywołań API.
+- [x] **T009P — mały pilotaż V0/V2.** Wykonano 2026-11-03 po jednoznacznej zgodzie.
+  120 wywołań raw, 0 błędów API i ucięć, jedna wersja modelu. Raport i decyzja
+  zapisane; V2 nie przeszedł granic no_tool, aktywny prompt bez zmiany.
+  Obliczenie kosztu z usage bez cache: 0,0452325 USD, rezerwa 0,2255679 USD.
+  Nie zalicza końcowej akceptacji ani pełnej kampanii T009.
 
 ## Najbliższe zadanie
 
-**T009P — mały pilotaż diagnostyczny:** przygotowano kod V0/V2, 20 przypadków,
-kontrolę budżetu i limit odpowiedzi. Wyniki testów offline są w mapie
-weryfikacji. Przed płatnym uruchomieniem przedstawiamy manifest i koszt
-do potwierdzenia; dotychczas brak rzeczywistych wywołań pilotażu.
+**T009P zakończone po zatwierdzeniu płatnego pilotażu przez autorkę.**
+V2: 57/60, ale 15/18 poprawnych no_tool; V0: 42/60 i 18/18 no_tool.
+Zgodnie z regułą pozostaje V0. [Raport](../../docs/reports/routing_pilot_2026-11-03.md).
+Nie uruchamiamy automatycznie kolejnego pomiaru. T007 i T011 są niezależnymi
+zadaniami gotowymi do rozpoczęcia; pełna kampania nadal jest wstrzymana.
 
 T009: instrumentacja, testy i manifest przygotowane. Płatna kampania
 jest **wstrzymana na decyzję autorki z 2026-11-03: tylko przygotowanie offline**.
-Nie uruchamiać API ani ponawiać prośby bez wznowienia etapu przez autorkę.
+Nie uruchamiać pełnej kampanii API ani ponawiać prośby bez wznowienia jej przez autorkę.
 Wyniki offline i szacunek kosztu:
 [raport przygotowania](../../docs/reports/t009_preparation_2026-11-03.md).
 T007 i T011 także pozostają gotowe do rozpoczęcia. Końcowa akceptacja
@@ -49,10 +55,6 @@ nadal wymaga zamknięcia pozostałych luk; T012 jest wstrzymane.
 
 ## Kolejne zadania
 
-- [ ] **T009P — mały pilotaż V0/V2.** Stan: **offline przygotowane; wykonanie wymaga potwierdzenia konkretnego kosztu i payloadu**.
-  20 przypadków × 2 warianty × 3 próby, tylko raw; max_completion_tokens=512,
-  max_retries=0, lokalny budżet ochronny 0,50 USD. Gotowe po kompletnej kampanii,
-  raporcie i decyzji o kandydacie; nie zalicza końcowej akceptacji.
 - [ ] **T007 — przegląd używanych konceptów z ostrzeżeniami kcal.**
   Stan: **gotowe do rozpoczęcia**. Sprawdzić źródła C012/C338/C357/C367;
   zapisać uzasadnioną akceptację albo propozycję korekty. Nie zmieniać kcal
