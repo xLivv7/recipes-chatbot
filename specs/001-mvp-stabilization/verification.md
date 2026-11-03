@@ -105,20 +105,20 @@ Końcowy niezależny holdout pozostaje T010/T013, poza wyborem wariantu.
 
 | Wymaganie | Kryterium | Dowód do uzyskania |
 | --- | --- | --- |
-| ROU-07 | ACC-09/11 | Raw i application: wszystkie próby no_tool, ze szczególnym wskazaniem routing_004. Obecny wynik V2 15/18 nie zalicza tego wymagania. |
+| ROU-07 | ACC-09/11 | T014.3: V3 no_tool 18/18 osobno w raw i application, routing_004 poprawny 3/3. Dowód dla celowanego zbioru, nie pełne zaliczenie ACC. Historyczny V2 15/18 pozostaje bez zmian. |
 | ROU-08 | ACC-06/09 | Diff V2/V3, kompletność i zgodność przykładów, niezmieniony parser/schemat/preflight, test izolacji wariantu. W T014.2 przed API. |
-| ROU-09 | ACC-09/11 | Oddzielne wyniki modelu i aplikacji, liczby blokad i dispatch; błędy raw zachowane mimo poprawnej blokady. Mały zbiór pozostaje rozwojowy. |
-| ROU-10 | Reguła iteracji; ACC bez zmian | Manifest, kompletny raport zgodny z sekcją 7 planu, przegląd regresji i osobna decyzja o wdrożeniu lub pozostawieniu V0. |
+| ROU-09 | ACC-09/11 | T014.3: oddzielne wyniki raw/application, 120/96 wywołań, po 12 poprawnych blokad application dla V0/V3, bez fałszywych blokad. Brak błędu raw dla blokowanego przypadku w tej kampanii; mechanizm rozdzielenia sprawdzony offline. |
+| ROU-10 | Reguła iteracji; ACC bez zmian | T014.3: manifest, kompletny raport i audyt reguły wskazały kandydata V3. T014.4: przegląd zakończony, DEC-07 pozostawia V0; bez wdrożenia i bez zmiany reguły kandydata. |
 
-Stan: T014.1 i przygotowanie T014.2 zakończone. V3 istnieje jako wariant
-eksperymentalny; nie powstały nowe wyniki jakości LLM ani wdrożenie.
-Nie przenosimy wyników V2 na V3. T014.3 wymaga odrębnej zgody.
+Stan: T014.1–T014.4 zakończone. V3 zachowuje kwalifikację kandydata
+na podstawie pomiaru; przegląd DEC-07 pozostawia aktywny V0.
+Nie przenosimy wyników V2 na V3; potrzebna dalsza praca nad routingiem w T015.
 
 ### T014.2 — przygotowanie offline zakończone
 
 Data: 2026-11-03. Specyfikacja T014.1 w commicie `0b313ab`;
-instrumentacja T014.2 przygotowana jako kolejne zmiany w drzewie roboczym,
-zamrożone hashami w manifeście. Nie tworzono kolejnego dokumentu zadań.
+instrumentacja T014.2 zamrożona hashami w manifeście, następnie zapisana
+w commicie `261a04f` przed T014.3. Nie tworzono kolejnego dokumentu zadań.
 
 [V3](../../evals/routing_prompts/V3.txt) różni się od V2 jednym akapitem
 `PRIORYTET ZAKRESU` przed parametrami. Pięć pełnych przykładów i cały
@@ -153,9 +153,10 @@ Dowody: [wynik pełny](../../dokumentacja%20pracy/2026-11-03_t006/t014_full.json
 Katalog T006 zawiera współdzielony runner kontroli; prefiks wskazuje T014.
 
 Dry-run utworzył
-[manifest](../../dokumentacja%20pracy/2026-11-03_t014_campaign_01/manifest.json)
-oraz kopie V0/V3: status `prepared`, faktyczne wywołania **0**, brak wyników
-kampanii. Zamrożono hashe kodu, specyfikacji, zbiorów i promptów (także
+[pierwotny manifest](../../dokumentacja%20pracy/2026-11-03_t014_campaign_01/prepared_manifest.json)
+oraz kopie V0/V3: w chwili przygotowania status `prepared`, faktyczne
+wywołania **0**, bez wyników kampanii. Późniejszy pomiar opisuje sekcja T014.3.
+Zamrożono hashe kodu, specyfikacji, zbiorów i promptów (także
 źródłowego V2), przypadki, kolejność oraz konfigurację. Plan:
 
 - 20 kontrolowanych zapytań × V0/V3 × 3 rundy × raw/application = **240 ocen**;
@@ -178,6 +179,75 @@ Nie wysyła katalogu bazy ani rzeczywistych rozmów użytkowników w treści
 zapytań. Ten opis i dry-run nie są zgodą na wysłanie lub koszt.
 Zmiana zamrożonego wejścia przed T014.3 wymaga przygotowania nowego manifestu;
 nie poprawiać hashów w starym. T009 i T012 pozostają wstrzymane.
+
+### T014.3 — pomiar zakończony
+
+Wykonano 2026-11-03 po poleceniu autorki „zrób commit i wykonaj T014.3”.
+[Raport](../../docs/reports/t014_3_routing_2026-11-03.md) zawiera konfigurację,
+pełną tabelę per-case, błędy, wynik reguły i odsyłacze do surowych dowodów.
+240 ocen / 216 wywołań, jedna wersja modelu, 0 błędów API i ucięć.
+
+| Wynik | V0 raw | V3 raw | V0 application | V3 application |
+| --- | --- | --- | --- | --- |
+| Poprawne oceny | 43/60 | 55/60 | 42/60 | 53/60 |
+| Obsługiwane prośby | 25/42 | 37/42 | 24/42 | 35/42 |
+| No_tool | 18/18 | 18/18 | 18/18 | 18/18 |
+| Przypadki stabilne 3/3 | 14/20 | 18/20 | 14/20 | 17/20 |
+
+**Kandydat V3 spełnia wcześniej ustaloną regułę T014.** Nie ma nowej
+stałej regresji 3/3 → 0/3, ale `intent_032` application pogorszył się
+z 3/3 do 2/3. Pozostają błędna dieta w `intent_004` i błędne odmowy
+lub kanał w `intent_010`. Te problemy są jawnie opisane w raporcie.
+88,33% wszystkich ocen application i 83,33% obsługiwanych próśb nie zalicza
+progów 90%; celowany zbiór nie jest też holdoutem. ACC pozostają otwarte.
+
+Usage: 527 994 tokeny wejściowe i 8918 wyjściowych; obliczenie bez cache
+0,0845499 USD, bez podatków i bez odczytu rachunku. Rezerwa 0,415881 USD.
+Audyt offline potwierdził kompletność, etykiety, hashe źródeł, agregaty,
+unikalne identyfikatory 216 żądań i regułę wyboru. Zachowano dokładny
+pierwotny manifest, kopie wejść oraz hashe 26 plików dowodowych.
+Zmiany specyfikacji opisujące wyniki wprowadzono dopiero po zakończeniu
+pomiaru i audycie; protokół użyty w pomiarze zachowano w `frozen_inputs/`.
+Nie zmieniono kodu aplikacji, promptu V0, schematu, etykiet, progów ani danych.
+Późniejszy przegląd i decyzję opisuje sekcja T014.4 poniżej.
+
+### T014.4 — przegląd i decyzja zakończone
+
+Data: 2026-11-03. Na polecenie wykonania T014.4 przejrzano raport T014.3,
+surowe wyniki, dispatch i aktualny kontrakt argumentów. **DEC-07:
+pozostawić V0; V3 wymaga dalszego dopracowania przed wdrożeniem.**
+To wynik przeglądu zleconego agentowi, nie deklaracja osobnego zatwierdzenia
+przez autorkę ani akceptacji MVP.
+
+| Obszar | Dowód z T014.3 / kontrola offline | Znaczenie dla decyzji |
+| --- | --- | --- |
+| Kwalifikacja V3 | Reguła wskazała V3; no_tool 18/18 w obu trybach, wynik i stabilność raw lepsze, brak nowej stałej regresji 3/3 → 0/3. | Zachować wynik wyboru kandydata. Przegląd nie zmienia reguły po pomiarze. |
+| Pominięta dieta | `intent_004` application: V0 0 wywołań backendu, V3 3 wywołania z `diet=none`, expected `vegetarian`. Parser akceptuje te strukturalnie poprawne argumenty. | Błąd kanału V0 zmienił się w przekazanie niepełnego wymagania V3. To ryzyko niezgodnej rekomendacji; nie dowód, że rzeczywisty katalog zwrócił niezgodny przepis, bo wyszukiwanie było atrapą. |
+| Błędna odmowa ryby | `intent_010` application: V3 0/3, brak blokady preflight, brak dispatch. Surowe treści pokazują odmowę albo opis narzędzia w content. | Problem decyzji/kanału modelu; nie należy go „naprawiać” dopuszczeniem JSON-a z tekstu lub usunięciem expected. |
+| Niestabilna regresja liczby wyników | `intent_032` application: V0 3/3, V3 2/3; parser przyjmuje oczekiwane `top_n=4`. | Model wymyślił ograniczenie liczby propozycji. Brak stałej regresji nie oznacza braku regresji w ogóle. |
+| Jakość application | 53/60 = 88,33%, obsługiwane 35/42 = 83,33%, stabilne 17/20 = 85%. | Poprawa wobec V0, lecz dwa pierwsze wyniki poniżej liczbowych progów ACC. Stabilność osiąga liczbowo 85% tylko na tym ujawnionym podzbiorze; brak pełnej regresji i nowego holdoutu. Żadne ACC nie zostaje zaliczone. |
+| Granice obsługi | `routing_004` raw poprawny 3/3; application blokuje go bez modelu. | Zachować tę poprawę w następnej iteracji. Nie uogólniać wyniku na dowolną parafrazę ani utożsamiać preflight z sukcesem modelu. |
+
+Decyzja wdrożeniowa wynika przede wszystkim z pomijanej diety i otwartych
+błędów semantyki; wyniki ACC stanowią kontekst, nie nowy próg dopisany
+do reguły kandydata. Pozostawienie V0 nie oznacza uznania go za poprawny:
+jego znane błędy kanału pozostają otwarte. T014 kończy się udokumentowaną
+decyzją, a nie ogłoszeniem naprawy całego routingu.
+
+[Kontrola przeglądu offline](../../dokumentacja%20pracy/2026-11-03_t014_4/review.json)
+potwierdziła integralność 26 plików dowodowych, niezmieniony kod i zbiory,
+liczniki dispatch trzech problematycznych przypadków oraz akceptację
+`top_n=4` przez istniejący parser. Nie uruchamiała aplikacji, API ani bazy.
+Nie dodawano testów udających dowód jakości LLM; nie ponawiano kampanii.
+Kod aplikacji i aktywny prompt pozostały bez zmian, więc testy wdrożenia V3
+nie mają zastosowania. Ostatni pełny wynik kodu pozostaje 254/254 z T014.2,
+bez przypisywania go do nowego przebiegu. W T014.4: **0 wywołań API**.
+
+T014 oznaczono jako wykonane, a następną pracę zapisano jako T015:
+hipoteza dla `intent_004/010/032`, protokół, wariant eksperymentalny i kontrole
+offline, bez wdrożenia i bez uruchomienia nowego płatnego pomiaru.
+Zachowano pierwotny raport, surowe wyniki, hashe, etykiety i progi.
+Nie tworzono kolejnego pliku raportu; decyzja jest w DEC-07 i tej sekcji.
 
 ### Mały pilotaż T009P
 

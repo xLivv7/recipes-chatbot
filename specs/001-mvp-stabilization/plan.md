@@ -245,3 +245,38 @@ Kolejność wariantów w rundach: V0/V3, V3/V0, V0/V3; dla każdego wariantu
 najpierw raw, potem application. Wyszukiwanie jest atrapą, a preflight,
 walidacja i dispatch pochodzą z aplikacji. To nie pomiar jakości rekomendacji
 na rzeczywistych danych. Kosztorys i dowody są w `verification.md`.
+
+T014.3 wykonano 2026-11-03 na polecenie autorki, po commicie instrumentacji
+`261a04f`. Wszystkie 240 ocen i 216 wywołań są kompletne; 0 błędów API
+i ucięć. Uzgodniona reguła wskazała kandydata V3: raw 55/60 wobec 43/60 V0,
+application 53/60 wobec 42/60, no_tool 18/18 w każdej grupie.
+[Raport](../../docs/reports/t014_3_routing_2026-11-03.md) pokazuje także
+pozostałe błędy i niestabilną regresję `intent_032`. Nie zmieniono progów
+ani reguły po wynikach.
+
+T014.4 zakończono 2026-11-03 decyzją DEC-07: **pozostawić V0; potrzebna
+kolejna hipoteza**. Kwalifikacja V3 w T014.3 pozostaje ważna. Przegląd
+wdrożeniowy wskazał pominięcie diety w trzech wywołaniach atrapy backendu,
+utrwalone błędne odmowy i niestabilną regresję. 88,33% application oraz
+83,33% obsługiwanych próśb nie dowodzą gotowości MVP. Nie wprowadzono
+dodatkowego warunku do zakończonego wyboru kandydata i nie wdrożono V3.
+[Dowody przeglądu](verification.md#t0144--przegląd-i-decyzja-zakończone).
+Testy wdrożenia nowego promptu nie mają zastosowania, ponieważ nie nastąpiła
+podmiana; przegląd wykonano offline na zapisanych odpowiedziach.
+
+## 8. T015 — przygotowanie kolejnej hipotezy routingu
+
+Zadanie planowane, nie realizacja w ramach T014.4. Kolejność:
+
+1. Opisać hipotezę i ograniczony zakres kolejnego wariantu na podstawie
+   `intent_004/010/032`; odróżnić brak wywołania od wywołania z błędną dietą.
+   Powiązać wymagania i scenariusze z ROU, bez nowych funkcji ani zmiany expected.
+2. Ustalić regułę porównania przed nowym pomiarem. Jawnie oceniać także
+   niestabilne regresje i przekazanie błędnych wymagań do backendu.
+   Nie zmieniać wstecznie reguły lub wyników T014.3.
+3. Dopiero potem przygotować wariant eksperymentalny i kontrole offline:
+   prompt wspólny dla raw/application, dotychczasowe przykłady, kontrasty
+   obsługiwanych próśb i granic no_tool, walidacja, dispatch i brak fallbacku JSON.
+4. Zamrozić wejścia i przygotować dry-run oraz kosztorys kolejnego pomiaru.
+   V0 pozostaje aktywny. Płatny etap wymaga osobnej decyzji dotyczącej
+   konkretnego zakresu; T015 go nie obejmuje i nie wznawia T009 ani T012.

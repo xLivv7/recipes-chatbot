@@ -37,13 +37,36 @@ Pozostałe stany: **gotowe do rozpoczęcia**, **oczekuje na zależność**,
   Obliczenie kosztu z usage bez cache: 0,0452325 USD, rezerwa 0,2255679 USD.
   Nie zalicza końcowej akceptacji ani pełnej kampanii T009.
 
+- [x] **T014 — poprawa routingu bez utraty granic obsługi.** Zakończono 2026-11-03.
+  Zakres: ROU-07–ROU-10; zależność: zakończony T009P.
+  Raport porównania, przegląd regresji i decyzja DEC-07 zapisane.
+  V3 jest kandydatem, aktywny V0 pozostaje; zakończenie iteracji nie zalicza ACC.
+  - [x] **T014.1 — specyfikacja i plan.** Zapisano wymagania, zależności,
+    regułę oceny i granice zmian. Bez kodu, danych i wywołań API.
+  - [x] **T014.2 — V3 i przygotowanie offline.** Wykonano 2026-11-03.
+    Jeden akapit różnicy V2/V3, izolowana instrumentacja raw/application,
+    10 nowych testów; pełna regresja 254/254 bez pominięć. Manifest i kosztorys
+    według sekcji 7 planu; 0 rzeczywistych wywołań, aktywny V0 bez zmian.
+    Dowody w sekcji T014.2 `verification.md`.
+  - [x] **T014.3 — małe porównanie raw/application.** Wykonano 2026-11-03
+    po poleceniu autorki. Zamrożone dane i reguła, 240 ocen / 216 wywołań,
+    osobne wyniki i audyt; 0 błędów API/ucięć, bez holdoutu i ponawiania porażek.
+    Kandydat V3; aktywny V0 bez zmian. Koszt z usage bez cache: 0,0845499 USD.
+    [Raport](../../docs/reports/t014_3_routing_2026-11-03.md).
+  - [x] **T014.4 — przegląd i decyzja o wdrożeniu.** Wykonano 2026-11-03.
+    Potwierdzono kwalifikację V3 i integralność 26 plików dowodowych;
+    przejrzano dispatch błędnej diety, odmowy i niestabilną regresję.
+    DEC-07: pozostawić V0; potrzebna kolejna hipoteza. Kod bez zmian,
+    0 nowych wywołań API; bez akceptacji MVP. Dowody w `verification.md`.
+
 ## Najbliższe zadanie
 
-**T014.3 — małe porównanie V0/V3, oczekuje na zgodę na konkretny pomiar.**
-T014.2 zakończono offline: V3, instrumentacja, 254 testy bez błędów
-i pominięć, manifest 240 ocen / 216 planowanych wywołań.
-[Dowody i kosztorys](verification.md#t0142--przygotowanie-offline-zakończone).
-T014 nie wznawia T009. Aktywny prompt pozostaje V0; brak nowych wyników LLM.
+**T015 — kolejna iteracja routingu: specyfikacja i przygotowanie offline.**
+T014 zakończono decyzją DEC-07: pozostawić V0, V3 wymaga dopracowania.
+Następna praca dotyczy pomijanej diety, błędnych odmów i niestabilności
+`intent_004/010/032`, przy zachowaniu poprawy kanału i granic no_tool.
+[Przegląd i decyzja](verification.md#t0144--przegląd-i-decyzja-zakończone).
+Bez nowych funkcji i automatycznego pomiaru API; T007 i T011 są niezależne.
 
 **T009P zakończone po zatwierdzeniu płatnego pilotażu przez autorkę.**
 V2: 57/60, ale 15/18 poprawnych no_tool; V0: 42/60 i 18/18 no_tool.
@@ -61,23 +84,13 @@ nadal wymaga zamknięcia pozostałych luk; T012 jest wstrzymane.
 
 ## Kolejne zadania
 
-- [ ] **T014 — poprawa routingu bez utraty granic obsługi.**
-  Zakres: ROU-07–ROU-10; zależność: zakończony T009P.
-  Gotowe po raporcie porównania, przeglądzie regresji i jawnej decyzji
-  o kandydacie/wdrożeniu; brak poprawy także musi być odnotowany.
-  - [x] **T014.1 — specyfikacja i plan.** Zapisano wymagania, zależności,
-    regułę oceny i granice zmian. Bez kodu, danych i wywołań API.
-  - [x] **T014.2 — V3 i przygotowanie offline.** Wykonano 2026-11-03.
-    Jeden akapit różnicy V2/V3, izolowana instrumentacja raw/application,
-    10 nowych testów; pełna regresja 254/254 bez pominięć. Manifest i kosztorys
-    według sekcji 7 planu; 0 rzeczywistych wywołań, aktywny V0 bez zmian.
-    Dowody w sekcji T014.2 `verification.md`.
-  - [ ] **T014.3 — małe porównanie raw/application.** Stan: **oczekuje na
-    zgodę na konkretny pomiar**. Zamrożone dane i reguła, osobne wyniki,
-    bez użycia holdoutu i bez selektywnego ponawiania porażek.
-  - [ ] **T014.4 — przegląd i decyzja o wdrożeniu.** Stan: **oczekuje na T014.3**.
-    Sprawdzić warunki kandydata, regresję i rozbieżności raw/application.
-    Ewentualne wdrożenie dopiero po jawnej decyzji; inaczej pozostaje V0.
+- [ ] **T015 — kolejna iteracja routingu: specyfikacja i przygotowanie offline.**
+  Stan: **gotowe do rozpoczęcia**; zależność: DEC-07 / T014.4.
+  Najpierw zapisać hipotezę dla `intent_004/010/032`, zakres wariantu i regułę
+  porównania; następnie przygotować wariant eksperymentalny, testy, manifest
+  i kosztorys. Zachować ROU, expected, V0 oraz dotychczasowe raporty.
+  Gotowe po aktualizacji specyfikacji i planu, testach offline oraz dry-run;
+  nie obejmuje wdrożenia, płatnego pomiaru ani wznowienia T009/T012.
 - [ ] **T007 — przegląd używanych konceptów z ostrzeżeniami kcal.**
   Stan: **gotowe do rozpoczęcia**. Sprawdzić źródła C012/C338/C357/C367;
   zapisać uzasadnioną akceptację albo propozycję korekty. Nie zmieniać kcal

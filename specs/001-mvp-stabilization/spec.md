@@ -1,7 +1,7 @@
 # Specyfikacja — stabilizacja istniejącego MVP
 
 Data: 2026-10-22<br>
-Wersja dokumentu: 0.7; iteracja poprawy routingu T014: 2026-11-03<br>
+Wersja dokumentu: 0.8; przegląd i decyzja T014.4: 2026-11-03<br>
 Status: zakres, progi i DEC-01–03 zatwierdzone; wymagania integralności
 i błędów wdrożone w T006; protokół T008 opracowany. Pięć SKU pozostaje wstrzymanych.
 
@@ -68,6 +68,7 @@ ale nie zastępują jej ani stanów w `tasks.md`.
 | DEC-04 | Wstrzymana przez autorkę | Nie prowadzimy obecnie przeglądu źródeł pięciu SKU ani zależnych korekt czy wyłączeń. Luka podstawy makro pozostaje otwarta. |
 | DEC-05 | Zatwierdzona 2026-11-03 | T009 pozostaje wyłącznie przygotowaniem offline. Płatna kampania API jest wstrzymana; wznowienie wymaga jawnej decyzji autorki. Nie oceniono progów jakości modelu. |
 | DEC-06 | Pilotaż zatwierdzony i wykonany 2026-11-03 | Po jednoznacznej zgodzie wykonano 120 wywołań V0/V2 na 20 przypadkach. Wybór pozostawia V0: V2 poprawił kanał, ale nie spełnił warunku wszystkich no_tool. Duża kampania pozostaje wstrzymana; wynik nie zalicza MVP ani nie podmienia promptu. |
+| DEC-07 | Decyzja przeglądu T014.4, 2026-11-03 | Pozostawić aktywny V0; V3 zachowuje kwalifikację kandydata T014.3, ale wymaga dalszego dopracowania. W application pomija dietę w intent_004, błędnie odmawia obsługi intent_010 i ma niestabilną regresję intent_032. Nie wdrażać V3 na podstawie tego pomiaru. Uzasadnienie i dowody w sekcji T014.4 mapy weryfikacji; ACC i reguła wyboru pozostają bez zmian. |
 
 W tym etapie dopuszczalne są poprawki błędów, zmiany promptu, refaktoryzacja,
 korekty istniejących danych, testy, narzędzia pomiarowe i dokumentacja,
@@ -378,6 +379,22 @@ offline; T014.3 osobno zatwierdzony pomiar; T014.4 ocenę i ewentualne wdrożeni
 Zgoda na poprzednie 120 wywołań V0/V2 została wykorzystana i nie jest zgodą
 na następne wywołania. T009 i analiza pięciu SKU pozostają wstrzymane.
 
+T014 zakończono przeglądem T014.4: **pozostawić V0; potrzebna kolejna
+hipoteza** (DEC-07). V3 spełnił regułę kandydata, lecz nie został wdrożony.
+Przegląd odróżnia brak nowej stałej regresji 3/3 → 0/3 od braku dowolnej
+regresji: `intent_032` pogorszył się do 2/3, a w `intent_004` błędne
+argumenty V3 przeszły walidację i trafiły do atrapy backendu.
+Wynik tego zadania jest decyzją o konfiguracji, nie zaliczeniem jakości MVP.
+
+Kolejna praca nad routingiem otrzymuje ID T015 i pozostaje offline:
+przed zmianą promptu określić hipotezę naprawy `intent_004/010/032`,
+regułę porównania i scenariusze dla istniejących ROU-01–ROU-04/07–ROU-10.
+Nie pomijać diety ze względu na kategorię deseru; nie odmawiać obsługiwanej
+preferencji ryby ani `top_n=4`. To obecna semantyka, nie nowe funkcje.
+Zachować rozdzielenie raw/application, granice no_tool i brak wykonywania
+tekstu JSON. Implementacja wariantu eksperymentalnego wymaga najpierw
+tego uzupełnienia specyfikacji; żaden kolejny pomiar nie startuje automatycznie.
+
 ## 6. Granice obsługi
 
 Ograniczenia bez glutenu i bez laktozy oznaczają zgodność z udokumentowaną
@@ -433,10 +450,11 @@ nie stanowi akceptacji MVP.
 Stan zastany, kontrola bazowa, wymagania T005, wdrożenie T006 i specyfikacja
 T008 są zapisane. Część offline T009 jest wykonana; płatną kampanię
 wstrzymano na decyzję autorki (DEC-05). T009P jest zakończone.
-Następna iteracja routingu to T014; T014.2 zakończyło przygotowanie V3
-i instrumentacji offline. Pomiar T014.3 oczekuje na osobną zgodę;
-nie powstały nowe wyniki jakości modelu ani wdrożenie. T007 i T011
-pozostają niezależnymi zadaniami.
+Iteracja routingu T014 jest zakończona: przygotowanie offline, zatwierdzony
+pomiar i decyzja przeglądu T014.4 (DEC-07). Aktywny prompt pozostaje V0;
+V3 jest kandydatem wymagającym dopracowania. Następna iteracja T015 zaczyna
+się od specyfikacji hipotezy i przygotowania offline, bez wdrożenia lub nowej
+kampanii API. T007 i T011 pozostają niezależnymi zadaniami.
 Kolejność opisuje [plan](plan.md), a stan prac
 [zadania](tasks.md). Nie uruchamiamy ponownie wykonanych etapów na podstawie
 dawnych notatek.
