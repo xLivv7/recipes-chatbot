@@ -66,6 +66,7 @@ ale nie zastępują jej ani stanów w `tasks.md`.
 | DEC-02 | Zatwierdzona; wdrożona w T006 | Brak wymaganej polityki składnika nie oznacza zgodności. Szczegóły opisują INT-01–INT-04. |
 | DEC-03 | Zatwierdzona; wdrożona w T006 | Błąd przygotowania przepisu przerywa zapytanie; nie zwracamy częściowego sukcesu ani pozornego braku wyników. Błędy programistyczne nie są maskowane jako poprawna odpowiedź. |
 | DEC-04 | Wstrzymana przez autorkę | Nie prowadzimy obecnie przeglądu źródeł pięciu SKU ani zależnych korekt czy wyłączeń. Luka podstawy makro pozostaje otwarta. |
+| DEC-05 | Zatwierdzona 2026-11-03 | T009 pozostaje wyłącznie przygotowaniem offline. Płatna kampania API jest wstrzymana; wznowienie wymaga jawnej decyzji autorki. Nie oceniono progów jakości modelu. |
 
 W tym etapie dopuszczalne są poprawki błędów, zmiany promptu, refaktoryzacja,
 korekty istniejących danych, testy, narzędzia pomiarowe i dokumentacja,
@@ -358,8 +359,9 @@ nie stanowi akceptacji MVP.
 ## 9. Kolejny krok SDD i kontrola zmian
 
 Stan zastany, kontrola bazowa, wymagania T005, wdrożenie T006 i specyfikacja
-T008 są zapisane. Najbliższy krok to przygotowanie offline T009;
-płatna kampania nie jest uruchomiona.
+T008 są zapisane. Część offline T009 jest wykonana; płatną kampanię
+wstrzymano na decyzję autorki (DEC-05). T007 i T011 pozostają niezależnymi
+zadaniami gotowymi do rozpoczęcia.
 Kolejność opisuje [plan](plan.md), a stan prac
 [zadania](tasks.md). Nie uruchamiamy ponownie wykonanych etapów na podstawie
 dawnych notatek.

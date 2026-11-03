@@ -1,6 +1,7 @@
 # T009 — przygotowanie kampanii routingu
 
-Data: 2026-11-03. Status: część offline wykonana; płatna kampania nieuruchomiona.
+Data: 2026-11-03. Status: część offline wykonana; płatna kampania wstrzymana
+na decyzję autorki: pozostawić tylko przygotowanie offline.
 
 ## Wersje i zakres
 
@@ -71,6 +72,13 @@ Wyświetlono autorce prośbę o zgodę obejmującą treści 76 kontrolowanych
 zapytań, prompty V0/V1/V2, schemat, odbiorcę i oszacowanie kosztów.
 
 Manifest pozostaje `prepared`; nie powstały raporty rund ani porównanie.
-Nie wybrano zwycięzcy i nie oceniono progów 90%/85%. T009 nie jest
-ukończone: dalszy krok to wykonanie niezmienionej zamrożonej kampanii po
-jednoznacznym zatwierdzeniu płatnego etapu. Pięć SKU pozostaje wstrzymanych.
+Nie wybrano zwycięzcy i nie oceniono progów 90%/85%.
+
+Po przedstawieniu prośby autorka wybrała „Pozostaw tylko przygotowanie
+offline”. Płatny etap jest zatem wstrzymany, a nie oczekujący na ponowne
+pytanie. T009 jako eksperyment z pomiarem nie jest ukończone. Nie uruchamiać
+API bez jawnego wznowienia. Przed ewentualnym wznowieniem należy sprawdzić
+aktualność źródeł i kosztów: zapis późniejszej decyzji zmienił specyfikację
+i plan względem manifestu `_01`, więc ten manifest nie przejdzie kontroli
+hashy bez przygotowania nowej kampanii. Nie modyfikować go wstecznie.
+Pięć SKU pozostaje wstrzymanych.

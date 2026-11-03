@@ -157,5 +157,6 @@ i błędy; wdrożenie T006 i wykonane scenariusze są opisane w sekcji 3.
 Kod zaktualizowano zgodnie z wymaganiami; dane i progi pozostały bez zmian.
 
 T008 zakończyło wymagania i protokół. W T009 wykonano część offline;
-płatny etap oczekuje na jednoznaczną zgodę po odmowie automatycznej kontroli.
+płatny etap jest wstrzymany na decyzję autorki: pozostawić tylko offline.
+Nie powstały wyniki kampanii; progi routingu pozostają nieocenione.
 Aktywny prompt, dane i progi pozostają bez zmian.

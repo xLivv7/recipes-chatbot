@@ -1,6 +1,7 @@
 # Plan — stabilizacja istniejącego MVP
 
-Status: T005, T006 i T008 wykonane 2026-11-03. Następne: przygotowanie T009.
+Status: T005, T006, T008 i część offline T009 wykonane.
+Płatny etap T009 wstrzymany na decyzję autorki z 2026-11-03.
 Zakres i decyzje: [spec.md](spec.md). Warunki ukończenia: [acceptance.md](acceptance.md).
 Szczegółowe zadania i ich stan: [tasks.md](tasks.md).
 
@@ -66,6 +67,12 @@ nowych niepewności.
 W etapie reorganizacji nie wykonujemy płatnych pomiarów ani zmian bazy.
 
 ## 5. Protokół eksperymentu routingu T009
+
+**Bieżący stan:** protokół pozostaje projektem ewentualnego późniejszego
+pomiaru. Autorka wybrała tylko przygotowanie offline. Nie uruchamiać
+kampanii API ani nie traktować poniższych kroków jako bieżącego polecenia.
+Przed ewentualnym wznowieniem trzeba zweryfikować aktualność wejść i kosztu;
+zmienione pliki wymagają nowego zamrożenia, nie obchodzenia kontroli hashy.
 
 ### Dane i konfiguracja
 
