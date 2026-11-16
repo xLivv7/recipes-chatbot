@@ -5,7 +5,14 @@ RECIPE_TOOLS = [
         "type": "function",
         "function": {
             "name": "get_recommendations",
-            "description": "Wyszukuje i poleca przepisy kulinarne na podstawie zapytania użytkownika. Użyj tej funkcji zawsze, gdy użytkownik szuka pomysłu na posiłek, prosi o przepis lub chce coś ugotować.",
+            "description": (
+                "Wyszukuje przepisy kulinarne na podstawie parametrów zapytania użytkownika. "
+                "Wywołaj tę funkcję dokładnie raz, gdy użytkownik prosi o przepis lub pomysł na posiłek "
+                "i wszystkie jego wymagania są obsługiwane. Nie wywołuj jej dla próśb poza zakresem, "
+                "doboru przepisów dla alergii, nieobsługiwanych wykluczeń (np. bez mleka lub bez nabiału) "
+                "ani sprzecznych preferencji. Nieobsługiwane wymaganie ma pierwszeństwo przed prośbą "
+                "o posiłek; nie pomijaj go ani nie zastępuj dostępnym filtrem."
+            ),
             "parameters": {
                 "type": "object",
                 "additionalProperties": False,
