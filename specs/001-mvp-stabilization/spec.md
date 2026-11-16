@@ -1,7 +1,7 @@
 # Specyfikacja — stabilizacja istniejącego MVP
 
 Data: 2026-10-22<br>
-Wersja dokumentu: 0.10; pomiar i przegląd T016: 2026-11-03<br>
+Wersja dokumentu: 0.14; kontrakt diet/protein T017: 2026-11-16<br>
 Status: zakres, progi i DEC-01–03 zatwierdzone; wymagania integralności
 i błędów wdrożone w T006; protokół T008 opracowany. Pięć SKU pozostaje wstrzymanych.
 
@@ -70,6 +70,10 @@ ale nie zastępują jej ani stanów w `tasks.md`.
 | DEC-06 | Pilotaż zatwierdzony i wykonany 2026-11-03 | Po jednoznacznej zgodzie wykonano 120 wywołań V0/V2 na 20 przypadkach. Wybór pozostawia V0: V2 poprawił kanał, ale nie spełnił warunku wszystkich no_tool. Duża kampania pozostaje wstrzymana; wynik nie zalicza MVP ani nie podmienia promptu. |
 | DEC-07 | Decyzja przeglądu T014.4, 2026-11-03 | Pozostawić aktywny V0; V3 zachowuje kwalifikację kandydata T014.3, ale wymaga dalszego dopracowania. W application pomija dietę w intent_004, błędnie odmawia obsługi intent_010 i ma niestabilną regresję intent_032. Nie wdrażać V3 na podstawie tego pomiaru. Uzasadnienie i dowody w sekcji T014.4 mapy weryfikacji; ACC i reguła wyboru pozostają bez zmian. |
 | DEC-08 | Decyzja przeglądu T016, 2026-11-03 | V4 nie kwalifikuje się według T015-v1 mimo 57/60 application. W intent_032 dodaje fish bez jawnej prośby: regresja application 3/3 → 0/3 i trzy wywołania backendu z błędną semantyką. Pozostawić V0; dalsza diagnoza relacji diety i preferencji białka w T017 offline. Zachować progi, expected i regułę oraz raport T016. |
+| DEC-09 | Zatwierdzona przez autorkę 2026-11-16 | Samo „bez mięsa” oznacza domyślnie vegetarian. Jawne dopuszczenie ryb lub wskazanie diety doprecyzowuje tę regułę; sama zgoda na ryby nie wymaga fish. Obowiązuje tabela prośba → interpretacja poniżej, rozwinięta w kontrakcie T017. |
+| DEC-10 | Zlecono opracowanie kontraktu, 2026-11-16 | T019 ma określić no_tool: warunki decyzji, odpowiedzialność modelu i aplikacji, komunikat oraz ocenę poprawności. Sam brak wywołania nie może ukrywać błędu dla obsługiwanej prośby. Szczegóły pozostają do zaprojektowania. |
+| DEC-11 | Zlecono projekt, 2026-11-16 | T020 ma zaprojektować obsługę wielu celów żywieniowych, np. low_kcal + keto. Zakres obejmuje semantykę połączeń i wpływ na kontrakt oraz backend. Nie jest zleceniem implementacji ani rozszerzeniem wszystkich pól do list. |
+| DEC-12 | Uzgodniono kierunek przygotowania, 2026-11-16 | Punkty 4/5 audytu realizować przez kandydata evals/routing_prompts/V5.txt: format przykładów jak w V4, z kontrastowym doborem treści zgodnym z T017/T019. Pozostałe instrukcje i wspólny schemat zachować. T021 obejmuje przygotowanie i kontrolę offline; skuteczność, płatny pomiar i wdrożenie pozostają osobnymi etapami. |
 
 W tym etapie dopuszczalne są poprawki błędów, zmiany promptu, refaktoryzacja,
 korekty istniejących danych, testy, narzędzia pomiarowe i dokumentacja,
@@ -429,8 +433,172 @@ ustawia fish z samej diety pescetarian. H-T015 uzyskała częściowe wsparcie,
 lecz pełny cel nie został osiągnięty. Trzy warunki T015-v1 są niespełnione:
 docelowe przypadki 3/3, brak regresji oraz brak dispatch z błędną semantyką.
 Aktywny V0 pozostaje; nie zaliczono ACC ani nie wdrożono V4.
-T017 ma najpierw zdiagnozować kontrasty diet/protein i określić następną
-hipotezę oraz sposób weryfikacji, bez automatycznego kolejnego pomiaru.
+Wynik T016 wyznaczył T017: diagnozę kontrastów diet/protein, następną
+hipotezę i sposób weryfikacji, bez automatycznego kolejnego pomiaru.
+Ukończony kontrakt T017 opisano poniżej.
+
+### T018 — usunięcie konfliktu INS-01 w opisie narzędzia
+
+Na polecenie autorki z 2026-11-16 poprawka obejmuje wspólny opis funkcji
+`get_recommendations`. Jest odrębna od dalszej diagnozy diet/protein T017.
+
+**ROU-11:** opis funkcji wymaga dokładnie jednego wywołania dla prośby
+o przepisy lub pomysł na posiłek, jeżeli wszystkie wymagania są obsługiwane.
+Nie nakazuje wywołania dla próśb poza zakresem, doboru dla alergii,
+nieobsługiwanych wykluczeń ani sprzecznych preferencji. Nieobsługiwane
+wymaganie ma pierwszeństwo przed prośbą o posiłek; nie wolno go pominąć
+ani zastąpić dostępnym filtrem. Powiązanie: ROU-01/03/07 i ACC-06/11.
+
+Zakres zmiany: tekst opisu funkcji, bez zmiany pól, typów, wartości,
+wymagalności, parsera, preflight i promptów V0–V4. Ukończenie wymaga
+kontroli różnicy schematu i istniejących testów offline. Nie stanowi
+pomiaru poprawy interpretacji ani zgody na nową kampanię API.
+
+### Ustalenia po audycie — zakres T017, T019 i T020
+
+Poniższa tabela została zaakceptowana przez autorkę jako semantyka prośby
+(DEC-09). Jest podstawą kontraktu i scenariuszy weryfikacji; jej umieszczenie
+tutaj nie oznacza dodania tych tekstów do przykładów wysyłanych modelowi.
+
+| Prośba | diet | protein_preference |
+| --- | --- | --- |
+| Kolacja bez mięsa | vegetarian | none |
+| Bez mięsa, ale ryby mogą być | pescetarian | none |
+| Bez mięsa, ale chcę danie z rybą | pescetarian | fish |
+| Wegańska kolacja bez mięsa | vegan | none |
+
+### T017 — kontrakt interpretacji diety i źródła białka
+
+Opracowano 2026-11-16 na podstawie DEC-09, audytu INS-02/05 i przeglądu
+T016. To specyfikacja oczekiwanego zachowania, jeszcze niewdrożona do
+instrukcji modelu. Nie zmienia interpretacji samego „bez mięsa” na
+domyślne dopuszczenie ryb.
+
+**Diagnoza:** w T016 `intent_032` miał poprawne jedno wywołanie i top_n=4
+we wszystkich sześciu próbach V4. Błąd dotyczył wyłącznie dodanego fish:
+2/3 prób raw i 3/3 application. W instrukcjach nie znaleziono nakazu
+wyprowadzania fish z pescetarian; przeciwnie, opis pola i prompt tego
+zabraniają. Brak kontrastowych przykładów jest hipotezą wyjaśniającą,
+nie ustaloną przyczyną. Osobna niejednoznaczność INS-02 dotyczy pierwszeństwa
+„bez mięsa” i jego doprecyzowań; nie wyjaśnia bezpośrednio `intent_032`,
+który nie zawiera tej frazy. Szczegóły dowodów i ograniczeń: sekcja 9 planu.
+
+| ID | Reguła interpretacji | Powiązanie |
+| --- | --- | --- |
+| ROU-12 | Odczytać całą prośbę przed wyborem diety. Samo „bez mięsa” daje vegetarian. „Bez mięsa, ryby mogą być” daje pescetarian/none, a „bez mięsa, chcę rybę” pescetarian/fish. To doprecyzowanie ogólnej frazy, nie automatyczna zmiana jawnie nazwanej diety vegetarian lub vegan. | DEC-09; INS-02; ACC-09/11 |
+| ROU-13 | Jawna dieta vegan/vegetarian/pescetarian obowiązuje niezależnie od kategorii i celu. Zgodne dopowiedzenia jej nie osłabiają; „wegańska bez mięsa” pozostaje vegan. Samo dopuszczenie ryby nie usuwa wymogów jawnej diety. Jawne żądanie składnika wykluczonego przez tę dietę jest sprzecznością, bez wywołania narzędzia; nie wolno usuwać części prośby. | ROU-01/07; ACC-09/11 |
+| ROU-14 | diet określa dopuszczalność składników, a protein_preference wymaga obecności wskazanego źródła. fish/meat ustawić tylko na podstawie dodatniej prośby o danie z rybą/mięsem. Samo „może być”, pescetarian i high_protein nie ustanawiają takiego wymagania. none oznacza brak jawnego wymagania, a nie wykluczenie ryb, mięsa lub białka. Sama prośba o rybę nie dodaje pescetarian. | INS-05; ROU-01/04; ACC-09 |
+| ROU-15 | Rozróżnić cofnięcie wymagania od zakazu: „nie musi być z rybą” nie wymaga fish, „nie musi być bez mięsa” nie ustanawia vegetarian. Negacja nie usuwa innej, dodatnio wskazanej diety. „Bez ryb” jest rzeczywistym wykluczeniem i nie może zostać zakodowane jako none. Bez zgodnej reprezentacji całej prośby obowiązuje no_tool. „Bez mięsa i ryb” ma reprezentację vegetarian/none. | ROU-07; ACC-09/11 |
+| ROU-16 | Po interpretacji sprawdzić zgodność pary diet/protein według macierzy poniżej. Nie rozwiązywać konfliktu przez domyślne none, usunięcie diety lub zamianę żądanej ryby na zamiennik. Brak wywołania nie jest pustym wynikiem wyszukiwania; komunikat i źródło przyczyny określi T019. | ROU-03/07; ACC-09/11 |
+| ROU-17 | Pozostałe wymagania zachować bez zmian: ograniczenia, cel, kategorię, czas i top_n. Jawny dodatni top_n powyżej 3 jest obsługiwany. Nie zmieniać expected ani nie naprawiać semantyki przez bezwarunkową zamianę pescetarian/fish na pescetarian/none. | ROU-01/04; RSC-11/12; ACC-09 |
+
+Kolejność: odczytać dodatnie wymagania, dopuszczenia i negacje w kontekście
+całego zdania → ustalić dietę według ROU-12/13 → niezależnie ustalić jawne
+źródło według ROU-14/15 → sprawdzić zgodność pary i całej prośby → dopiero
+wtedy jedno wywołanie z pełnymi argumentami albo brak wywołania.
+Nieobsługiwana alergia lub wykluczenie nadal ma pierwszeństwo (ROU-07/11).
+Sprzeczności nie rozstrzyga ostatnie słowo ani kolejność fraz. Kontrakt
+nie wprowadza obsługi alternatyw wielu diet lub źródeł w jednym polu.
+
+Macierz dotyczy zgodności już wybranych wartości, a nie poprawności ich
+przypisania do konkretnego zdania. Jest zgodna z istniejącym walidatorem:
+
+| diet | protein=none | protein=fish | protein=meat |
+| --- | --- | --- | --- |
+| none | dozwolone | dozwolone | dozwolone |
+| vegetarian | dozwolone | sprzeczne | sprzeczne |
+| vegan | dozwolone | sprzeczne | sprzeczne |
+| pescetarian | dozwolone | dozwolone | sprzeczne |
+
+W szczególności legalne pescetarian/fish nie dowodzi, że użytkownik prosił
+o rybę. Parser sprawdza strukturę i zgodność wartości, a ocena semantyczna
+porównuje je z wymaganiami zapytania. Obecna aplikacja nie ma dodatkowego
+mechanizmu sprawdzającego to znaczenie przed dispatch.
+
+#### Scenariusze diet/protein do przyszłej weryfikacji
+
+Poniższe DP-01–28 są jawnymi przypadkami rozwojowymi, nie wynikami modelu
+ani końcowym holdoutem. Nie kopiować ich do demonstracji V5. Dla `tool`
+obowiązują pełne argumenty bazowe: restrictions=[], nutrition_goal=standard,
+category=kolacja, top_n=3; time_max pominięte. Wiersz podaje diet,
+protein_preference oraz wszystkie odstępstwa od tej bazy. Znak „—” dla
+no_tool oznacza brak argumentów i brak dispatch, nie wartości domyślne.
+
+| ID | Zapytanie rozwojowe | Decyzja | diet | protein_preference | Odstępstwa od bazy / kontrola |
+| --- | --- | --- | --- | --- | --- |
+| DP-01 | Kolacja bez mięsa | tool | vegetarian | none | Reguła domyślna. |
+| DP-02 | Kolacja bez mięsa, ryby mogą być | tool | pescetarian | none | Dopuszczenie nie jest żądaniem. |
+| DP-03 | Kolacja bez mięsa, chcę danie z rybą | tool | pescetarian | fish | Jawne żądanie z doprecyzowaniem diety. |
+| DP-04 | Wegańska kolacja bez mięsa | tool | vegan | none | Jawna dieta przed ogólną frazą. |
+| DP-05 | Kolacja pescetariańska | tool | pescetarian | none | Samo pescetarian nie wymaga fish. |
+| DP-06 | Kolacja pescetariańska z rybą | tool | pescetarian | fish | Nie usuwać poprawnej preferencji fish. |
+| DP-07 | Kolacja z rybą | tool | none | fish | Sama ryba nie ustala diety. |
+| DP-08 | Kolacja, ryby mogą być | tool | none | none | Samo dopuszczenie nie ustala żadnego z pól. |
+| DP-09 | Kolacja z mięsem | tool | none | meat | Dodatnie wymaganie mięsa. |
+| DP-10 | Kolacja, mięso może być | tool | none | none | Dopuszczenie mięsa nie wymaga meat. |
+| DP-11 | Wysokobiałkowa kolacja pescetariańska | tool | pescetarian | none | nutrition_goal=high_protein. |
+| DP-12 | Kolacja nie musi być z rybą | tool | none | none | Cofnięte wymaganie, bez zakazu ryby. |
+| DP-13 | Kolacja nie musi być bez mięsa | tool | none | none | Zanegowane wykluczenie nie dodaje diety. |
+| DP-14 | Kolacja bez mięsa i ryb | tool | vegetarian | none | Wykluczenie obu grup ma reprezentację. |
+| DP-15 | Kolacja wegetariańska z prawdziwą rybą, nie zamiennikiem | no_tool | — | — | Sprzeczna para vegetarian/fish. |
+| DP-16 | Wegańska kolacja z mięsem, nie zamiennikiem | no_tool | — | — | Sprzeczna para vegan/meat. |
+| DP-17 | Kolacja pescetariańska z mięsem, nie zamiennikiem | no_tool | — | — | Sprzeczna para pescetarian/meat. |
+| DP-18 | Kolacja bez ryb | no_tool | — | — | Sam zakaz ryb nie ma wiernej reprezentacji; nie rozszerzać go na vegetarian. |
+| DP-19 | Kolacja bez mięsa, ale koniecznie z mięsem, nie zamiennikiem | no_tool | — | — | Sprzeczność w jednej prośbie. |
+| DP-20 | Daj 4 kolacje pescetariańskie bez glutenu do 25 minut | tool | pescetarian | none | restrictions=[gluten_free], time_max=25, top_n=4. |
+| DP-21 | Daj 4 kolacje pescetariańskie z rybą bez glutenu do 25 minut | tool | pescetarian | fish | restrictions=[gluten_free], time_max=25, top_n=4. |
+| DP-22 | Kolacja bez mięsa, nie musi być z rybą | tool | vegetarian | none | Cofnięcie żądania ryby nie jest dopuszczeniem ryb wobec „bez mięsa”. |
+| DP-23 | Kolacja nie musi być pescetariańska | tool | none | none | Zanegowana dieta nie dodaje pescetarian. |
+| DP-24 | Kolacja bez mięsa i bez mleka | no_tool | — | — | Nieobsługiwane wymaganie ma pierwszeństwo. |
+| DP-25 | Kolacja wegańska | tool | vegan | none | Kontrola jawnej diety. |
+| DP-26 | Kolacja wegetariańska | tool | vegetarian | none | Kontrola jawnej diety. |
+| DP-27 | Wysokobiałkowa kolacja | tool | none | none | nutrition_goal=high_protein; bez wymyślonego źródła. |
+| DP-28 | Kolacja pescetariańska nie musi być z rybą | tool | pescetarian | none | Negacja źródła nie usuwa dodatniej diety. |
+
+Kontrola offline wykazała fałszywe blokady preflight dla DP-02/03/22:
+ogon zdania po przecinku jest traktowany jako dalszy ciąg wykluczeń.
+Expected pozostaje tool. To dalszy przejaw INS-06; instrukcja modelu nie
+naprawi prośby zatrzymanej przed API. Nie przypisywać tym próbom błędu
+rozumienia modelu, ale nadal liczyć je jako błędy całej aplikacji.
+
+**H-T017:** kontrastowe demonstracje dopuszczenia i żądania ryby, wraz
+z minimalnym usunięciem bezwarunkowego brzmienia INS-02, zmniejszą liczbę
+niezamówionych fish bez utraty poprawnych jawnych fish, diet, kanału
+i granic odmowy. To hipoteza o całym nowym wariancie, nie dowód przyczyny
+błędu T016 ani obietnica poprawy. Przygotowanie V5 prowadzi T021 po T019;
+protokół i warunki oceny przed pomiarem określa sekcja 9 planu.
+
+T019 dotyczy kontraktu no_tool (INS-03): sytuacji zakończenia bez narzędzia,
+roli content, komunikatów aplikacji, błędów i planu weryfikacji. Przy obecnym
+interfejsie brak tool_calls nie niesie jednoznacznej przyczyny; projekt ma
+rozstrzygnąć, kiedy wystarczy komunikat ogólny i skąd mogą pochodzić powody.
+Nie należy dopisywać do odpowiedzi pewnej przyczyny, której aplikacja nie zna.
+
+T020 jest zadaniem projektowym dotyczącym INS-07 dla celów żywieniowych.
+Ma określić łączenie wymagań i preferencji, np. keto z preferencją niższej
+kaloryczności, oraz odróżnić twarde warunki od rankingu. Obecne low_kcal
+nie ustanawia progu kcal; projekt musi to uwzględnić i rozstrzygnąć znaczenie
+„niskokaloryczne”. Trzeba ocenić zmiany schematu, parsera, doboru SKU,
+obliczeń, rankingu i ewaluacji oraz wpływ na zakres MVP. Z-04 i aktualny
+interfejs jednego nutrition_goal obowiązują do osobnej zmiany implementacyjnej.
+
+**Punkty 4/5 audytu — kierunek ustalony (DEC-12):** T021 ma przygotować
+`evals/routing_prompts/V5.txt`. Zachować format V4: zapytanie, wskazane
+narzędzie i pełne argumenty; wymienić zestaw przykładów na kontrastowy.
+Przykłady no_tool opisać zgodnie z T019, jako brak wywołania, bez fikcyjnego
+narzędzia no_tool. Z zastrzeżeniem wyjątków T017 poniżej zachować pozostałe
+instrukcje V4. Nie zmieniać parametrów modelu, wspólnego schematu ani
+historycznych V0–V4. Każdy przykład powiązać z regułą
+kontraktu i sprawdzić offline. Zakres oraz warunki ukończenia prowadzi T021.
+Samo przygotowanie V5 nie potwierdza naprawy zachowania modelu.
+
+Uszczegółowienie zakresu po T017: w nowym V5 dopuszczona jest minimalna
+korekta dwóch bezwarunkowych zdań o „bez mięsa” (akapity OBSŁUGIWANE
+PREFERENCJE i DIETA) do ROU-12/13 oraz wprowadzenia do przykładów,
+które w V4 zapowiada wyłącznie wywołania. Bez tych wyjątków zachowanie
+całego tekstu V4 kolidowałoby z kontrastami DEC-09 i no_tool. Pozostała
+treść pozostaje bez zmian; diff ma osobno pokazać te korekty i demonstracje.
+Nie jest to polecenie edycji promptów w ramach T017.
 
 ## 6. Granice obsługi
 
@@ -490,8 +658,9 @@ wstrzymano na decyzję autorki (DEC-05). T009P jest zakończone.
 Iteracja routingu T014 jest zakończona: przygotowanie offline, zatwierdzony
 pomiar i decyzja przeglądu T014.4 (DEC-07). T015 przygotowało V4 offline,
 a T016 zakończyło jego pomiar i przegląd: V4 nie zakwalifikował się
-według T015-v1 (DEC-08). Aktywny prompt pozostaje V0. Następny T017
-dotyczy diagnozy i specyfikacji poprawki relacji diet/protein offline.
+według T015-v1 (DEC-08). Aktywny prompt pozostaje V0. T017 zakończyło
+diagnozę i specyfikację relacji diet/protein offline, bez wdrożenia poprawki.
+Następne T019 określa kontrakt no_tool, a T021 przygotuje V5.
 T007 i T011 pozostają niezależnymi zadaniami.
 Kolejność opisuje [plan](plan.md), a stan prac
 [zadania](tasks.md). Nie uruchamiamy ponownie wykonanych etapów na podstawie

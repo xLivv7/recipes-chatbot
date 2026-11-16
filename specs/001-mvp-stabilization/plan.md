@@ -337,22 +337,211 @@ DEC-08 pozostawia V0, bez zmiany reguły lub expected po wynikach.
 
 ## 9. T017 — diagnoza relacji diet/protein i specyfikacja poprawki
 
-Zadanie planowane po DEC-08, wyłącznie offline. Nie zakłada z góry,
-że dopisanie kolejnej instrukcji wystarczy. Najpierw:
+**Zakończone 2026-11-16, offline.** Rezultat: ROU-12–17, macierz zgodności
+i DP-01–28 w `spec.md`, poniższa diagnoza, hipoteza i protokół. Podstawa:
+DEC-08/09, audyt INS-01–08 oraz istniejące rozwojowe expected. Nie wdrożono
+zmiany instrukcji i nie wykonano pomiaru modelu.
 
-1. Przejrzeć nieobsłużoną semantykę `intent_032`: dieta dopuszcza ryby,
-   natomiast protein_preference wymaga jawnej preferencji. Oddzielić ten
-   błąd od naprawionego w tym pomiarze `top_n=4` i wcześniejszej odmowy.
-2. Zestawić istniejące kontrasty rozwojowe: `intent_011/020/032/050`
-   (pescetarian, none) i `intent_010/016/029/045/060` (jawna ryba, fish),
-   a także zachować diety i granice no_tool. Poza podzbiorem T016 nie
-   przypisywać przypadkom wyników V4. Nie używać holdoutu do projektowania.
-3. Zapisać ograniczoną hipotezę i wybrany zakres następnej poprawki oraz
-   scenariusze i regułę porównania przed implementacją. Zachować expected,
-   rozdzielenie pól, istniejące ROU i zakaz wykonywania JSON-a z content.
-   Nie poprawiać problemu przez bezwarunkową zamianę fish na none.
+### Diagnoza i ograniczenia dowodów
 
-Warunek ukończenia T017: udokumentowana diagnoza, hipoteza, granice zmian,
-scenariusze i plan weryfikacji. To przygotowanie specyfikacji; implementacja
-i ewentualny pomiar dostaną osobne zadania. T017 nie zmienia aktywnego V0,
-nie uruchamia API i nie wznawia T009 ani T012.
+| Obserwacja | Wniosek i granica |
+| --- | --- |
+| T016: intent_032, V4, jedno narzędzie i top_n=4 we wszystkich 6 próbach; fish zamiast none w 2/3 raw i 3/3 application. | To niezamówione zawężenie źródła białka, a nie brak obsługi czterech propozycji. Poprawne raw/application: odpowiednio 1/3 i 0/3. |
+| Trzy błędne próby application dotarły do atrapy backendu. | Parser nie wykrywa rozbieżności z tekstem prośby. Nie badano wyniku rzeczywistego katalogu; nie twierdzić, że baza zwróciła konkretne błędne dania. |
+| Pescetarian/fish jest legalne, gdy użytkownik jawnie chce rybę. | Nie blokować tej kombinacji w parserze i nie przepisywać fish na none po odpowiedzi modelu. |
+| V4 i opis protein_preference zabraniają wyprowadzania fish z diety. Pięć demonstracji ma wyłącznie protein=none, bez pescetarian i kontrastów. | Brak demonstracji jest kandydatem na przyczynę; zgodność samych reguł nie gwarantuje ich przestrzegania. Audyt nie ustala przyczynowości. |
+| INS-02: dwie ogólne reguły V4 mówią „bez mięsa → vegetarian”, a intent_020 dopuszcza ryby. | Potrzebna reguła pierwszeństwa DEC-09. To odrębna luka; intent_032 nie zawiera „bez mięsa”. |
+| INS-01 poprawiono już w T018. | Nowy pakiet wejściowy różni się od T016. Dawny wynik V4 nie może być kontrolą nowego V5. |
+
+### Mapa kontrastów i scenariuszy
+
+| Grupa | Istniejące ujawnione przypadki / expected | Nowe scenariusze kontraktu | Sprawdzana reguła |
+| --- | --- | --- | --- |
+| Dopuszczenie ryb | intent_011/020/032/050: pescetarian/none. | DP-02/05/08/28. | ROU-12/14/15; dieta lub zgoda nie żąda fish. |
+| Jawna ryba | intent_010/016/029/045/060: none/fish. | DP-03/06/07/21. | ROU-12/14; zachować fish, a pescetarian dodać tylko z odrębnej przesłanki. |
+| Domyślne vegetarian i jawne diety | intent_004/014/027/028/035; kontrola vegan intent_025/062. | DP-01/04/14/25/26. | ROU-12/13; nie wnioskować z kategorii ani osłabiać jawnej diety. |
+| Mięso a cel białkowy | intent_012/023/037/043: none/meat; intent_003/018/026/033/057: protein=none. | DP-09/10/11/27. | ROU-14; cel nie wybiera źródła, dopuszczenie nie wymaga obecności. |
+| Negacje | Brak osobnych kontrastów diet/protein we wskazanej grupie; nie przypisywać im wyników. | DP-12/13/22/23/28. | ROU-15; cofnięcie wymogu różni się od zakazu. |
+| Sprzeczność lub nieobsługiwane wykluczenie | routing_006 oraz routing_001–004, guard_001–004 pozostają no_tool. | DP-15–19/24. | ROU-07/11/13/15/16; bez pominięcia wymagania i bez dispatch. |
+| Pozostałe pola i kanał | intent_032: top_n=4; intent_004/010: utrzymać naprawione zachowanie; intent_059: liczba/czas/ograniczenie. | DP-20/21. | ROU-17; zmienia się tylko jawnie dopowiedziane źródło, reszta argumentów stała. |
+
+To mapa istniejących etykiet i planowanych kontroli. Poza 20 przypadkami
+T016 nie przypisano starych wyników V4 innym ID. DP-01–28 mają 22 prośby
+tool i 6 no_tool. Nie są demonstracjami V5 ani nowym końcowym holdoutem.
+INS-06 pozostaje osobnym problemem: fałszywe blokady guard_005/006 są
+błędami application, nawet gdy odpowiedź raw byłaby poprawna.
+Kontrola nowych DP wykazała kolejne fałszywe blokady: DP-02/03/22,
+z powodu ogona po przecinku w gramatyce wykluczeń. Dla nich API nie
+jest wywoływane; expected tool pozostaje bez zmian. Naprawa preflight
+wymaga osobnej specyfikacji i implementacji, poza T017 i przygotowaniem V5.
+
+### Hipoteza i granice następnej zmiany
+
+H-T017 ocenia cały wariant V5: kontrastowe demonstracje plus minimalne
+ujednoznacznienie INS-02 powinny ograniczyć dodawanie fish bez żądania,
+zachowując jawne fish, diety, kanał i granice no_tool. Nie izoluje wpływu
+pojedynczej demonstracji ani poprawki zdania; do tego potrzebny byłby
+osobny eksperyment. Reguł nie dodajemy kolejny raz bez zmiany demonstracji.
+
+T021 przygotuje V5 w formacie V4. Dopuszczone poza demonstracjami są tylko:
+uzgodnienie dwóch bezwarunkowych sformułowań „bez mięsa” z ROU-12/13
+oraz neutralne wprowadzenie obejmujące wywołania i no_tool według T019.
+To jawne uszczegółowienie wcześniejszego warunku zachowania tekstu V4,
+aby nowy wariant nie przeczył własnym przykładom. Pozostałe instrukcje,
+schemat po T018, parser, preflight, backend i renderer pozostają stałe.
+Nie podmieniać aktywnego V0, historycznych V0–V4 ani expected. T020
+nie jest zależnością; wiele celów nie wchodzi do tego wariantu.
+
+### Protokół przyszłej weryfikacji T017-v1
+
+1. **Przed pomiarem:** T019 ustala no_tool, T021 przygotowuje V5 i mały
+   zestaw diagnostyczny z pokryciem powyższych grup. Zachować historyczny
+   podzbiór 20 przypadków jako regresję, wskazać wybrane dodatkowe ID,
+   pełne expected, role demonstracja/diagnostyka i mapę pokrycia. Zapytania
+   diagnostyczne muszą różnić się od demonstracji; nie używać końcowego
+   holdoutu. Zamrozić hashe wszystkich wejść i dokładne liczebności.
+2. **Kontrola offline:** sprawdzić argumenty parserem, wszystkie 12 par
+   macierzy, zgodność przykładu z kontraktem i ograniczony diff V4/V5.
+   Testy z atrapą sprawdzają kanał i dispatch, nie rozumienie języka.
+   Preflight raportować osobno; nie zmieniać expected, aby ukryć blokadę.
+3. **Dopiero osobno zlecony pomiar:** świeże V4/V5, wspólny schemat po
+   T018 i identyczne ustawienia: gpt-4o-mini, temperatura 0,1, auto,
+   parallel_tool_calls=false, limit 512, retry=0, timeout=30 s.
+   Trzy rundy w kolejności V4/V5, V5/V4, V4/V5; dla każdego wariantu raw,
+   potem application. Lookup zastąpić atrapą. Jawnie zapisać różnicę wobec
+   konfiguracji produkcyjnej. Koszt, rezerwę i liczbę wywołań ustalić
+   przed startem; T017/T021 nie uruchamiają API i nie wznawiają T009/T012.
+4. **Metryki:** osobno decyzja tool/no_tool, kanał, poprawność parsera,
+   pełna semantyka, pomyłki diet/protein, niezamówione fish, utracone jawne
+   fish, stabilność 3/3 i każdy błędny dispatch. Poprawny JSON w content
+   pozostaje błędem kanału; brak wywołania dla prośby tool jest porażką.
+   Wynik application obejmuje preflight, a wynik raw samą interpretację.
+5. **Warunki kandydata:** pełny uzgodniony pomiar, niezmienione wejścia,
+   jeden resolved model, bez błędów API i ucięć; wszystkie no_tool poprawne
+   w obu trybach; intent_004/010/032 i wybrane diagnostyczne kontrasty
+   diet/protein poprawne 3/3 w obu trybach; zero błędnych semantycznie
+   dispatch V5. W application co najmniej 90% wszystkich ocen, 90% tool
+   i 85% przypadków stabilnych. Żaden ID nie może mieć mniej sukcesów
+   niż równocześnie mierzony V4, osobno raw/application. Porównywać ułamki.
+   Znane fałszywe blokady zachować w raporcie. Jeśli uniemożliwią spełnienie
+   warunków dla wybranego zestawu, kandydat nie kwalifikuje się; nie usuwać
+   ich po wynikach ani nie deklarować naprawy całej aplikacji samym promptem.
+6. **Ocena hipotezy i decyzja:** potrzebny jest spadek liczby niezamówionych
+   fish względem świeżego V4, osobno w obu trybach, bez utraty jawnych fish
+   i warunków z punktu 5. Gdy V4 nie popełni tego błędu lub będzie remis,
+   brak podstaw do twierdzenia o poprawie i wyboru V5 z tej hipotezy.
+   Wynik negatywny również kończy eksperyment raportem; nie zmieniać
+   kryteriów po wynikach. Kwalifikacja nie oznacza wdrożenia ani zaliczenia
+   ACC na danych rozwojowych. Aktywny V0 wymaga odrębnej decyzji wdrożenia.
+
+T017-v1 jest planem nowego porównania, nie zmianą historycznego T015-v1.
+Dokładny zestaw, manifest i kosztorys zostaną zapisane w T021 przed API;
+sam T017 kończy diagnozę i specyfikację. Kontrole i hashe: sekcja T017
+w `verification.md`.
+
+## 10. T018 — usunięcie konfliktu INS-01
+
+Zakres zlecony przez autorkę 2026-11-16: ROU-11, wyłącznie opis wspólnego
+narzędzia `get_recommendations`. Zastąpić bezwarunkowe „użyj zawsze”
+warunkiem zgodności wszystkich wymagań z zakresem i jawnymi wyjątkami
+no_tool. Następnie sprawdzić, że różnica dotyczy tylko opisu funkcji,
+oraz uruchomić istniejącą regresję offline z blokadą rzeczywistego API.
+
+Zmiana jest widoczna w aktywnej aplikacji i we wszystkich runnerach
+korzystających z RECIPE_TOOLS. Prompt systemowy pozostaje V0, ale pakiet
+instrukcji ma nowy opis funkcji. Historyczne wyniki i kopie źródeł zachować;
+nowy pomiar wymaga zamrożenia aktualnego opisu, bez przypisywania mu
+wyników uzyskanych ze starszym schematem. W chwili wykonania T018 T017
+pozostawało w toku; jego późniejsze ukończenie opisuje sekcja 9.
+
+Wykonano 2026-11-16: różnica obiektów RECIPE_TOOLS obejmuje tylko
+`function.description`. Istniejąca regresja offline 265/265, bez błędów
+i pominięć. Dowody w sekcji T018 `verification.md`. Nie wykonano nowego
+pomiaru jakości modelu ani nie przypisano poprawce wyników T016.
+
+## 11. T019 — kontrakt odpowiedzi no_tool
+
+Zadanie projektowe na podstawie DEC-10 / INS-03. Można rozpocząć równolegle
+z T017; granice sprzecznych preferencji muszą być zgodne z jego kontraktem.
+
+1. Opracować tabelę sytuacja → oczekiwana decyzja → działanie backendu
+   → komunikat. Ująć brak wyszukiwania, brak wyników po wyszukiwaniu,
+   awarię API i niepoprawne wywołanie jako odrębne sytuacje.
+2. Określić odpowiedzialność modelu i aplikacji: brak tool_calls, znaczenie
+   content, pochodzenie przyczyny oraz komunikat ogólny przy braku pewnego
+   powodu. Uwzględnić istniejące komunikaty preflight i dozwolone domyślne
+   parametry. Projekt nie może zakładać, że każdy brak wywołania oznacza
+   poprawną odmowę lub świadome rozpoznanie nieobsługiwanego wymagania.
+3. Zapisać kontrakt, granice przyszłej zmiany i scenariusze offline:
+   poprawne no_tool, błędna odmowa obsługiwanej prośby, JSON w content,
+   brak dispatch oraz komunikat bez twierdzenia, że przeszukano pustą bazę.
+
+Warunek ukończenia: kontrakt i tabela decyzji w specyfikacji oraz plan
+weryfikacji powiązany z ACC-05/06/07/09/11. Implementacja, ewentualny nowy
+sygnał powodu odmowy i pomiar dostaną osobne zadania po określeniu rozwiązania.
+T019 nie wprowadza wieloturowego dialogu i nie uruchamia API.
+
+## 12. T020 — projekt wielu celów żywieniowych
+
+Zadanie projektowe na podstawie DEC-11 / INS-07, obejmujące istniejące cele
+low_kcal, high_protein i keto. Nie rozszerza automatycznie kategorii, diet
+lub pozostałych pól do list. Prace projektowe można rozpocząć niezależnie;
+zachowanie braku obsługi/spełnienia zestawu uzgodnić z T019.
+
+1. Zdefiniować semantykę kombinacji: wymagania jednoczesne, preferencje,
+   priorytety, duplikaty i stan bez celu. Rozróżnić filtr od rankingu.
+   Dla low_kcal + keto określić znaczenie „niskokaloryczne”: dzisiejszy
+   kod preferuje niższą kaloryczność, ale nie egzekwuje limitu kcal.
+   Wybrać i uzasadnić semantykę pozostałych połączeń oraz brak wyniku
+   bez cichego usuwania wymagań. Nie zakładać z góry, że lista rozwiązuje logikę.
+2. Zaproponować kontrakt danych, wartości domyślne i zgodność pojedynczych
+   celów; przeanalizować wpływ na opis narzędzia, parser, dobór SKU,
+   obliczenia dla finalnych składników, filtrowanie, ranking, normalizację,
+   renderer i format wyników ewaluacji. Oceniać wartości po doborze SKU.
+3. Przygotować scenariusze dla pojedynczych celów, par i pełnego zestawu,
+   duplikatów, pustego wyboru, niepoprawnych danych i braku wyników.
+   Wskazać potrzebne aktualizacje ACC, ocenę zakresu MVP, sposób migracji
+   i podział przyszłej implementacji na zadania. Nie zmieniać ocen historycznych.
+
+Warunek ukończenia: projekt semantyki, danych i rankingu, scenariusze,
+analiza wpływu oraz plan migracji/implementacji. Obecny kontrakt jednego
+nutrition_goal i granica Z-04 pozostają obowiązujące dla działającej wersji.
+To zlecenie projektu; implementacja i zmiana zakresu wykonywanej wersji
+zostaną opisane osobno. T020 nie modyfikuje danych katalogu ani nie uruchamia API.
+
+## 13. T021 — przygotowanie V5 dla punktów 4 i 5 audytu
+
+DEC-12: przygotować `evals/routing_prompts/V5.txt` na podstawie V4,
+z zachowaniem formatu i zmianą zestawu przykładów. Kontrakt T017 jest
+ukończony; pozostała zależność to T019. T020 nie blokuje pracy nad aktualnym
+interfejsem. Obowiązują wyjątki redakcyjne i protokół T017-v1 z sekcji 9.
+
+1. Zdefiniować ograniczony zestaw demonstracji i mapę przykład → reguła
+   kontraktu. Uwzględnić kontrasty zgody na ryby i żądania ryby, domyślne
+   vegetarian, jawne diety, ograniczenia/no_tool, cel a czas i liczbę propozycji.
+2. Utworzyć V5. Poza blokiem przykładów zachować instrukcje V4 z wyjątkiem
+   dwóch reguł „bez mięsa” wymagających zgodności z ROU-12/13 oraz
+   wprowadzenia do przykładów obejmującego także no_tool. Przykłady
+   obsługiwanych próśb mają wskazywać narzędzie i pełne argumenty zgodne
+   ze schematem, a odmowy brak wywołania zgodnie z T019. Nie wprowadzać
+   nowego formatu wiadomości assistant/tool ani wykonywania JSON-a z content.
+3. Sprawdzić mapowania względem T017/T019, poprawność argumentów parserem,
+   diff V4/V5 rozdzielający wyjątki redakcyjne i przykłady oraz odpowiednie
+   istniejące testy offline.
+   Nie zmieniać historycznych promptów lub etykiet, aby zaliczyć kontrolę.
+4. Zaprojektować odrębny zestaw diagnostyczny: inne sformułowania tych samych
+   reguł i kontrole regresji; nie używać końcowego holdoutu do strojenia.
+   Uszczegółowić protokół T017-v1 przed pomiarem, ze wspólnym aktualnym
+   opisem narzędzia po T018, konfiguracją i metrykami kanału, semantyki,
+   granic odmowy oraz regresji. Wariant V4 trzeba mierzyć ponownie;
+   historyczny T016 używał starszego opisu i nie jest kontrolą nowej kampanii.
+
+Warunek ukończenia: plik V5, mapa pokrycia, kontrole offline i protokół
+diagnostyki. Sprawdzamy przyszły wpływ całego nowego zestawu przykładów;
+nie przypisujemy wyniku jednej demonstracji. Skuteczność i wdrożenie wymagają
+późniejszych etapów. T021 nie uruchamia płatnego pomiaru i nie podmienia
+`main.build_system_prompt`. Wiele celów żywieniowych nie wchodzi do przykładów
+przed osobnym wdrożeniem ich kontraktu.
+
+Zalecana kolejność przygotowania V5: ukończone T017 → T019 → T021. Projekt T020
+można prowadzić niezależnie. Samo zaplanowanie zadania nie oznacza jego realizacji.

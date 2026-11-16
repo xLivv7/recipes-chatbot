@@ -101,6 +101,147 @@ Końcowy niezależny holdout pozostaje T010/T013, poza wyborem wariantu.
 
 ## 4. Metody zbierania dowodów
 
+### Plan dowodów dla ustaleń 2, 3 i 6 — 2026-11-16
+
+Zadania przygotowano na polecenie autorki; ich utworzenie nie oznacza
+wykonania projektów, implementacji ani zaliczenia ACC. DEC-09 zapisuje
+zaakceptowaną semantykę; DEC-10/11 zlecają opracowanie kontraktów.
+
+| Zadanie | Podstawa | Wymagany rezultat i przyszły dowód |
+| --- | --- | --- |
+| T017 — kontrakt diet/protein | Punkt 2, DEC-09, INS-02; ROU-12–17, ACC-09/11 | Wykonane 2026-11-16: kontrakt, macierz, DP-01–28, mapa istniejących etykiet, diagnoza, H-T017 i protokół T017-v1. Dowody i granice poniżej; zachowanie modelu nie zostało ponownie zmierzone. |
+| T019 — kontrakt no_tool | Punkt 3, DEC-10, INS-03; ACC-05/06/07/09/11 | Tabela decyzja → zachowanie → komunikat, odpowiedzialność modelu/aplikacji, źródło przyczyny, brak dispatch i scenariusze odróżniające poprawną odmowę od błędu modelu oraz pustego wyniku. |
+| T020 — wiele celów żywieniowych | Punkt 6, DEC-11, INS-07; wpływ na ACC-01/02/03/04/09/14 do oceny | Projekt łączenia wymagań i preferencji, kontraktu danych, filtrów, rankingu, doboru SKU i zgodności pojedynczych celów; scenariusze, ocena zakresu oraz plan migracji. |
+
+Kierunek INS-04/05 ustalono następnie w DEC-12 i T021: format V4 oraz
+kontrastowe przykłady w V5. Scenariusze kontraktowe nie są automatycznie
+demonstracjami promptu. Na etapie planowania wykonano jedynie
+aktualizację planowania i kontrolę spójności dokumentów; nie uruchamiano
+testów modelu, aplikacji, API ani bazy i nie zmieniano kodu.
+
+### T017 — diagnoza i kontrakt zakończone
+
+Data: 2026-11-16. Ukończono zakres projektowy T017, bez wdrożenia poprawki
+routingu. [Kontrakt ROU-12–17 i scenariusze DP](spec.md#t017--kontrakt-interpretacji-diety-i-źródła-białka),
+[diagnoza, mapa kontrastów i protokół T017-v1](plan.md#9-t017--diagnoza-relacji-dietprotein-i-specyfikacja-poprawki).
+
+Przejrzano `intent_032` na podstawie niezmienionego raportu T016: jedno
+narzędzie i poprawne top_n=4 w 6/6 prób V4, ale niezamówione fish w 2/3 raw
+i 3/3 application. To rozbieżność semantyczna, nie nielegalna kombinacja
+pól. Brak kontrastowych demonstracji pozostaje hipotezą; nie znaleziono
+nakazu wyprowadzania fish z pescetarian. INS-02 i konflikt INS-01 opisano
+oddzielnie od tej obserwacji; T018 nie ma jeszcze pomiaru skuteczności.
+
+Kontrole offline, wykonane lokalnie bez importu main, klienta API i bazy:
+
+- 28 scenariuszy DP: 22 pełne obiekty argumentów tool przyjęte przez
+  istniejący parser oraz 6 scenariuszy no_tool bez argumentów;
+- wszystkie 12 par diet/protein: 7 przyjmowanych i 5 odrzucanych, zgodnie
+  z macierzą kontraktu; poprawne pescetarian/fish pozostaje dozwolone;
+- 96 wpisów w czterech istniejących zestawach (64 intent, 6 routing,
+  6 guard i 20 powtórzeń w pilocie): poprawne strukturalnie expected,
+  unikalne ID w pliku i zgodność pilota z przypadkami źródłowymi;
+- mapa 25 istniejących ID potwierdzona względem zapisanych diet/protein
+  i celów; nie przypisano nowego wyniku modelu żadnemu ID;
+- hashe 130 wcześniejszych plików bez zmian, w tym kod, prompty V0–V4,
+  expected, holdout i raporty. Zmiana dotyczy czterech dokumentów SDD;
+  lokalne materiały kontroli zapisano w ignorowanym katalogu dowodów.
+
+Dowody: [contract_checks.json](../../dokumentacja%20pracy/2026-11-16_t017/contract_checks.json),
+[skrypt odtworzenia kontroli](../../dokumentacja%20pracy/2026-11-16_t017/check_contract.py),
+[hashe sprzed T017](../../dokumentacja%20pracy/2026-11-16_t017/before_hashes.json).
+To walidacja kontraktu i istniejącej granicy narzędzia, nie test rozumienia
+języka przez model. Nie uruchamiano ponownie pełnej regresji aplikacji
+dla tej zmiany dokumentacji. **0 wywołań API i 0 operacji bazy**.
+
+Kontrola preflight wykazała fałszywe blokady DP-02/03/22 oraz potwierdziła
+guard_005/006. DP-02/03/22 blokuje ogon zdania po przecinku, mimo zgodnej
+reprezentacji prośby. Expected pozostaje tool; tych przypadków nie naprawi
+sam prompt, bo nie docierają do modelu. Zapisano lukę INS-06 i ograniczenie
+przyszłego pomiaru; nie zmieniono reguł ochrony. Projekt no_tool w T019
+powinien uwzględnić pochodzenie takiej blokady, a jej ewentualna naprawa
+wymaga odrębnego zakresu implementacyjnego.
+
+T021 oczekuje teraz tylko na T019. W jego planie zapisano wyjątek dla dwóch
+bezwarunkowych zdań „bez mięsa” i wprowadzenia do demonstracji; pozostałe
+instrukcje V4 mają być zachowane. Zapobiega to sprzeczności nowego V5
+z DEC-09/no_tool. Nie utworzono V5 i nie zmieniono aktywnego V0.
+ROU-12–17 i ACC nadal wymagają późniejszych dowodów zachowania programu.
+
+### Plan dowodów T021 — przygotowanie V5
+
+Zadanie zaplanowane 2026-11-16 na polecenie autorki; V5 nie został jeszcze
+utworzony. Podstawa: DEC-12 / INS-04/05; T017 ukończone, pozostała zależność T019.
+Wymagane dowody ukończenia:
+
+- plik `evals/routing_prompts/V5.txt`, format V4, diff pokazujący osobno
+  przykłady oraz minimalne wyjątki redakcyjne określone w T017;
+- mapa przykład → reguła i pokrycie kontrastów zatwierdzonych kontraktów;
+- poprawne pełne argumenty lub brak wywołania dla no_tool, kontrole parsera
+  i odpowiednie testy offline z rzeczywistym API zablokowanym;
+- odrębne zapytania diagnostyczne oraz uszczegółowienie T017-v1 dla V4/V5
+  z tym samym aktualnym schematem i ustawieniami, bez zmiany expected historii.
+
+To dowody poprawnego przygotowania, nie skuteczności interpretacji. Wyników
+T016 nie przenosić na V5 ani nowy opis funkcji po T018. Płatny pomiar,
+regresja jakości i decyzja o wdrożeniu pozostają późniejszymi etapami.
+
+### Audyt instrukcji — część T017, 2026-11-16
+
+[Raport audytu](../../docs/reports/instruction_audit_2026-11-16.md) obejmuje
+pełny pakiet routingu: aktywny V0, eksperymentalny V4, kontrolę V1–V3,
+wspólny opis narzędzia i siedmiu parametrów, przykłady, konstrukcję wiadomości
+i ustawienia. INS-01 wykazał bezpośredni konflikt „użyj zawsze” z wyjątkami
+no_tool, następnie usunięty w T018; INS-02 opisuje zbyt ogólną regułę „bez mięsa → vegetarian”.
+Pozostałe ustalenia rozdzielają niedopowiedzenia, luki przykładów i różnice
+preflight/konfiguracji od faktycznych sprzeczności instrukcji.
+
+Wyodrębnione z AST funkcje aplikacji przechwycono lokalną atrapą klienta,
+bez importu main, SDK API i bazy. Potwierdzono zgodność aktywnego buildera
+z V0, dwie wiadomości (system i user), jedno narzędzie i siedem parametrów; parser przyjął
+pięć unikatowych przykładów powtórzonych w V0–V4. Sprawdzono pięć przypadków
+preflight. Dowody i hashe:
+[audit_checks.json](../../dokumentacja%20pracy/2026-11-16_instruction_audit/audit_checks.json),
+[wire_requests.json](../../dokumentacja%20pracy/2026-11-16_instruction_audit/wire_requests.json).
+To kontrole kodu i instrukcji, nie pomiar rozumienia przez model.
+
+Nie znaleziono instrukcji „pescetarian wymaga fish”: opis parametru i prompty
+zgodnie wymagają jawnej preferencji. Audyt nie rozstrzyga przyczyny błędu T016.
+Nie zmieniono promptu, schematu, kodu, danych, expected ani wcześniejszych
+raportów. **0 rzeczywistych wywołań API**. Sam audyt nie kończył T017;
+tabelę kontrastów, hipotezę i protokół uzupełniono następnie w sekcji
+„T017 — diagnoza i kontrakt zakończone” powyżej.
+
+### T018 — usunięcie INS-01 zakończone
+
+Data: 2026-11-16. Na polecenie autorki wdrożono ROU-11 w opisie
+`get_recommendations` w [llm_tools.py](../../core/llm_tools.py).
+Wywołanie jest wymagane dokładnie raz dla prośby o posiłek zgodnej
+ze wszystkimi obsługiwanymi wymaganiami. Opis wyklucza prośby poza zakresem,
+dobór dla alergii, nieobsługiwane wykluczenia i sprzeczne preferencje;
+nieobsługiwane wymaganie ma pierwszeństwo i nie może zostać pominięte.
+
+[Porównanie schematu](../../dokumentacja%20pracy/2026-11-16_ins01_fix/schema_check.json)
+potwierdziło, że zmieniło się tylko `RECIPE_TOOLS[0].function.description`.
+Struktura, nazwa funkcji, parametry, enumy i wymagane pola są identyczne.
+Prompt systemowy pozostaje V0; aktualny pakiet instrukcji używa już nowego
+opisu funkcji. Warianty V0–V4 i zamrożone dane historycznych pomiarów
+nie zostały nadpisane. Audyt INS-01 opisuje stan przed tą poprawką.
+
+Pełna istniejąca regresja offline: **265 testów, 0 niepowodzeń,
+0 błędów, 0 pominięć**. Dowody:
+[wynik](../../dokumentacja%20pracy/2026-11-03_t006/ins01_full_2026_11_16.json),
+[log](../../dokumentacja%20pracy/2026-11-03_t006/ins01_full_2026_11_16.log).
+Obejmuje granice alergii/wykluczeń, no_tool, pojedynczy dispatch, parser
+i instrumentację porównań. Żądania w testach były podstawione, rzeczywiste
+API zablokowane. Nie dodawano testów porównujących literalne brzmienie opisu.
+
+INS-01 jest usunięty na poziomie instrukcji. **0 rzeczywistych wywołań API**;
+wpływu poprawki na decyzje modelu jeszcze nie zmierzono. Nie przypisujemy
+nowemu opisowi dawnych wyników ani naprawy błędu diet/protein z T016.
+T017 uzupełniono następnie o kontrakt i protokół opisane powyżej;
+wdrożenie oraz pozostałe ustalenia audytu pozostają otwarte.
+
 ### T015 — przygotowanie V4 offline zakończone
 
 Data: 2026-11-03. Najpierw zapisano H-T015 i RSC-09–RSC-12 w `spec.md`
