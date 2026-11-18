@@ -92,6 +92,22 @@ wykonywać na nowym kodzie. [Dowody T022](../specs/001-mvp-stabilization/verific
 
 ## Płatne pomiary i zachowanie raportów
 
+Po T024 gramatyka preflight przepuszcza pięć dawnych fałszywych blokad.
+Audyt V4/V5 porównuje stan ochrony z zamrożonym `preflight_blocked`:
+blokada ma błąd preflight, a przepuszczenie bez próby modelu ma
+`preflight_passed=true`, `passed=null`, `model_decision_correct=null`
+i `evaluation_scope=preflight_only`. Nie zalicza to interpretacji modelu.
+Każda rozbieżność ze snapshotem zatrzymuje wykonawcę przed klientem płatnym.
+Historycznych raportów T021/T023 i dawnych etykiet nie przeliczono.
+
+Świeży dry-run 76 przypadków przewiduje teraz 68 żądań application
+(wcześniej 66), dla trzech powtórzeń 204 (wcześniej 198), a plan trzech
+wariantów T009 1296 (wcześniej 1278). To przeliczenie przyszłego planu,
+bez wywołań API i bez wznowienia wstrzymanej kampanii. Podzbiór V4/V5
+32 przypadków nadal ma 384 oceny / 354 planowane wywołania. Zmiana kodu
+unieważnia stare zgody/hashe dla nowego wykonania; wymaga nowego protokołu
+i osobnego zatwierdzenia przyszłego pomiaru.
+
 ### T023 — porównanie V4/V5 po T022
 
 **Zakończone 2026-11-17:** po osobnej zgodzie wykonano cały przebieg 02,

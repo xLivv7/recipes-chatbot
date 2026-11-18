@@ -148,14 +148,22 @@ Pozostałe stany: **gotowe do rozpoczęcia**, **w toku**, **oczekuje na zależno
     i diag_004 nadal 0/3. DEC-13: pozostawić V0. Pięć fałszywych blokad
     pozostaje błędami osobnego audytu. T009/T012 nadal wstrzymane.
 
+- [x] **T024 — poprawa fałszywych blokad preflight.** Zakończono 2026-11-17.
+  PFL-01–07 i DEC-14: pięć znanych przypadków przechodzi preflight,
+  zachowano dodatnie nieobsługiwane wykluczenia i pierwszeństwo alergii.
+  12 nowych testów; pełna regresja 314/314 bez pominięć, SDK generacji
+  i zapisy katalogu zablokowane. Przy poprawnej odpowiedzi podstawionej
+  jeden dispatch; błędne no_tool nadal jest błędem decyzji. Audyt bez
+  LLM nie zalicza modelu. Dawne etykiety i wyniki T021/T023 zachowano.
+  [Dowody](verification.md#t024--poprawa-preflight-zakończona).
+
 ## Najbliższe zadanie
 
-**T020 — projekt wielu celów żywieniowych.** Stan: **gotowe do rozpoczęcia**.
-Zakres jest projektem semantyki i kontraktu, bez implementacji i API.
-T023 zakończono wynikiem negatywnym; routing nadal wymaga poprawy.
-Kolejną iterację routingu należy najpierw opisać osobnym zadaniem i hipotezą
-na podstawie raportu, bez automatycznego tworzenia V6 lub nowych pomiarów.
-Aktywny V0 pozostaje. T007 i T011 także są niezależnymi gotowymi zadaniami.
+**T025 — projekt kontraktu interpretacji i podziału odpowiedzialności.**
+Stan: **gotowe do rozpoczęcia**. T024 zakończono poprawką i regresją offline.
+Kolejny etap jest projektem bez implementacji i płatnego pomiaru.
+T020 pozostaje gotowym niezależnym projektem wielu celów. Aktywny V0
+pozostaje. T007 i T011 także są niezależnymi gotowymi zadaniami.
 
 **T009P zakończone po zatwierdzeniu płatnego pilotażu przez autorkę.**
 V2: 57/60, ale 15/18 poprawnych no_tool; V0: 42/60 i 18/18 no_tool.
@@ -173,6 +181,14 @@ nadal wymaga zamknięcia pozostałych luk; T012 jest wstrzymane.
 
 ## Kolejne zadania
 
+- [ ] **T025 — projekt kontraktu interpretacji i podziału odpowiedzialności.**
+  Stan: **gotowe do rozpoczęcia**; T024 zakończono. Na podstawie błędów T023 zaprojektować
+  oddzielenie rozpoznawania jawnych wymagań, stosowania wartości domyślnych
+  oraz decyzji o dispatch. Rozważyć ekstrakcję faktów i ustrukturyzowaną
+  decyzję wraz z ograniczeniami; zachować zgodność lub jawnie opisać
+  migrację ROU/NTO i metadanych błędów. Wskazać hipotezę, scenariusze,
+  zmieniany pojedynczy czynnik i warunek oceny. Gotowe po projekcie
+  i planie weryfikacji; bez implementacji, V6, zmiany modelu i płatnego API.
 - [ ] **T020 — projekt obsługi wielu celów żywieniowych.**
   Stan: **gotowe do rozpoczęcia**; podstawa: DEC-11 / INS-07.
   Zaprojektować m.in. low_kcal + keto: znaczenie łącznego spełnienia,

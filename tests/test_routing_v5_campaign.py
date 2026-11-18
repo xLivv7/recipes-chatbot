@@ -14,7 +14,7 @@ import main as application
 from evals.prepare_routing_v5 import build_preparation, wire_args
 from evals.run_routing_eval import evaluate_case
 from evals.run_routing_v5 import (BudgetedClient, CampaignStopped, comparison, digest, execute,
-                                 prepare, read_json, save, validate_frozen)
+                                 prepare, read_json, save, validate_frozen, audit_guards)
 
 MODEL_ACCESS = dict(status="visible", returned_model="gpt-4o-mini", method="GET",
                     generation_requests=0, metadata_requests=1, test_only=True)
@@ -141,6 +141,8 @@ class RoutingV5CampaignTests(unittest.TestCase):
             self.assertEqual(result["execution_kind"], "mock")
             self.assertEqual(len(result["guard_audit"]), 5)
             self.assertTrue(all(not row["passed"] and row["api_calls"] == row["backend_calls"] == 0 for row in result["guard_audit"]))
+            self.assertTrue(all(row["preflight_passed"] and row["passed"] is None
+                                and row["model_decision_correct"] is None for row in result["guard_audit"]))
             state = read_json(directory / "state.json")
             self.assertEqual((state["actual_api_calls"], state["completed_evaluations"]), (354, 384))
             self.assertEqual(len(state["reservations"]), 354)
@@ -321,6 +323,33 @@ class RoutingV5CampaignTests(unittest.TestCase):
                 with patch("evals.run_routing_v5.time.sleep"), self.assertRaises(PermissionError):
                     budgeted.create(**deepcopy(payloads[first["payload"]]))
             client.chat.completions.create.assert_not_called()
+            self.assertEqual(read_json(directory / "state.json")["actual_api_calls"], 0)
+
+    def test_preflight_audit_distinguishes_a_remaining_false_block_from_a_released_probe(self):
+        blocked = dict(id="remaining_false_block", user_message="Nie wymagam dania bez orzechów",
+                       expected_action="tool", preflight_blocked=True)
+        released = dict(id="released", user_message="Bez laktozy i szybki obiad",
+                        expected_action="tool", preflight_blocked=False)
+        results = audit_guards([blocked, released])
+        self.assertFalse(results[0]["preflight_passed"])
+        self.assertFalse(results[0]["passed"])
+        self.assertEqual(results[0]["failure_stage"], "preflight")
+        self.assertTrue(results[1]["preflight_passed"])
+        self.assertIsNone(results[1]["passed"])
+        self.assertIsNone(results[1]["model_decision_correct"])
+        self.assertTrue(all(row["api_calls"] == row["backend_calls"] == 0 for row in results))
+
+    def test_changed_frozen_preflight_snapshot_stops_before_paid_client_creation(self):
+        from evals.prepare_routing_v5 import guard as current_guard
+        with tempfile.TemporaryDirectory() as tmp:
+            directory, _, approved_hash = self.prepared(tmp)
+            factory = Mock()
+            audit_ids = {row["id"] for row in read_json(directory / "guard_audit.json")}
+            def changed_guard(probe):
+                return True if probe["id"] in audit_ids else current_guard(probe)
+            with patch("evals.run_routing_v5.guard", side_effect=changed_guard), self.assertRaisesRegex(CampaignStopped, "guard_audit_changed"):
+                execute(directory, approved_hash, 1.0, client_factory=factory)
+            factory.assert_not_called()
             self.assertEqual(read_json(directory / "state.json")["actual_api_calls"], 0)
 
 

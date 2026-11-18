@@ -249,17 +249,31 @@ class CampaignStopped(RuntimeError):
 
 
 def audit_guards(probes):
-    """Observe the five known false blocks without permitting a model request."""
-    from evals.run_routing_eval import evaluate_case
+    """Check frozen preflight outcomes; released probes have no model score."""
 
     def denied(**kwargs):
         raise CampaignStopped("guard_audit_reached_model")
 
     client = SimpleNamespace(chat=SimpleNamespace(completions=SimpleNamespace(create=denied)))
-    results = [evaluate_case(probe, "application", client) for probe in probes]
-    if any(row["api_calls"] or row["backend_calls"] or row["failure_stage"] != "preflight"
-           or row["passed"] for row in results):
-        raise CampaignStopped("guard_audit_changed")
+    results = []
+    for probe in probes:
+        blocked = guard(probe)
+        if type(probe.get("preflight_blocked")) is not bool or blocked != probe["preflight_blocked"]:
+            raise CampaignStopped("guard_audit_changed")
+        if blocked:
+            from evals.run_routing_eval import evaluate_case
+            row = evaluate_case(probe, "application", client)
+            if row["api_calls"] or row["backend_calls"] or row["failure_stage"] != "preflight" or row["passed"]:
+                raise CampaignStopped("guard_audit_changed")
+        else:
+            # A successful preflight does not predict the model's next decision.
+            row = dict(id=probe["id"], user_message=probe["user_message"],
+                expected_action=probe.get("expected_action", "tool"), expected=probe.get("expected"),
+                guard=None, failure_stage=None, api_calls=0, backend_calls=0,
+                model_action=None, model_decision_correct=None, decision_correct=None,
+                semantics_correct=None, passed=None)
+        results.append(dict(row, preflight_blocked=blocked, preflight_passed=not blocked,
+                            evaluation_scope="preflight_only"))
     return results
 
 

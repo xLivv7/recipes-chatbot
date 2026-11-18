@@ -86,21 +86,26 @@ class NoToolDiagnosticTests(unittest.TestCase):
                     self.assertIsNone(result["response_failure_reason"])
                     self.assertEqual(result["backend_calls"], 0)
 
-    def test_all_five_known_false_blocks_remain_preflight_errors_without_model_attempts(self):
-        from evals.prepare_routing_v5 import ROOT, SPEC, DEVELOPMENT, guard_audit, load_cases
+    def test_five_former_false_blocks_reach_interpretation_without_inventing_success(self):
+        from evals.prepare_routing_v5 import ROOT, SPEC, DEVELOPMENT, guard_audit, load_cases, wire_args
         development = [row for name in DEVELOPMENT for row in load_cases(ROOT / name)]
         probes = guard_audit(development, (ROOT / SPEC).read_text(encoding="utf-8"))
         self.assertEqual(len(probes), 5)
         for probe in probes:
-            client = Mock()
-            with self.subTest(case=probe["id"]):
-                result = evaluate_case(probe, "application", client)
-                self.assertFalse(result["passed"])
-                self.assertEqual(result["failure_stage"], "preflight")
-                self.assertIsNone(result["model_decision_correct"])
-                self.assertEqual(result["backend_calls"], 0)
-                self.assertEqual(result["api_calls"], 0)
-                client.chat.completions.create.assert_not_called()
+            self.assertFalse(probe["preflight_blocked"])
+            for has_tool in (False, True):
+                client = Mock()
+                client.chat.completions.create.return_value = (response(json.dumps(wire_args(probe["expected"])))
+                    if has_tool else no_tool_response("CONTROLLED_MODEL_TEXT"))
+                with self.subTest(case=probe["id"], has_tool=has_tool):
+                    result = evaluate_case(probe, "application", client)
+                    self.assertIsNone(result["guard"])
+                    self.assertEqual(result["passed"], has_tool)
+                    self.assertEqual(result["failure_stage"], None if has_tool else "decision")
+                    self.assertEqual(result["model_decision_correct"], has_tool)
+                    self.assertEqual(result["backend_calls"], int(has_tool))
+                    self.assertEqual(result["api_calls"], 1)
+                    client.chat.completions.create.assert_called_once()
 
     def test_content_is_preserved_verbatim_without_dispatching_json(self):
         content = "```json\n" + json.dumps(tool_args()) + "\n```"

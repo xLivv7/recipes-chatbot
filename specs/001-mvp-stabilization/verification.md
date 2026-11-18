@@ -445,6 +445,76 @@ potwierdza hashe 25 źródeł, 11 artefaktów, 134 istniejących plików,
 49 plików przerwanego przebiegu i 30 historycznych wejść T021.
 [Kontrola dokumentacji 02](../../dokumentacja%20pracy/2026-11-17_t023/documentation_checks_02.json).
 
+### T024 — poprawa preflight zakończona
+
+Data: 2026-11-17. Wymagania PFL-01–07 zapisano przed kodem. Wdrożono
+ograniczoną gramatykę lokalnej negacji pojedynczego wykluczenia i nowych
+klauzul w [request_safety.py](../../core/request_safety.py). DEC-14:
+guard_005/006 i DP-02/03/22 przechodzą preflight z niezmienionymi treściami
+i expected=tool. Nie oznacza to poprawności późniejszej odpowiedzi modelu.
+
+[Audyt przed/po](../../dokumentacja%20pracy/2026-11-17_t024/preflight_audit.json)
+porównuje zachowaną funkcję sprzed T024 z bieżącą gramatyką. Wszystkie
+pięć przypadków: blokada → przekazanie do interpretacji. W dotychczasowym
+zbiorze 76 zapytań zmieniają się tylko guard_005 i guard_006; DP-02/03/22
+pochodzą z odrębnej tabeli specyfikacji. Wszystkie 64 obsługiwane intencje
+nadal przechodzą. Nie zmieniono zbiorów ani etykiet w celu zaliczenia testu.
+
+| Wymaganie | Kontrola i wynik |
+| --- | --- |
+| PFL-01/06 | `test_five_former_false_blocks_reach_interpretation_without_inventing_success`: każdy z pięciu przypadków, dwie kontrolowane odpowiedzi; 1 wywołanie atrapy klienta, poprawne argumenty dają 1 dispatch i sukces, brak calla daje błąd decyzji i backend=0. `test_supported_request_reaches_model` sprawdza też właściwy komunikat i przekazanie oryginalnego tekstu. |
+| PFL-02 | `test_local_optional_exclusion_does_not_impose_a_requirement`, `test_elided_lists_and_ambiguous_negation_remain_blocked`, `test_other_negations_quotes_compounds_and_incomplete_exclusions_stay_conservative`: lokalne nie musi/muszą być bez, samodzielny następny wymóg, inne negacje i cytaty. |
+| PFL-03/04 | `test_meal_clauses_cover_case_unicode_whitespace_and_conjunctions`, `test_new_clause_does_not_hide_another_exclusion`: nowe klauzule, Unicode i jawny kolejny filtr. |
+| PFL-05 | `test_additional_positive_exclusion_is_never_waived_by_a_released_clause`: każdy z pięciu przypadków z czterema dodatkowymi nieobsługiwanymi wymaganiami. Istniejące testy list i 64 intencji również przeszły. `test_allergy_keeps_priority_beside_a_released_optional_exclusion`: komunikat alergii, klient=0, backend=0. |
+| PFL-07 | `test_preflight_audit_distinguishes_a_remaining_false_block_from_a_released_probe`: pozostała blokada nadal jest błędem, przepuszczenie bez modelu ma passed/model_decision_correct=None. `test_changed_frozen_preflight_snapshot_stops_before_paid_client_creation`: zmieniony stan audytu zatrzymuje wykonawcę przed klientem i rezerwą. |
+
+Dodano 12 testów: 9 w [test_preflight_grammar.py](../../tests/test_preflight_grammar.py),
+jeden priorytetu alergii i dwa audytu. Zmieniono istniejące asercje stanu
+preflight oraz liczby planowanych żądań, bez zmiany expected semantyki.
+Stan red: 9 testów, 18 niepowodzeń podprzypadków starej gramatyki,
+bez błędów importu, SDK i bazy. [Dowód red](../../dokumentacja%20pracy/2026-11-17_t024/red_grammar.json).
+Po poprawce te 9 testów przeszło:
+[dowód green](../../dokumentacja%20pracy/2026-11-17_t024/green_grammar.json).
+
+Przegląd zawęził granicę po i/oraz do rozpoznanego posiłku. Dwa dodatkowe
+kontrasty „i na pewno mleka” i „oraz do tego jaj” ujawniły zbyt szerokie
+rozpoznawanie nowej klauzuli; po poprawce pozostały zablokowane.
+[Red przeglądu](../../dokumentacja%20pracy/2026-11-17_t024/review_red.json)
+i [green](../../dokumentacja%20pracy/2026-11-17_t024/review_green.json).
+
+Pełna regresja końcowa: **314 testów, 0 niepowodzeń, 0 błędów,
+0 pominięć**. [Wynik](../../dokumentacja%20pracy/2026-11-17_t024/review_final.json),
+[log](../../dokumentacja%20pracy/2026-11-17_t024/review_final.log)
+i [harness](../../dokumentacja%20pracy/2026-11-17_t024/run_tests.py).
+Rzeczywiste SDK było zablokowane, 0 prób; **0 rzeczywistych wywołań API**.
+Końcowy przebieg wykonał 35 SELECT lokalnego PostgreSQL, bez prób zapisu
+do katalogu. Istniejąca izolowana SQLite w pamięci: 8 CREATE, 8 INSERT,
+19 SELECT, 2 UPDATE. To liczniki przebiegu końcowego, nie suma prób.
+
+Zachowano [pierwszą pełną regresję](../../dokumentacja%20pracy/2026-11-17_t024/full.json):
+dwa niepowodzenia dotyczyły starych liczników dry-run po odblokowaniu dwóch
+zapytań. Dostosowano liczby świeżych planów 66 → 68 application i 198 → 204
+dla trzech powtórzeń. Nowy plan T009 przewiduje 1296 zamiast 1278 żądań;
+historyczny plan i wstrzymanie T009 pozostają bez zmian. Plan 32 przypadków
+V4/V5 nadal ma 384 oceny / 354 żądania. W T024 nie wykonano kampanii modelu.
+
+[Audyt](../../evals/run_routing_v5.py) sprawdza zamrożony `preflight_blocked`.
+Dla przepuszczonego zapytania bez modelu zapisuje tylko preflight_passed,
+oceny modelu pozostawia nieadekwatne. Nie zmienia historycznych pięciu
+porażek T023 w sukcesy. Lokalny wynik nie przewiduje decyzji ani argumentów
+LLM; gramatyka nadal ma jawnie opisane ograniczenia negacji i parafraz.
+[Kontrakt wykluczeń](../../docs/reference/contracts/unsupported_exclusions_contract.md).
+
+[Kontrola zakresu](../../dokumentacja%20pracy/2026-11-17_t024/scope_checks.json)
+potwierdza integralność 132 plików historycznych pakietów T021/T023 oraz
+128 chronionych plików spoza zakresu. Stan sprzed zmian i lista zakresu:
+[hashe](../../dokumentacja%20pracy/2026-11-17_t024/before_hashes.json),
+[dozwolone zmiany](../../dokumentacja%20pracy/2026-11-17_t024/allowed_changes.json).
+Kod sprawdzony w regresji identyfikują [hashe](../../dokumentacja%20pracy/2026-11-17_t024/verified_code_hashes.json).
+Zachowano aktywny V0, V0–V5, schemat, parser argumentów, katalog i backend.
+Brak zaliczenia ACC i nowego wyniku jakości modelu. T024 zakończone;
+T025 jest gotowym projektem kontraktu interpretacji, bez implementacji/API.
+
 ### Audyt instrukcji — część T017, 2026-11-16
 
 [Raport audytu](../../docs/reports/instruction_audit_2026-11-16.md) obejmuje

@@ -1,7 +1,7 @@
 # Specyfikacja — stabilizacja istniejącego MVP
 
 Data: 2026-10-22<br>
-Wersja dokumentu: 0.20; pomiar i przegląd T023 zakończone: 2026-11-17<br>
+Wersja dokumentu: 0.22; poprawa preflight T024 zakończona: 2026-11-17<br>
 Status: zakres, progi i DEC-01–03 zatwierdzone; wymagania integralności
 i błędów wdrożone w T006; protokół T008 opracowany. Pięć SKU pozostaje wstrzymanych.
 
@@ -75,6 +75,7 @@ ale nie zastępują jej ani stanów w `tasks.md`.
 | DEC-11 | Zlecono projekt, 2026-11-16 | T020 ma zaprojektować obsługę wielu celów żywieniowych, np. low_kcal + keto. Zakres obejmuje semantykę połączeń i wpływ na kontrakt oraz backend. Nie jest zleceniem implementacji ani rozszerzeniem wszystkich pól do list. |
 | DEC-12 | Przygotowano offline w T021, 2026-11-17; niewdrożone | Kandydat evals/routing_prompts/V5.txt zachowuje format V4, z 18 kontrastowymi demonstracjami zgodnymi z T017/T019. Zmieniono dwie reguły „bez mięsa” i wprowadzenie do przykładów w granicach T017; pozostałe instrukcje i wspólny schemat zachowano. Przygotowanie nie potwierdza skuteczności i nie upoważnia do płatnego pomiaru lub wdrożenia. |
 | DEC-13 | Decyzja przeglądu T023, 2026-11-17 | V5 nie kwalifikuje się według T017-v1. W kompletnym pomiarze 02: application 78/96 wobec V4 86/96, sześć regresji per-case i 13 błędnych semantycznie dispatch. Niezamówione fish spadło 4 → 0 w obu trybach, ale intent_004 i diag_004 pozostały 0/3. Pozostawić aktywny V0; bez wdrożenia V4/V5 ani zaliczenia ACC. Przerwany przebieg 01 zachowano osobno. |
+| DEC-14 | Wdrożono w T024, 2026-11-17 | Ograniczona gramatyka lokalnej negacji pojedynczego wykluczenia i nowych klauzul usuwa pięć wskazanych fałszywych blokad. Dodatnie nieobsługiwane wykluczenia, niejednoznaczne listy i pierwszeństwo alergii zachowano. Przejście preflight bez próby LLM nie zalicza interpretacji modelu; dawne wyniki i expected pozostają bez zmian. |
 
 W tym etapie dopuszczalne są poprawki błędów, zmiany promptu, refaktoryzacja,
 korekty istniejących danych, testy, narzędzia pomiarowe i dokumentacja,
@@ -556,11 +557,13 @@ no_tool oznacza brak argumentów i brak dispatch, nie wartości domyślne.
 | DP-27 | Wysokobiałkowa kolacja | tool | none | none | nutrition_goal=high_protein; bez wymyślonego źródła. |
 | DP-28 | Kolacja pescetariańska nie musi być z rybą | tool | pescetarian | none | Negacja źródła nie usuwa dodatniej diety. |
 
-Kontrola offline wykazała fałszywe blokady preflight dla DP-02/03/22:
+Kontrola offline T017 wykazała fałszywe blokady preflight dla DP-02/03/22:
 ogon zdania po przecinku jest traktowany jako dalszy ciąg wykluczeń.
 Expected pozostaje tool. To dalszy przejaw INS-06; instrukcja modelu nie
 naprawi prośby zatrzymanej przed API. Nie przypisywać tym próbom błędu
 rozumienia modelu, ale nadal liczyć je jako błędy całej aplikacji.
+T024 usunęło te trzy blokady gramatyki. Historyczny wynik T017/T023
+pozostaje bez zmiany; skuteczność modelu po odblokowaniu nie była mierzona.
 
 **H-T017:** kontrastowe demonstracje dopuszczenia i żądania ryby, wraz
 z minimalnym usunięciem bezwarunkowego brzmienia INS-02, zmniejszą liczbę
@@ -660,7 +663,7 @@ to poprawnej interpretacji rzeczywistych zapytań przez model.
 | NTC-13 | Błędny JSON, brak/duplikat pola, obcy enum lub sprzeczna para argumentów. | Backend=0, MSG-06; błąd argumentów, bez automatycznej korekty. | NTO-06; ACC-06 |
 | NTC-14 | length/content_filter/refusal; także poprawnie wyglądający call przy length. | Backend=0, MSG-06; brak sukcesu decyzji biznesowej w obu trybach oceny. | NTO-06/07; ACC-06/07/09 |
 | NTC-15 | RecommendationDataError albo ResponsePayloadError po dispatch. | Backend=1, odpowiednio MSG-07/08, bez pozornego braku wyników. | NTO-05; ACC-07 |
-| NTC-16 | Fałszywe blokady guard_005/006 i DP-02/03/22. | Zachować expected=tool i porażkę application/preflight, backend=0; nie przypisywać modelowi próby, której nie otrzymał. | NTO-03/07; ACC-09/11 |
+| NTC-16 | Fałszywe blokady guard_005/006 i DP-02/03/22. | Zachować expected=tool. Historyczne blokady T022/T023 pozostają porażkami preflight bez próby modelu. Po T024 zapytania przechodzą preflight; poprawność dalszej decyzji zależy od odpowiedzi, nie od samego odblokowania. | NTO-03/07; PFL-01/07; ACC-09/11 |
 | NTC-17 | Jednocześnie wzmianka alergii i nieobsługiwane wykluczenie. | Pierwszeństwo istniejącej reguły alergii, API=0, backend=0, MSG-02; bez diagnozowania użytkownika. | NTO-03; ACC-07/11 |
 | NTC-18 | Model bez narzędzia twierdzi w content „przeszukano bazę, brak wyników”. | Backend=0 i MSG-01, bez powielenia twierdzenia ani MSG-04. | NTO-03/04; ACC-05/06 |
 
@@ -781,6 +784,38 @@ mianownikiem 32. Badano interpretację z atrapą lookup, bez nowego holdoutu,
 pełnej jakości rekomendacji i akceptacji ACC. Katalog, V0–V5, schemat
 i kod aplikacji pozostały bez zmian. Dowody są w `verification.md`.
 
+### T024 — poprawa fałszywych blokad preflight
+
+Zlecono 2026-11-17 po przeglądzie T023. Zakres obejmuje gramatykę
+`mentions_unsupported_exclusion`, testy i dostosowanie audytu do aktualnego
+stanu ochrony. Bez nowego filtra, zmiany promptu, argumentów narzędzia,
+backendu lub danych i bez płatnego pomiaru modelu. Pięć historycznych
+przypadków zachowuje treść i expected=tool.
+
+**Zakończono 2026-11-17 (DEC-14).** Pięć przypadków przechodzi preflight.
+Pełna regresja: **314/314**, bez pominięć, rzeczywiste żądania SDK i zapisy
+katalogu zablokowane. Poprawny podstawiony call ma jeden dispatch,
+błędne podstawione no_tool nadal jest porażką decyzji. Audyt bez LLM
+oznacza tylko wynik preflight, bez sukcesu modelu. Nie zmieniono V0–V5,
+schematu, golden labels i historycznych dowodów ani nie wykonano płatnej
+kampanii. [Dowody](verification.md#t024--poprawa-preflight-zakończona).
+
+| ID | Wymaganie | Weryfikacja |
+| --- | --- | --- |
+| PFL-01 | guard_005/006 i DP-02/03/22 przechodzą preflight. Przy podstawionej odpowiedzi bez tool_calls mają jeden call modelu, brak backendu i błąd decyzji; przy poprawnym pojedynczym callu mają jeden dispatch z expected. Sam brak blokady nie jest dowodem jakości modelu. | Pięć przypadków w gramatyce i rzeczywistym przepływie application z atrapami. |
+| PFL-02 | Lokalna konstrukcja „nie musi/muszą być bez …” znosi wymóg jednego wykluczenia. Nie znosi kolejnych samodzielnych wykluczeń. Niejednoznaczna lista z nieobsługiwanym drugim elementem, inne negacje i cytaty pozostają konserwatywnie blokowane. Nie dodaje to ograniczenia ani parametru. | Kontrasty negacji, list, cytatów i ponownego dodatniego wymagania. |
+| PFL-03 | Po „i/oraz” rozpoznać nazwę posiłku lub parę przymiotnik szybkości + posiłek, w tym „szybki obiad”, zamiast traktować je jako nazwę wykluczanego składnika. Samo „na/do” nie kończy listy. Zachować sprawdzanie wszystkich osobnych wykluczeń oraz nieobsługiwanych elementów list. | guard_006 i odmiany; dodane „bez mleka/jaj” oraz elipsy „i na pewno mleka / oraz do tego jaj” nadal blokują całość. |
+| PFL-04 | Po przecinku rozpoznać „ryby mogą być / ryby są dozwolone”, prośbę zaczynającą się od „chcę” i „nie musi/muszą być z …” jako nowe klauzule. Sama obecność „ryby” lub „nie” nie kończy listy wykluczeń. | DP-02/03/22 oraz „bez mięsa, ryb, jaj”, „bez mięsa, nie jem jaj”. |
+| PFL-05 | Zachować blokadę nieobsługiwanych dodatnich wykluczeń, złożeń typu bezmleczny, samotnego „bez ryb”, pustych i niejednoznacznych wykluczeń. Ochrona alergii, także przy negacji lub innych filtrach, zachowuje pierwszeństwo i dotychczasowy komunikat. | Istniejące przypadki blokad, list, Unicode i priorytetu oraz nowe kontrasty. |
+| PFL-06 | Preflight nie ustala diety ani innych argumentów i nie naprawia odpowiedzi modelu. Przepuszczenie zapytania umożliwia interpretację; no_tool i błędy odpowiedzi nadal podlegają NTO-01–08 i T022-v1. | Application: poprawny call, błędne no_tool i brak echa treści modelu. |
+| PFL-07 | Audyt oddziela wynik samego preflight od pomiaru modelu. Dla przepuszczonego zapytania bez próby LLM nie zapisuje sukcesu semantyki lub decyzji. Niezgodność z zamrożonym stanem ochrony zatrzymuje wykonawcę przed klientem płatnym. | Audyt bez SDK/backendu; zachowane hashe dawnych pakietów T021/T023. |
+
+Warunek ukończenia: pięć przypadków przechodzi preflight, wszystkie
+uzgodnione kontrasty i pełna regresja przechodzą bez pominięć, rzeczywista
+generacja i zapisy katalogu są zablokowane, dokumentacja odróżnia stan
+po T024 od historycznych wyników. Zakres to ograniczona gramatyka,
+bez deklaracji obsługi dowolnej negacji lub wszystkich parafraz.
+
 ## 6. Granice obsługi
 
 Ograniczenia bez glutenu i bez laktozy oznaczają zgodność z udokumentowaną
@@ -844,9 +879,11 @@ diagnozę i specyfikację relacji diet/protein offline, bez wdrożenia poprawki.
 T019 określiło kontrakt no_tool bez wdrożenia, a T021 przygotowało V5 offline.
 T022 wdrożyło kontrakt w aplikacji i diagnostyce. T023 zakończyło pomiar
 V4/V5 na nowym zamrożeniu źródeł: V5 nie kwalifikuje się (DEC-13), aktywny
-V0 pozostaje. Kolejna poprawka routingu wymaga osobnego zadania i hipotezy,
-bez automatycznego płatnego pomiaru. T020 jest gotowym projektem wielu
-celów; T007 i T011 także pozostają niezależnymi zadaniami.
+V0 pozostaje. T024 poprawiło pięć fałszywych blokad preflight i zakończyło
+regresję offline; poprawność modelu po odblokowaniu pozostaje niezmierzona.
+Następny T025 projektuje kontrakt interpretacji i podział odpowiedzialności,
+bez implementacji i automatycznego płatnego pomiaru. T020 jest gotowym
+projektem wielu celów; T007 i T011 także pozostają niezależnymi zadaniami.
 Kolejność opisuje [plan](plan.md), a stan prac
 [zadania](tasks.md). Nie uruchamiamy ponownie wykonanych etapów na podstawie
 dawnych notatek.

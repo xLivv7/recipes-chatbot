@@ -45,9 +45,8 @@ class UnsupportedExclusionTests(unittest.TestCase):
             with self.subTest(message=message):
                 self.assertTrue(mentions_unsupported_exclusion(message))
 
-    def test_negated_unsupported_exclusion_requires_clarification(self):
-        for message in ("nie musi byc bez jaj", "nie wymagam dania bez orzechow",
-                        "nie unikam mleka", "bez laktozy, ale nie musi byc bez mleka"):
+    def test_unrecognized_negations_still_require_clarification(self):
+        for message in ("nie wymagam dania bez orzechow", "nie unikam mleka"):
             with self.subTest(message=message):
                 self.assertTrue(mentions_unsupported_exclusion(message))
 
@@ -63,7 +62,7 @@ class UnsupportedExclusionTests(unittest.TestCase):
                 self.assertFalse(mentions_unsupported_exclusion(message))
 
     def test_ambiguous_coordinated_clause_is_not_silently_ignored(self):
-        self.assertTrue(mentions_unsupported_exclusion("bez laktozy i szybki obiad"))
+        self.assertTrue(mentions_unsupported_exclusion("bez laktozy i szybki obiad bez mleka"))
         self.assertTrue(mentions_unsupported_exclusion("bez"))
 
     def test_unsupported_exclusion_prevents_api_and_backend(self):
@@ -89,6 +88,18 @@ class UnsupportedExclusionTests(unittest.TestCase):
 
     def test_supported_request_reaches_model(self):
         response = SimpleNamespace(choices=[SimpleNamespace(message=SimpleNamespace(tool_calls=[]))])
-        with patch("main.client.chat.completions.create", return_value=response) as api:
-            self.assertEqual(chat_with_bot("bez glutenu i laktozy", "Winiary"), NO_TOOL_RESPONSE)
-            api.assert_called_once()
+        from test_preflight_grammar import KNOWN_FALSE_BLOCKS
+        for message in ("bez glutenu i laktozy", *KNOWN_FALSE_BLOCKS):
+            with self.subTest(message=message), patch("main.client.chat.completions.create", return_value=response) as api:
+                with patch("main.get_recommendations") as backend:
+                    self.assertEqual(chat_with_bot(message, "Winiary"), NO_TOOL_RESPONSE)
+                    api.assert_called_once()
+                    self.assertEqual(api.call_args.kwargs["messages"][1]["content"], message)
+                    backend.assert_not_called()
+
+    def test_allergy_keeps_priority_beside_a_released_optional_exclusion(self):
+        with patch("main.client.chat.completions.create") as api, patch("main.get_recommendations") as backend:
+            self.assertEqual(chat_with_bot("Alergia na mleko, nie musi być bez jaj, chcę kolację", "Winiary"),
+                             UNSUPPORTED_ALLERGY_RESPONSE)
+            api.assert_not_called()
+            backend.assert_not_called()

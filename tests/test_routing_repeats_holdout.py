@@ -29,7 +29,7 @@ class RoutingRepeatsHoldoutTests(unittest.TestCase):
         self.assertEqual(sum(c["expected_action"] == "tool" for c in holdout), 16)
 
     def test_dry_run_counts_all_repeats_and_isolates_holdout(self):
-        for holdout, mode, total, calls in ((False, "raw", 228, 228), (False, "application", 228, 198),
+        for holdout, mode, total, calls in ((False, "raw", 228, 228), (False, "application", 228, 204),
                                              (True, "raw", 72, 72), (True, "application", 72, 54)):
             with self.subTest(holdout=holdout, mode=mode), patch("evals.run_routing_eval.OpenAI") as api:
                 report = run_eval(self.args(holdout=holdout, mode=mode))

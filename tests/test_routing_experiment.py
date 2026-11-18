@@ -67,16 +67,22 @@ class RoutingExperimentTests(unittest.TestCase):
             if c['id'] not in ('guard_001', 'guard_005'):
                 continue
             client = Mock()
+            client.chat.completions.create.return_value = no_tool_response(None)
             row = evaluate_case(c, 'application', client, system_prompt=self.prompts()['V1'])
             self.assertEqual(row['passed'], c['id'] == 'guard_001')
-            client.chat.completions.create.assert_not_called()
+            if c['id'] == 'guard_001':
+                client.chat.completions.create.assert_not_called()
+            else:
+                client.chat.completions.create.assert_called_once()
+                self.assertEqual(row['failure_stage'], 'decision')
 
     def test_dry_run_freezes_complete_plan_without_client(self):
         with tempfile.TemporaryDirectory() as tmp, patch('evals.run_routing_experiment.OpenAI') as api:
             directory = Path(tmp) / 'campaign'
             manifest = prepare(directory)
             self.assertEqual(manifest['plan']['evaluations'], 1368)
-            self.assertEqual(manifest['plan']['sdk_calls'], 1278)
+            # A newly prepared plan after T024 releases guard_005/006.
+            self.assertEqual(manifest['plan']['sdk_calls'], 1296)
             self.assertEqual(len(manifest['schedule']), 18)
             api.assert_not_called()
             loaded = json.loads((directory / 'manifest.json').read_text(encoding='utf-8'))

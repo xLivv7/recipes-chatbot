@@ -840,3 +840,37 @@ nie dowodzi poprawy. Aktywny V0 pozostaje bez automatycznej podmiany.
 T023 jest gotowe po kompletnym raporcie, audycie i jawnej decyzji. Negatywny
 wynik również kończy eksperyment; nie zmieniać kryteriów po wynikach,
 nie ponawiać wybiórczo porażek i nie przeliczać historycznych raportów.
+
+## 16. T024 — poprawa fałszywych blokad preflight
+
+**Zakończono 2026-11-17.** Podstawa: PFL-01–07, ROU-03/09, NTO-07,
+pięć błędnych blokad z audytu T023. Wymagania zapisano przed kodem,
+testy pokazały 18 niepowodzeń podprzypadków starej gramatyki, następnie
+poprawiono gramatykę. Pełna regresja końcowa 314/314 bez pominięć;
+rzeczywiste API i zapisy katalogu były zablokowane. DEC-14 i dowody:
+[mapa weryfikacji](verification.md#t024--poprawa-preflight-zakończona).
+Poniżej zachowano zakres wykonania.
+
+1. Zachować pięć przypadków i expected=tool, snapshot kodu oraz hashe
+   historycznych pakietów T021/T023. Dodać kontrasty: lokalna negacja
+   pojedynczego wykluczenia, nowa klauzula posiłku po i/oraz i po przecinku,
+   dodatnie wykluczenie obok, niejednoznaczne listy i pierwszeństwo alergii.
+2. Poprawić wyłącznie gramatykę `core/request_safety.py`: ograniczone
+   rozpoznawanie lokalnej negacji i początku nowej klauzuli. Bez ogólnego
+   pomijania ogonów, słowa „nie” lub „ryby”, bez dopisywania filtrów.
+3. Sprawdzić application z odpowiedziami podstawionymi: odblokowane
+   zapytanie trafia do klienta raz; poprawny call uruchamia atrapę lookup,
+   błędny brak calla nadal jest porażką decyzji. Nie wykonywać API modelu.
+4. Dostosować audyt wykonawcy V4/V5 do zamrożonego stanu preflight:
+   dawny blok pozostaje błędem, przepuszczenie bez próby modelu ma
+   ocenę modelu nieadekwatną. Zmieniony stan ochrony unieważnia audyt.
+   Aktualizować testy świeżych planów, bez nadpisania dawnych manifestów,
+   wyników, przypadków i etykiet. Nie wznawiać T009 ani T023.
+5. Uruchomić testy granicy i pełną regresję z blokadą SDK i zapisów
+   katalogu; odnotować odczyty PostgreSQL i izolowaną SQLite. Uzupełnić
+   kontrakt wykluczeń, zadania i mapę dowodów. Pozytywny wynik nie
+   dowodzi skuteczności modelu ani akceptacji ACC.
+
+Po T024 osobny T025 ma zaprojektować kontrakt interpretacji i podział
+odpowiedzialności między model a aplikację. To projekt bez implementacji,
+nowych promptów lub płatnych wywołań. T020 pozostaje niezależnym projektem.

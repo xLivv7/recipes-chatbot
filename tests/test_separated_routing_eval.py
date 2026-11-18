@@ -71,7 +71,7 @@ class SeparatedRoutingEvalTests(unittest.TestCase):
         self.assertEqual(summarize([result])["metrics"]["model_decision_correct"]["total"], 0)
 
     def test_guard_false_positive_is_a_failure(self):
-        result = evaluate_case(case("Nie musi byc bez jaj, chce kolacje"), "application", Mock())
+        result = evaluate_case(case("Nie wymagam dania bez orzechów"), "application", Mock())
         self.assertFalse(result["passed"])
         self.assertEqual(result["failure_stage"], "preflight")
 
@@ -122,7 +122,7 @@ class SeparatedRoutingEvalTests(unittest.TestCase):
                 self.assertNotIn("SECRET", json.dumps(result))
 
     def test_dry_runs_validate_datasets_without_api_client(self):
-        for mode, planned in (("raw", 76), ("application", 66)):
+        for mode, planned in (("raw", 76), ("application", 68)):
             args = argparse.Namespace(cases=DEFAULT_CASES_PATH, routing_cases=DEFAULT_ROUTING_CASES_PATH,
                                       guard_cases=GUARD_CASES_PATH, limit=None, mode=mode,
                                       model="gpt-4o-mini", brand_name="Winiary", dry_run=True)
