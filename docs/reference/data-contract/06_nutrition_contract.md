@@ -13,6 +13,10 @@ Dla kazdego skladnika:
 
 ## Reguly
 
+Dla C012, C338, C357 i C367 pole `carbs_g_100g` zawiera wartość
+„Węglowodany” z Fitatu, bez dodatkowego odejmowania błonnika. Dla C367
+wynosi 60,6 g na 100 g. [Decyzja i źródła T007](../../reports/t007_nutrition_2026-11-18.md).
+
 | Regula | Poziom |
 | --- | --- |
 | kazdy skladnik musi miec zrodlo kcal i makro | `ERROR` |

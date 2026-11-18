@@ -11,7 +11,7 @@ from pathlib import Path
 
 from sqlalchemy import inspect, text
 
-from core.database import Client, ClientSku, DietPolicy, Ingredient, Recipe, SessionLocal, SkuSelectionRule, engine
+from core.database import Client, ClientSku, DietPolicy, Ingredient, Nutrient, Recipe, SessionLocal, SkuSelectionRule, engine
 
 
 CLIENT_NAME = "Winiary"
@@ -21,6 +21,34 @@ CURATION_DIR = Path(__file__).resolve().parent / "curation"
 GLUTEN_UNSAFE_CONCEPTS_PATH = CURATION_DIR / "gluten_unsafe_concepts.csv"
 WINIARY_SKU_GLUTEN_POLICY_PATH = CURATION_DIR / "winiary_sku_gluten_policy.csv"
 GLUTEN_POLICY_MAX_CONCEPT_NUMBER = 376
+
+# T007: (kcal, protein, fat, carbohydrates) per 100 g, before and after review.
+NUTRITION_CORRECTIONS = {
+    "C012": ((282, 14.1, 12.9, 54.7), (279, 15.4, 13.8, 23.2)),
+    "C338": ((227, 19.6, 13.7, 57.9), (303, 23.5, 10.5, 13)),
+    "C357": ((282, 14, 13, 54), (232, 15.3, 10.8, 18.6)),
+    "C367": ((247, 4, 1.2, 81), (247, 4, 1.2, 60.6)),
+}
+
+
+def curate_concept_nutrition(db):
+    rows = (db.query(Nutrient).filter(Nutrient.ingredient_id.in_(NUTRITION_CORRECTIONS))
+            .order_by(Nutrient.ingredient_id).with_for_update().all())
+    missing = NUTRITION_CORRECTIONS.keys() - {row.ingredient_id for row in rows}
+    if missing:
+        raise ValueError(f"Missing T007 nutrient rows: {sorted(missing)}")
+    changes = []
+    for row in rows:
+        original, corrected = NUTRITION_CORRECTIONS[row.ingredient_id]
+        current = (row.energy_kcal_100g, row.protein_g_100g, row.fat_g_100g, row.carbs_g_100g)
+        if current == original:
+            changes.append((row, corrected))
+        elif current != corrected:
+            raise ValueError(f"Unexpected nutrient values for {row.ingredient_id}; review before applying T007.")
+    for row, corrected in changes:
+        row.energy_kcal_100g, row.protein_g_100g, row.fat_g_100g, row.carbs_g_100g = corrected
+    return len(changes)
+
 
 R120_STEP_CORRECTIONS = {
     1: (
@@ -336,9 +364,10 @@ def apply_curation():
         db.flush()
         deduplicate_supported_preference_rules(db)
         curate_r120_steps(db)
+        curate_concept_nutrition(db)
 
         db.commit()
-        print("Applied preference rules, gluten-free and lactose-free policy curation.")
+        print("Applied preference rules, diet policies, recipe and nutrient corrections.")
     except Exception:
         db.rollback()
         raise
@@ -351,10 +380,15 @@ if __name__ == "__main__":
     mode = parser.add_mutually_exclusive_group()
     mode.add_argument("--lactose-only", action="store_true", help="Import only lactose policies.")
     mode.add_argument("--recipes-only", action="store_true", help="Apply only recipe instruction corrections.")
+    mode.add_argument("--nutrition-only", action="store_true", help="Replay the four T007 nutrient corrections.")
     args = parser.parse_args()
     if args.lactose_only:
         apply_lactose_curation()
     elif args.recipes_only:
         apply_recipe_curation()
+    elif args.nutrition_only:
+        with SessionLocal.begin() as db:
+            changed = curate_concept_nutrition(db)
+        print(f"T007: updated {changed} nutrient rows.")
     else:
         apply_curation()

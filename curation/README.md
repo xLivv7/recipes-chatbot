@@ -1,5 +1,12 @@
 # Data curation
 
+## Generic nutrition values
+
+After restoring the catalog, run `python apply_data_curation.py --nutrition-only`
+to replay the four T007 corrections. The full curation command also includes
+this step. Values, source products, the carbohydrate convention and verification
+are documented in the [T007 review](../docs/reports/t007_nutrition_2026-11-18.md).
+
 ## Lactose concept classification
 
 `lactose_concept_policy.csv` explicitly covers C001-C376: 327 allowed,

@@ -1,7 +1,7 @@
 # Specyfikacja — stabilizacja istniejącego MVP
 
 Data: 2026-10-22<br>
-Wersja dokumentu: 0.29; projekt T020 zakończony: 2026-11-18<br>
+Wersja dokumentu: 0.30; T007 zakończone: 2026-11-18<br>
 Status: zakres, progi i DEC-01–03 zatwierdzone; wymagania integralności
 i błędów wdrożone w T006; protokół T008 opracowany. Pięć SKU pozostaje wstrzymanych.
 
@@ -1010,7 +1010,8 @@ kompilator reguł i adapter w wewnętrznym trybie facts_v1. Pełna regresja
 legacy/V0. T027 zakończyło zatwierdzony pomiar i przegląd z wynikiem
 negatywnym (DEC-16). T029 zakończyło implementację i lokalną weryfikację
 kontroli CMP-1 (DEC-17). T020 zakończyło projekt wielu celów po MVP.
-T007 i T011 pozostają gotowymi zadaniami stabilizacyjnymi.
+T007 zakończyło przegląd i korektę wartości odżywczych czterech konceptów.
+T011 pozostaje gotowe do rozpoczęcia. [Raport T007](../../docs/reports/t007_nutrition_2026-11-18.md).
 Kolejność opisuje [plan](plan.md), a stan prac
 [zadania](tasks.md). Nie uruchamiamy ponownie wykonanych etapów na podstawie
 dawnych notatek.
