@@ -1,0 +1,349 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "contract_version": {
+      "type": "string",
+      "enum": [
+        "IR-1"
+      ]
+    },
+    "request_kind": {
+      "type": "string",
+      "enum": [
+        "recipe",
+        "other",
+        "context_dependent"
+      ]
+    },
+    "facts": {
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "diet"
+                ]
+              },
+              "value": {
+                "type": "string",
+                "enum": [
+                  "vegetarian",
+                  "vegan",
+                  "pescetarian"
+                ]
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "required",
+                  "waived"
+                ]
+              },
+              "source": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "kind",
+              "value",
+              "status",
+              "source"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "exclusion"
+                ]
+              },
+              "value": {
+                "type": "string",
+                "enum": [
+                  "meat",
+                  "fish",
+                  "gluten",
+                  "lactose"
+                ]
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "required",
+                  "waived"
+                ]
+              },
+              "source": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "kind",
+              "value",
+              "status",
+              "source"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "protein"
+                ]
+              },
+              "value": {
+                "type": "string",
+                "enum": [
+                  "meat",
+                  "fish"
+                ]
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "required",
+                  "permitted",
+                  "waived"
+                ]
+              },
+              "source": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "kind",
+              "value",
+              "status",
+              "source"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "nutrition_goal"
+                ]
+              },
+              "value": {
+                "type": "string",
+                "enum": [
+                  "low_kcal",
+                  "high_protein",
+                  "keto"
+                ]
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "required",
+                  "waived"
+                ]
+              },
+              "source": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "kind",
+              "value",
+              "status",
+              "source"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "category"
+                ]
+              },
+              "value": {
+                "type": "string",
+                "enum": [
+                  "śniadanie",
+                  "lunch",
+                  "obiad",
+                  "kolacja",
+                  "deser",
+                  "przekąska"
+                ]
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "required",
+                  "waived"
+                ]
+              },
+              "source": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "kind",
+              "value",
+              "status",
+              "source"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "time_limit"
+                ]
+              },
+              "value": {
+                "type": "integer"
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "required",
+                  "waived"
+                ]
+              },
+              "source": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "kind",
+              "value",
+              "status",
+              "source"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "quick"
+                ]
+              },
+              "value": {
+                "type": "string",
+                "enum": [
+                  "quick"
+                ]
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "required",
+                  "waived"
+                ]
+              },
+              "source": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "kind",
+              "value",
+              "status",
+              "source"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "result_count"
+                ]
+              },
+              "value": {
+                "type": "integer"
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "required",
+                  "waived"
+                ]
+              },
+              "source": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "kind",
+              "value",
+              "status",
+              "source"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "unsupported"
+                ]
+              },
+              "value": {
+                "type": "string",
+                "enum": [
+                  "allergy",
+                  "exclusion",
+                  "constraint",
+                  "ambiguity"
+                ]
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "required",
+                  "waived"
+                ]
+              },
+              "source": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "kind",
+              "value",
+              "status",
+              "source"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "required": [
+    "contract_version",
+    "request_kind",
+    "facts"
+  ]
+}

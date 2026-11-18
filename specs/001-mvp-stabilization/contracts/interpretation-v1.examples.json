@@ -1,0 +1,1694 @@
+{
+  "contract_version": "IR-1",
+  "status": "design_fixtures_not_model_results",
+  "date": "2026-11-18",
+  "annotation_review": "New fact labels are draft design annotations; review before any paid measurement.",
+  "diagnostic_ids": [
+    "intent_003",
+    "intent_004",
+    "intent_015",
+    "intent_025",
+    "intent_032",
+    "v5_diag_004",
+    "v5_diag_008",
+    "v5_diag_009",
+    "v5_diag_010",
+    "routing_005",
+    "routing_006",
+    "v5_diag_012"
+  ],
+  "valid": [
+    {
+      "id": "D-intent_003",
+      "user_message": "obiad z dużą ilością białka",
+      "expected": {
+        "diet": "none",
+        "protein_preference": "none",
+        "restrictions": [],
+        "nutrition_goal": "high_protein",
+        "category": "obiad",
+        "time_max": null,
+        "top_n": 3
+      },
+      "source_case_id": "intent_003",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": [
+          {
+            "kind": "category",
+            "value": "obiad",
+            "status": "required",
+            "source": "obiad"
+          },
+          {
+            "kind": "nutrition_goal",
+            "value": "high_protein",
+            "status": "required",
+            "source": "dużą ilością białka"
+          }
+        ]
+      },
+      "expected_action": "tool"
+    },
+    {
+      "id": "D-intent_004",
+      "user_message": "deser bez mięsa",
+      "expected": {
+        "diet": "vegetarian",
+        "protein_preference": "none",
+        "restrictions": [],
+        "nutrition_goal": "standard",
+        "category": "deser",
+        "time_max": null,
+        "top_n": 3
+      },
+      "source_case_id": "intent_004",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": [
+          {
+            "kind": "category",
+            "value": "deser",
+            "status": "required",
+            "source": "deser"
+          },
+          {
+            "kind": "exclusion",
+            "value": "meat",
+            "status": "required",
+            "source": "bez mięsa"
+          }
+        ]
+      },
+      "expected_action": "tool"
+    },
+    {
+      "id": "D-intent_015",
+      "user_message": "lekka kolacja wegetariańska do pół godziny",
+      "expected": {
+        "diet": "vegetarian",
+        "protein_preference": "none",
+        "restrictions": [],
+        "nutrition_goal": "low_kcal",
+        "category": "kolacja",
+        "time_max": 30,
+        "top_n": 3
+      },
+      "source_case_id": "intent_015",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": [
+          {
+            "kind": "nutrition_goal",
+            "value": "low_kcal",
+            "status": "required",
+            "source": "lekka"
+          },
+          {
+            "kind": "category",
+            "value": "kolacja",
+            "status": "required",
+            "source": "kolacja"
+          },
+          {
+            "kind": "diet",
+            "value": "vegetarian",
+            "status": "required",
+            "source": "wegetariańska"
+          },
+          {
+            "kind": "time_limit",
+            "value": 30,
+            "status": "required",
+            "source": "do pół godziny"
+          }
+        ]
+      },
+      "expected_action": "tool"
+    },
+    {
+      "id": "D-intent_025",
+      "user_message": "coś na szybko, wegańskie",
+      "expected": {
+        "diet": "vegan",
+        "protein_preference": "none",
+        "restrictions": [],
+        "nutrition_goal": "standard",
+        "category": "kolacja",
+        "time_max": 30,
+        "top_n": 3
+      },
+      "source_case_id": "intent_025",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": [
+          {
+            "kind": "quick",
+            "value": "quick",
+            "status": "required",
+            "source": "na szybko"
+          },
+          {
+            "kind": "diet",
+            "value": "vegan",
+            "status": "required",
+            "source": "wegańskie"
+          }
+        ]
+      },
+      "expected_action": "tool"
+    },
+    {
+      "id": "D-intent_032",
+      "user_message": "proszę o 4 pomysły na kolację pescetariańską",
+      "expected": {
+        "diet": "pescetarian",
+        "protein_preference": "none",
+        "restrictions": [],
+        "nutrition_goal": "standard",
+        "category": "kolacja",
+        "time_max": null,
+        "top_n": 4
+      },
+      "source_case_id": "intent_032",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": [
+          {
+            "kind": "result_count",
+            "value": 4,
+            "status": "required",
+            "source": "4 pomysły"
+          },
+          {
+            "kind": "category",
+            "value": "kolacja",
+            "status": "required",
+            "source": "kolację"
+          },
+          {
+            "kind": "diet",
+            "value": "pescetarian",
+            "status": "required",
+            "source": "pescetariańską"
+          }
+        ]
+      },
+      "expected_action": "tool"
+    },
+    {
+      "id": "D-v5_diag_004",
+      "user_message": "Na wieczór poproszę danie bez mięsa, ale koniecznie rybne.",
+      "expected_action": "tool",
+      "expected": {
+        "diet": "pescetarian",
+        "protein_preference": "fish",
+        "restrictions": [],
+        "nutrition_goal": "standard",
+        "category": "kolacja",
+        "time_max": null,
+        "top_n": 3
+      },
+      "source_case_id": "v5_diag_004",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": [
+          {
+            "kind": "category",
+            "value": "kolacja",
+            "status": "required",
+            "source": "Na wieczór"
+          },
+          {
+            "kind": "exclusion",
+            "value": "meat",
+            "status": "required",
+            "source": "bez mięsa"
+          },
+          {
+            "kind": "protein",
+            "value": "fish",
+            "status": "required",
+            "source": "koniecznie rybne"
+          }
+        ]
+      }
+    },
+    {
+      "id": "D-v5_diag_008",
+      "user_message": "Chcę fit lunch bez glutenu.",
+      "expected_action": "tool",
+      "expected": {
+        "diet": "none",
+        "protein_preference": "none",
+        "restrictions": [
+          "gluten_free"
+        ],
+        "nutrition_goal": "low_kcal",
+        "category": "lunch",
+        "time_max": null,
+        "top_n": 3
+      },
+      "source_case_id": "v5_diag_008",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": [
+          {
+            "kind": "nutrition_goal",
+            "value": "low_kcal",
+            "status": "required",
+            "source": "fit"
+          },
+          {
+            "kind": "category",
+            "value": "lunch",
+            "status": "required",
+            "source": "lunch"
+          },
+          {
+            "kind": "exclusion",
+            "value": "gluten",
+            "status": "required",
+            "source": "bez glutenu"
+          }
+        ]
+      }
+    },
+    {
+      "id": "D-v5_diag_009",
+      "user_message": "Chcę fit lunch bez glutenu do 22 minut.",
+      "expected_action": "tool",
+      "expected": {
+        "diet": "none",
+        "protein_preference": "none",
+        "restrictions": [
+          "gluten_free"
+        ],
+        "nutrition_goal": "low_kcal",
+        "category": "lunch",
+        "time_max": 22,
+        "top_n": 3
+      },
+      "source_case_id": "v5_diag_009",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": [
+          {
+            "kind": "nutrition_goal",
+            "value": "low_kcal",
+            "status": "required",
+            "source": "fit"
+          },
+          {
+            "kind": "category",
+            "value": "lunch",
+            "status": "required",
+            "source": "lunch"
+          },
+          {
+            "kind": "exclusion",
+            "value": "gluten",
+            "status": "required",
+            "source": "bez glutenu"
+          },
+          {
+            "kind": "time_limit",
+            "value": 22,
+            "status": "required",
+            "source": "do 22 minut"
+          }
+        ]
+      }
+    },
+    {
+      "id": "D-v5_diag_010",
+      "user_message": "Poproszę bezlaktozowe śniadanie na szybko, do 50 minut.",
+      "expected_action": "tool",
+      "expected": {
+        "diet": "none",
+        "protein_preference": "none",
+        "restrictions": [
+          "lactose_free"
+        ],
+        "nutrition_goal": "standard",
+        "category": "śniadanie",
+        "time_max": 50,
+        "top_n": 3
+      },
+      "source_case_id": "v5_diag_010",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": [
+          {
+            "kind": "exclusion",
+            "value": "lactose",
+            "status": "required",
+            "source": "bezlaktozowe"
+          },
+          {
+            "kind": "category",
+            "value": "śniadanie",
+            "status": "required",
+            "source": "śniadanie"
+          },
+          {
+            "kind": "quick",
+            "value": "quick",
+            "status": "required",
+            "source": "na szybko"
+          },
+          {
+            "kind": "time_limit",
+            "value": 50,
+            "status": "required",
+            "source": "do 50 minut"
+          }
+        ]
+      }
+    },
+    {
+      "id": "D-routing_005",
+      "user_message": "Jaka jest stolica Francji?",
+      "expected_action": "no_tool",
+      "source_case_id": "routing_005",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "other",
+        "facts": []
+      }
+    },
+    {
+      "id": "D-routing_006",
+      "user_message": "Chcę wegański obiad z mięsem, nie zamiennikiem.",
+      "expected_action": "no_tool",
+      "source_case_id": "routing_006",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": [
+          {
+            "kind": "diet",
+            "value": "vegan",
+            "status": "required",
+            "source": "wegański"
+          },
+          {
+            "kind": "category",
+            "value": "obiad",
+            "status": "required",
+            "source": "obiad"
+          },
+          {
+            "kind": "protein",
+            "value": "meat",
+            "status": "required",
+            "source": "z mięsem, nie zamiennikiem"
+          }
+        ]
+      }
+    },
+    {
+      "id": "D-v5_diag_012",
+      "user_message": "Wybierz bezmleczny lunch do 15 minut.",
+      "expected_action": "no_tool",
+      "source_case_id": "v5_diag_012",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": [
+          {
+            "kind": "unsupported",
+            "value": "exclusion",
+            "status": "required",
+            "source": "bezmleczny"
+          },
+          {
+            "kind": "category",
+            "value": "lunch",
+            "status": "required",
+            "source": "lunch"
+          },
+          {
+            "kind": "time_limit",
+            "value": 15,
+            "status": "required",
+            "source": "do 15 minut"
+          }
+        ]
+      }
+    },
+    {
+      "id": "F-01",
+      "user_message": "Podaj przepis",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": []
+      },
+      "expected_action": "tool",
+      "expected": {
+        "diet": "none",
+        "protein_preference": "none",
+        "restrictions": [],
+        "nutrition_goal": "standard",
+        "category": "kolacja",
+        "time_max": null,
+        "top_n": 3
+      }
+    },
+    {
+      "id": "F-02",
+      "user_message": "Kolacja bez mięsa, ryby mogą być",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": [
+          {
+            "kind": "category",
+            "value": "kolacja",
+            "status": "required",
+            "source": "Kolacja"
+          },
+          {
+            "kind": "exclusion",
+            "value": "meat",
+            "status": "required",
+            "source": "bez mięsa"
+          },
+          {
+            "kind": "protein",
+            "value": "fish",
+            "status": "permitted",
+            "source": "ryby mogą być"
+          }
+        ]
+      },
+      "expected_action": "tool",
+      "expected": {
+        "diet": "pescetarian",
+        "protein_preference": "none",
+        "restrictions": [],
+        "nutrition_goal": "standard",
+        "category": "kolacja",
+        "time_max": null,
+        "top_n": 3
+      }
+    },
+    {
+      "id": "F-03",
+      "user_message": "Kolacja bez mięsa, nie musi być z rybą",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": [
+          {
+            "kind": "category",
+            "value": "kolacja",
+            "status": "required",
+            "source": "Kolacja"
+          },
+          {
+            "kind": "exclusion",
+            "value": "meat",
+            "status": "required",
+            "source": "bez mięsa"
+          },
+          {
+            "kind": "protein",
+            "value": "fish",
+            "status": "waived",
+            "source": "nie musi być z rybą"
+          }
+        ]
+      },
+      "expected_action": "tool",
+      "expected": {
+        "diet": "vegetarian",
+        "protein_preference": "none",
+        "restrictions": [],
+        "nutrition_goal": "standard",
+        "category": "kolacja",
+        "time_max": null,
+        "top_n": 3
+      }
+    },
+    {
+      "id": "F-04",
+      "user_message": "Kolacja wegetariańska, ryby mogą być",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": [
+          {
+            "kind": "category",
+            "value": "kolacja",
+            "status": "required",
+            "source": "Kolacja"
+          },
+          {
+            "kind": "diet",
+            "value": "vegetarian",
+            "status": "required",
+            "source": "wegetariańska"
+          },
+          {
+            "kind": "protein",
+            "value": "fish",
+            "status": "permitted",
+            "source": "ryby mogą być"
+          }
+        ]
+      },
+      "expected_action": "tool",
+      "expected": {
+        "diet": "vegetarian",
+        "protein_preference": "none",
+        "restrictions": [],
+        "nutrition_goal": "standard",
+        "category": "kolacja",
+        "time_max": null,
+        "top_n": 3
+      }
+    },
+    {
+      "id": "F-05",
+      "user_message": "Kolacja wegetariańska z rybą",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": [
+          {
+            "kind": "category",
+            "value": "kolacja",
+            "status": "required",
+            "source": "Kolacja"
+          },
+          {
+            "kind": "diet",
+            "value": "vegetarian",
+            "status": "required",
+            "source": "wegetariańska"
+          },
+          {
+            "kind": "protein",
+            "value": "fish",
+            "status": "required",
+            "source": "z rybą"
+          }
+        ]
+      },
+      "expected_action": "no_tool"
+    },
+    {
+      "id": "F-06",
+      "user_message": "Kolacja bez ryb",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": [
+          {
+            "kind": "category",
+            "value": "kolacja",
+            "status": "required",
+            "source": "Kolacja"
+          },
+          {
+            "kind": "exclusion",
+            "value": "fish",
+            "status": "required",
+            "source": "bez ryb"
+          }
+        ]
+      },
+      "expected_action": "no_tool"
+    },
+    {
+      "id": "F-07",
+      "user_message": "Kolacja bez mięsa i ryb",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": [
+          {
+            "kind": "category",
+            "value": "kolacja",
+            "status": "required",
+            "source": "Kolacja"
+          },
+          {
+            "kind": "exclusion",
+            "value": "meat",
+            "status": "required",
+            "source": "bez mięsa i ryb"
+          },
+          {
+            "kind": "exclusion",
+            "value": "fish",
+            "status": "required",
+            "source": "bez mięsa i ryb"
+          }
+        ]
+      },
+      "expected_action": "tool",
+      "expected": {
+        "diet": "vegetarian",
+        "protein_preference": "none",
+        "restrictions": [],
+        "nutrition_goal": "standard",
+        "category": "kolacja",
+        "time_max": null,
+        "top_n": 3
+      }
+    },
+    {
+      "id": "F-08",
+      "user_message": "Kolacja nie musi być bez mięsa",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": [
+          {
+            "kind": "category",
+            "value": "kolacja",
+            "status": "required",
+            "source": "Kolacja"
+          },
+          {
+            "kind": "exclusion",
+            "value": "meat",
+            "status": "waived",
+            "source": "nie musi być bez mięsa"
+          }
+        ]
+      },
+      "expected_action": "tool",
+      "expected": {
+        "diet": "none",
+        "protein_preference": "none",
+        "restrictions": [],
+        "nutrition_goal": "standard",
+        "category": "kolacja",
+        "time_max": null,
+        "top_n": 3
+      }
+    },
+    {
+      "id": "F-09",
+      "user_message": "Kolacja wegańska, nie musi być bez mięsa",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": [
+          {
+            "kind": "category",
+            "value": "kolacja",
+            "status": "required",
+            "source": "Kolacja"
+          },
+          {
+            "kind": "diet",
+            "value": "vegan",
+            "status": "required",
+            "source": "wegańska"
+          },
+          {
+            "kind": "exclusion",
+            "value": "meat",
+            "status": "waived",
+            "source": "nie musi być bez mięsa"
+          }
+        ]
+      },
+      "expected_action": "tool",
+      "expected": {
+        "diet": "vegan",
+        "protein_preference": "none",
+        "restrictions": [],
+        "nutrition_goal": "standard",
+        "category": "kolacja",
+        "time_max": null,
+        "top_n": 3
+      }
+    },
+    {
+      "id": "F-10",
+      "user_message": "Wegańska kolacja bez glutenu i laktozy",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": [
+          {
+            "kind": "diet",
+            "value": "vegan",
+            "status": "required",
+            "source": "Wegańska"
+          },
+          {
+            "kind": "category",
+            "value": "kolacja",
+            "status": "required",
+            "source": "kolacja"
+          },
+          {
+            "kind": "exclusion",
+            "value": "gluten",
+            "status": "required",
+            "source": "bez glutenu i laktozy"
+          },
+          {
+            "kind": "exclusion",
+            "value": "lactose",
+            "status": "required",
+            "source": "bez glutenu i laktozy"
+          }
+        ]
+      },
+      "expected_action": "tool",
+      "expected": {
+        "diet": "vegan",
+        "protein_preference": "none",
+        "restrictions": [
+          "gluten_free",
+          "lactose_free"
+        ],
+        "nutrition_goal": "standard",
+        "category": "kolacja",
+        "time_max": null,
+        "top_n": 3
+      }
+    },
+    {
+      "id": "F-11",
+      "user_message": "Wegańska kolacja bez glutenu",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": [
+          {
+            "kind": "diet",
+            "value": "vegan",
+            "status": "required",
+            "source": "Wegańska"
+          },
+          {
+            "kind": "category",
+            "value": "kolacja",
+            "status": "required",
+            "source": "kolacja"
+          },
+          {
+            "kind": "exclusion",
+            "value": "gluten",
+            "status": "required",
+            "source": "bez glutenu"
+          }
+        ]
+      },
+      "expected_action": "tool",
+      "expected": {
+        "diet": "vegan",
+        "protein_preference": "none",
+        "restrictions": [
+          "gluten_free"
+        ],
+        "nutrition_goal": "standard",
+        "category": "kolacja",
+        "time_max": null,
+        "top_n": 3
+      }
+    },
+    {
+      "id": "F-12",
+      "user_message": "Jak poprzednio, ale bez glutenu",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "context_dependent",
+        "facts": [
+          {
+            "kind": "exclusion",
+            "value": "gluten",
+            "status": "required",
+            "source": "bez glutenu"
+          }
+        ]
+      },
+      "expected_action": "no_tool"
+    },
+    {
+      "id": "F-13",
+      "user_message": "Poproszę niskokaloryczny obiad keto",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": [
+          {
+            "kind": "nutrition_goal",
+            "value": "low_kcal",
+            "status": "required",
+            "source": "niskokaloryczny"
+          },
+          {
+            "kind": "category",
+            "value": "obiad",
+            "status": "required",
+            "source": "obiad"
+          },
+          {
+            "kind": "nutrition_goal",
+            "value": "keto",
+            "status": "required",
+            "source": "keto"
+          }
+        ]
+      },
+      "expected_action": "no_tool"
+    },
+    {
+      "id": "F-14",
+      "user_message": "Poproszę obiad i kolację",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": [
+          {
+            "kind": "category",
+            "value": "obiad",
+            "status": "required",
+            "source": "obiad"
+          },
+          {
+            "kind": "category",
+            "value": "kolacja",
+            "status": "required",
+            "source": "kolację"
+          }
+        ]
+      },
+      "expected_action": "no_tool"
+    },
+    {
+      "id": "F-15",
+      "user_message": "Poproszę obiad lub kolację",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": [
+          {
+            "kind": "unsupported",
+            "value": "ambiguity",
+            "status": "required",
+            "source": "obiad lub kolację"
+          }
+        ]
+      },
+      "expected_action": "no_tool"
+    },
+    {
+      "id": "F-16",
+      "user_message": "Kolacja bez mięsa; nie musi być bez mięsa",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": [
+          {
+            "kind": "category",
+            "value": "kolacja",
+            "status": "required",
+            "source": "Kolacja"
+          },
+          {
+            "kind": "exclusion",
+            "value": "meat",
+            "status": "required",
+            "source": "Kolacja bez mięsa"
+          },
+          {
+            "kind": "exclusion",
+            "value": "meat",
+            "status": "waived",
+            "source": "nie musi być bez mięsa"
+          }
+        ]
+      },
+      "expected_action": "no_tool"
+    },
+    {
+      "id": "F-17",
+      "user_message": "Kolacja do 50 minut, nie musi być szybka",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": [
+          {
+            "kind": "category",
+            "value": "kolacja",
+            "status": "required",
+            "source": "Kolacja"
+          },
+          {
+            "kind": "time_limit",
+            "value": 50,
+            "status": "required",
+            "source": "do 50 minut"
+          },
+          {
+            "kind": "quick",
+            "value": "quick",
+            "status": "waived",
+            "source": "nie musi być szybka"
+          }
+        ]
+      },
+      "expected_action": "tool",
+      "expected": {
+        "diet": "none",
+        "protein_preference": "none",
+        "restrictions": [],
+        "nutrition_goal": "standard",
+        "category": "kolacja",
+        "time_max": 50,
+        "top_n": 3
+      }
+    },
+    {
+      "id": "F-18",
+      "user_message": "Szybka kolacja, ekspresowa kolacja",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": [
+          {
+            "kind": "category",
+            "value": "kolacja",
+            "status": "required",
+            "source": "kolacja"
+          },
+          {
+            "kind": "quick",
+            "value": "quick",
+            "status": "required",
+            "source": "Szybka"
+          },
+          {
+            "kind": "quick",
+            "value": "quick",
+            "status": "required",
+            "source": "ekspresowa"
+          }
+        ]
+      },
+      "expected_action": "tool",
+      "expected": {
+        "diet": "none",
+        "protein_preference": "none",
+        "restrictions": [],
+        "nutrition_goal": "standard",
+        "category": "kolacja",
+        "time_max": 30,
+        "top_n": 3
+      }
+    },
+    {
+      "id": "F-19",
+      "user_message": "Kolacja z mięsem i rybą",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": [
+          {
+            "kind": "category",
+            "value": "kolacja",
+            "status": "required",
+            "source": "Kolacja"
+          },
+          {
+            "kind": "protein",
+            "value": "meat",
+            "status": "required",
+            "source": "z mięsem i rybą"
+          },
+          {
+            "kind": "protein",
+            "value": "fish",
+            "status": "required",
+            "source": "z mięsem i rybą"
+          }
+        ]
+      },
+      "expected_action": "no_tool"
+    },
+    {
+      "id": "F-20",
+      "user_message": "Nie mam alergii na mleko, chcę kolację",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": [
+          {
+            "kind": "unsupported",
+            "value": "allergy",
+            "status": "waived",
+            "source": "Nie mam alergii na mleko"
+          },
+          {
+            "kind": "category",
+            "value": "kolacja",
+            "status": "required",
+            "source": "kolację"
+          }
+        ]
+      },
+      "expected_action": "no_tool"
+    },
+    {
+      "id": "F-21",
+      "user_message": "Podaj 6 przekąsek",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": [
+          {
+            "kind": "result_count",
+            "value": 6,
+            "status": "required",
+            "source": "6 przekąsek"
+          },
+          {
+            "kind": "category",
+            "value": "przekąska",
+            "status": "required",
+            "source": "przekąsek"
+          }
+        ]
+      },
+      "expected_action": "tool",
+      "expected": {
+        "diet": "none",
+        "protein_preference": "none",
+        "restrictions": [],
+        "nutrition_goal": "standard",
+        "category": "przekąska",
+        "time_max": null,
+        "top_n": 6
+      }
+    },
+    {
+      "id": "F-22",
+      "user_message": "Kolacja pescetariańska bez mięsa i ryb",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": [
+          {
+            "kind": "category",
+            "value": "kolacja",
+            "status": "required",
+            "source": "Kolacja"
+          },
+          {
+            "kind": "diet",
+            "value": "pescetarian",
+            "status": "required",
+            "source": "pescetariańska"
+          },
+          {
+            "kind": "exclusion",
+            "value": "meat",
+            "status": "required",
+            "source": "bez mięsa i ryb"
+          },
+          {
+            "kind": "exclusion",
+            "value": "fish",
+            "status": "required",
+            "source": "bez mięsa i ryb"
+          }
+        ]
+      },
+      "expected_action": "no_tool"
+    },
+    {
+      "id": "F-23",
+      "user_message": "Kolacja z rybą, ryby mogą być",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": [
+          {
+            "kind": "category",
+            "value": "kolacja",
+            "status": "required",
+            "source": "Kolacja"
+          },
+          {
+            "kind": "protein",
+            "value": "fish",
+            "status": "required",
+            "source": "z rybą"
+          },
+          {
+            "kind": "protein",
+            "value": "fish",
+            "status": "permitted",
+            "source": "ryby mogą być"
+          }
+        ]
+      },
+      "expected_action": "tool",
+      "expected": {
+        "diet": "none",
+        "protein_preference": "fish",
+        "restrictions": [],
+        "nutrition_goal": "standard",
+        "category": "kolacja",
+        "time_max": null,
+        "top_n": 3
+      }
+    }
+  ],
+  "invalid": [
+    {
+      "user_message": "Kolacja do 30 minut",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": [
+          {
+            "kind": "category",
+            "value": "kolacja",
+            "status": "required",
+            "source": "Kolacja"
+          },
+          {
+            "kind": "time_limit",
+            "value": 30,
+            "status": "required",
+            "source": "do 30 minut"
+          }
+        ],
+        "reason": "unrequested"
+      },
+      "id": "E-01-unknown-key",
+      "expected_stage": "interpretation",
+      "expected_message": "MSG-06",
+      "expected_backend_calls": 0
+    },
+    {
+      "user_message": "Kolacja do 30 minut",
+      "interpretation": {
+        "contract_version": "IR-2",
+        "request_kind": "recipe",
+        "facts": [
+          {
+            "kind": "category",
+            "value": "kolacja",
+            "status": "required",
+            "source": "Kolacja"
+          },
+          {
+            "kind": "time_limit",
+            "value": 30,
+            "status": "required",
+            "source": "do 30 minut"
+          }
+        ]
+      },
+      "id": "E-02-version",
+      "expected_stage": "interpretation",
+      "expected_message": "MSG-06",
+      "expected_backend_calls": 0
+    },
+    {
+      "user_message": "Kolacja do 30 minut",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "facts": [
+          {
+            "kind": "category",
+            "value": "kolacja",
+            "status": "required",
+            "source": "Kolacja"
+          },
+          {
+            "kind": "time_limit",
+            "value": 30,
+            "status": "required",
+            "source": "do 30 minut"
+          }
+        ]
+      },
+      "id": "E-03-missing-kind",
+      "expected_stage": "interpretation",
+      "expected_message": "MSG-06",
+      "expected_backend_calls": 0
+    },
+    {
+      "user_message": "Kolacja do 30 minut",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": [
+          {
+            "kind": "category",
+            "value": "kolacja",
+            "status": "required",
+            "source": "Kolacja"
+          },
+          {
+            "kind": "time_limit",
+            "value": 30,
+            "status": "required",
+            "source": "do 30 minut"
+          },
+          {
+            "kind": "diet",
+            "value": "none",
+            "status": "required",
+            "source": "Kolacja"
+          }
+        ]
+      },
+      "id": "E-04-default-as-fact",
+      "expected_stage": "interpretation",
+      "expected_message": "MSG-06",
+      "expected_backend_calls": 0
+    },
+    {
+      "user_message": "Kolacja do 30 minut",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": [
+          {
+            "kind": "category",
+            "value": "kolacja",
+            "status": "required",
+            "source": "Kolacja"
+          },
+          {
+            "kind": "time_limit",
+            "value": 30,
+            "status": "required",
+            "source": "do 30 minut"
+          },
+          {
+            "kind": "nutrition_goal",
+            "value": "standard",
+            "status": "required",
+            "source": "Kolacja"
+          }
+        ]
+      },
+      "id": "E-05-unknown-enum",
+      "expected_stage": "interpretation",
+      "expected_message": "MSG-06",
+      "expected_backend_calls": 0
+    },
+    {
+      "user_message": "Kolacja do 30 minut",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": [
+          {
+            "kind": "category",
+            "value": "kolacja",
+            "status": "required",
+            "source": "Kolacja"
+          },
+          {
+            "kind": "time_limit",
+            "value": true,
+            "status": "required",
+            "source": "do 30 minut"
+          }
+        ]
+      },
+      "id": "E-06-bool",
+      "expected_stage": "interpretation",
+      "expected_message": "MSG-06",
+      "expected_backend_calls": 0
+    },
+    {
+      "user_message": "Kolacja do 30 minut",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": [
+          {
+            "kind": "category",
+            "value": "kolacja",
+            "status": "required",
+            "source": "Kolacja"
+          },
+          {
+            "kind": "time_limit",
+            "value": 30.0,
+            "status": "required",
+            "source": "do 30 minut"
+          }
+        ]
+      },
+      "id": "E-07-float",
+      "expected_stage": "interpretation",
+      "expected_message": "MSG-06",
+      "expected_backend_calls": 0
+    },
+    {
+      "user_message": "Kolacja do 30 minut",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": [
+          {
+            "kind": "category",
+            "value": "kolacja",
+            "status": "required",
+            "source": "Kolacja"
+          },
+          {
+            "kind": "time_limit",
+            "value": "30",
+            "status": "required",
+            "source": "do 30 minut"
+          }
+        ]
+      },
+      "id": "E-08-string",
+      "expected_stage": "interpretation",
+      "expected_message": "MSG-06",
+      "expected_backend_calls": 0
+    },
+    {
+      "user_message": "Kolacja do 30 minut",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": [
+          {
+            "kind": "category",
+            "value": "kolacja",
+            "status": "required",
+            "source": "Kolacja"
+          },
+          {
+            "kind": "time_limit",
+            "value": 0,
+            "status": "required",
+            "source": "do 30 minut"
+          }
+        ]
+      },
+      "id": "E-09-zero",
+      "expected_stage": "interpretation",
+      "expected_message": "MSG-06",
+      "expected_backend_calls": 0
+    },
+    {
+      "user_message": "Kolacja do 30 minut",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": [
+          {
+            "kind": "category",
+            "value": "kolacja",
+            "status": "required",
+            "source": "Kolacja"
+          },
+          {
+            "kind": "time_limit",
+            "value": -1,
+            "status": "required",
+            "source": "do 30 minut"
+          }
+        ]
+      },
+      "id": "E-10-negative",
+      "expected_stage": "interpretation",
+      "expected_message": "MSG-06",
+      "expected_backend_calls": 0
+    },
+    {
+      "user_message": "Kolacja do 30 minut",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": [
+          {
+            "kind": "category",
+            "value": "kolacja",
+            "status": "required",
+            "source": ""
+          },
+          {
+            "kind": "time_limit",
+            "value": 30,
+            "status": "required",
+            "source": "do 30 minut"
+          }
+        ]
+      },
+      "id": "E-11-empty-source",
+      "expected_stage": "interpretation",
+      "expected_message": "MSG-06",
+      "expected_backend_calls": 0
+    },
+    {
+      "user_message": "Kolacja do 30 minut",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": [
+          {
+            "kind": "category",
+            "value": "kolacja",
+            "status": "required",
+            "source": "deser"
+          },
+          {
+            "kind": "time_limit",
+            "value": 30,
+            "status": "required",
+            "source": "do 30 minut"
+          }
+        ]
+      },
+      "id": "E-12-foreign-source",
+      "expected_stage": "interpretation",
+      "expected_message": "MSG-06",
+      "expected_backend_calls": 0
+    },
+    {
+      "user_message": "Kolacja do 30 minut",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": [
+          {
+            "kind": "category",
+            "value": "kolacja",
+            "status": "permitted",
+            "source": "Kolacja"
+          },
+          {
+            "kind": "time_limit",
+            "value": 30,
+            "status": "required",
+            "source": "do 30 minut"
+          }
+        ]
+      },
+      "id": "E-13-wrong-status",
+      "expected_stage": "interpretation",
+      "expected_message": "MSG-06",
+      "expected_backend_calls": 0
+    },
+    {
+      "user_message": "Kolacja do 30 minut",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": [
+          {
+            "kind": "ingredient",
+            "value": "kolacja",
+            "status": "required",
+            "source": "Kolacja"
+          },
+          {
+            "kind": "time_limit",
+            "value": 30,
+            "status": "required",
+            "source": "do 30 minut"
+          }
+        ]
+      },
+      "id": "E-14-unknown-kind",
+      "expected_stage": "interpretation",
+      "expected_message": "MSG-06",
+      "expected_backend_calls": 0
+    }
+  ],
+  "malformed_json": [
+    {
+      "id": "J-01",
+      "raw_arguments": "{\"contract_version\":\"IR-1\",\"contract_version\":\"IR-1\",\"request_kind\":\"recipe\",\"facts\":[]}",
+      "expected_stage": "interpretation"
+    },
+    {
+      "id": "J-02",
+      "raw_arguments": "[]",
+      "expected_stage": "interpretation"
+    },
+    {
+      "id": "J-03",
+      "raw_arguments": "{",
+      "expected_stage": "interpretation"
+    }
+  ],
+  "envelope_cases": [
+    {
+      "id": "P-api_error",
+      "signal": "api_error",
+      "expected_stage": "api",
+      "expected_message": "MSG-05",
+      "expected_backend_calls": 0
+    },
+    {
+      "id": "P-empty_choices",
+      "signal": "empty_choices",
+      "expected_stage": "protocol",
+      "expected_message": "MSG-06",
+      "expected_backend_calls": 0
+    },
+    {
+      "id": "P-length",
+      "signal": "length",
+      "expected_stage": "protocol",
+      "expected_message": "MSG-06",
+      "expected_backend_calls": 0
+    },
+    {
+      "id": "P-content_filter",
+      "signal": "content_filter",
+      "expected_stage": "protocol",
+      "expected_message": "MSG-06",
+      "expected_backend_calls": 0
+    },
+    {
+      "id": "P-refusal",
+      "signal": "refusal",
+      "expected_stage": "protocol",
+      "expected_message": "MSG-06",
+      "expected_backend_calls": 0
+    },
+    {
+      "id": "P-missing_call_with_JSON_content",
+      "signal": "missing_call_with_JSON_content",
+      "expected_stage": "protocol",
+      "expected_message": "MSG-06",
+      "expected_backend_calls": 0
+    },
+    {
+      "id": "P-legacy_function_name",
+      "signal": "legacy_function_name",
+      "expected_stage": "protocol",
+      "expected_message": "MSG-06",
+      "expected_backend_calls": 0
+    },
+    {
+      "id": "P-multiple_calls",
+      "signal": "multiple_calls",
+      "expected_stage": "protocol",
+      "expected_message": "MSG-06",
+      "expected_backend_calls": 0
+    }
+  ],
+  "known_limitations": [
+    {
+      "id": "L-01-omitted-facts",
+      "user_message": "deser bez mięsa",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": []
+      },
+      "illustrative_compiler_result": {
+        "diet": "none",
+        "protein_preference": "none",
+        "restrictions": [],
+        "nutrition_goal": "standard",
+        "category": "kolacja",
+        "time_max": null,
+        "top_n": 3
+      },
+      "gold_expected": {
+        "diet": "vegetarian",
+        "protein_preference": "none",
+        "restrictions": [],
+        "nutrition_goal": "standard",
+        "category": "deser",
+        "time_max": null,
+        "top_n": 3
+      },
+      "note": "Structurally valid omission; a validator cannot prove completeness. Model semantic error, not compiler repair."
+    },
+    {
+      "id": "L-02-wrong-label-with-valid-source",
+      "user_message": "coś na szybko, wegańskie",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": [
+          {
+            "kind": "quick",
+            "value": "quick",
+            "status": "required",
+            "source": "na szybko"
+          },
+          {
+            "kind": "diet",
+            "value": "vegan",
+            "status": "required",
+            "source": "wegańskie"
+          },
+          {
+            "kind": "category",
+            "value": "przekąska",
+            "status": "required",
+            "source": "coś na szybko"
+          }
+        ]
+      },
+      "illustrative_compiler_result": {
+        "diet": "vegan",
+        "protein_preference": "none",
+        "restrictions": [],
+        "nutrition_goal": "standard",
+        "category": "przekąska",
+        "time_max": 30,
+        "top_n": 3
+      },
+      "gold_expected": {
+        "diet": "vegan",
+        "protein_preference": "none",
+        "restrictions": [],
+        "nutrition_goal": "standard",
+        "category": "kolacja",
+        "time_max": 30,
+        "top_n": 3
+      },
+      "note": "Exact source is not proof of the category label. This remains a model semantic error."
+    }
+  ]
+}

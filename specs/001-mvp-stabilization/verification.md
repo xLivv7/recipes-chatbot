@@ -515,6 +515,70 @@ Zachowano aktywny V0, V0–V5, schemat, parser argumentów, katalog i backend.
 Brak zaliczenia ACC i nowego wyniku jakości modelu. T024 zakończone;
 T025 jest gotowym projektem kontraktu interpretacji, bez implementacji/API.
 
+### T025 — projekt IR-1 zakończony
+
+Data: 2026-11-18. **Projekt, bez implementacji i pomiaru modelu.** DEC-15
+wybiera jedno wymuszone narzędzie submit_recipe_interpretation ze ścisłym
+schematem faktów oraz lokalny kompilator reguł. Narzędzie nie ma katalogu,
+a wyszukiwanie pozostaje decyzją aplikacji. [Pełny projekt](interpretation-contract.md),
+[schemat](contracts/interpretation-v1.schema.json),
+[przykłady](contracts/interpretation-v1.examples.json).
+
+Projekt zamyka IR-01–10: format danych, źródła, brak wartości domyślnych
+w faktach modelu, rozróżnienie required/permitted/waived, reguły konfliktów,
+kompilację do istniejących parametrów, migrację ROU/NTO, komunikaty i
+diagnostykę. IRC-01–20 stanowią przyszłe kryteria implementacji. W IR-1
+brak wymaganego calla jest błędem protokołu, a no_tool biznesowe oznacza
+no_search aplikacji. Aktywna wersja legacy zachowuje dotychczasowe NTO.
+
+Źródła oficjalne sprawdzono przez OpenAI Docs 2026-11-18:
+[function calling](https://developers.openai.com/api/docs/guides/function-calling),
+[Structured Outputs](https://developers.openai.com/api/docs/guides/structured-outputs)
+i [gpt-4o-mini](https://developers.openai.com/api/docs/models/gpt-4o-mini).
+Odczytano także lokalne definicje wyboru funkcji i narzędzia w SDK 2.30.0.
+To kontrola wykonalności projektu, bez potwierdzenia akceptacji konkretnego
+schematu przez usługę, salda konta lub dostępności przyszłego wykonania.
+
+[Kontrola projektu](../../dokumentacja%20pracy/2026-11-18_t025/design_checks.json)
+sprawdza dokładnie użyty podzbiór schematu (obiekty, wymagane pola,
+additionalProperties, enum, tablice i anyOf), dosłowność źródeł, lokalne
+inwarianty typów/liczb, przykłady oraz istniejący parser parametrów.
+To nie ogólny silnik JSON Schema ani implementacja kompilatora.
+
+| Artefakt / kontrola | Zakres dowodu |
+| --- | --- |
+| Schemat | Korzeń object, dziewięć rozłącznych typów faktu, zamknięte obiekty i wymagane pola. Bez wartości none/standard w faktach. |
+| 35 formalnie poprawnych interpretacji | Przechodzą użyty podzbiór schematu i lokalne inwarianty. Oczekiwane argumenty search przyjmuje istniejący parser backendu. Nie dowodzi to ich wyliczania przez przyszły kompilator. |
+| 14 niepoprawnych interpretacji | Obcy klucz/wersja/enum, brak pola, bool/float/string/zero/ujemna liczba, pusty lub obcy source, niewłaściwy status — odrzucone przez schemat lub dodatkowe inwarianty. |
+| 3 błędne pakiety JSON | Duplikat klucza, tablica zamiast obiektu i niepoprawny JSON — odrzucone w kontroli danych. |
+| 8 scenariuszy koperty odpowiedzi | Zdefiniowano expected błędu i backend=0 dla SDK/metadanych/braku lub złego calla. To plan testów T026, bez wykonania adaptera lub API. |
+| 2 ograniczenia | Pominięte fakty i błędna kategoria z dosłownym źródłem są formalnie poprawne. Kontrola celowo je akceptuje jako dowód granicy walidacji, nie jakości interpretacji. |
+| 12 dotychczasowych przypadków | Zapytania, expected_action i pełne expected są identyczne z T023. Nowe adnotacje faktów są propozycją do przeglądu przed przyszłym pomiarem. |
+
+H-IR1 dotyczy całej wersji warstwy interpretacji. Plan T027 porównuje świeże
+legacy/V4 z IR-1 na 12 przypadkach w trzech rundach: 72 żądania, bez
+podwójnego płacenia za raw/application. Model, temperatura, limit i reszta
+aplikacji są wspólne; prompt, format i kompilator należą do wymienianej
+warstwy. Nie wyizolowano osobnego wpływu strict lub instrukcji. Reguła
+IR1-D1 jest zapisana przed pomiarem w projekcie; nie wykonano jej oceny.
+Priorytetem są decyzja, pełne parametry i brak regresji/niezgodnego dispatch,
+nie sam sukces wymuszonego calla.
+
+Zakres: zmieniono tylko cztery istniejące dokumenty SDD i dodano kontrakt
+MD oraz dwa JSON-y w specs. Kontrola potwierdza hashe 139 plików spoza
+zakresu, 132 plików dawnych pakietów oraz dziewięciu plików kodu/testów
+sprawdzonych w T024. [Hashe artefaktów](../../dokumentacja%20pracy/2026-11-18_t025/artifact_hashes.json),
+[stan sprzed projektu](../../dokumentacja%20pracy/2026-11-18_t025/before_hashes.json).
+Zablokowano sieć w kontroli lokalnej, bez prób; nie importowano aplikacji,
+OpenAI SDK ani SQLAlchemy. **0 wywołań API i 0 operacji bazy** w T025.
+
+Kod pozostaje w wersji T024. Ostatnia pełna regresja to **314/314 z T024**;
+nie uruchamiano jej ponownie dla zmian dokumentacyjnych i nie przedstawiamy
+kontroli fixture'ów jako nowych testów działania aplikacji. Nie ma
+nowego promptu, adaptera, kompilatora, wdrożenia ani zaliczenia ACC.
+T025 zakończone; T026 jest gotowe do implementacji offline. T027 wymaga
+T026, nowego zamrożenia/kosztorysu i osobnej zgody. T009/T012 nadal wstrzymane.
+
 ### Audyt instrukcji — część T017, 2026-11-16
 
 [Raport audytu](../../docs/reports/instruction_audit_2026-11-16.md) obejmuje

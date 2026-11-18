@@ -1,12 +1,12 @@
 # Specyfikacja — stabilizacja istniejącego MVP
 
 Data: 2026-10-22<br>
-Wersja dokumentu: 0.22; poprawa preflight T024 zakończona: 2026-11-17<br>
+Wersja dokumentu: 0.23; projekt interpretacji T025 zakończony: 2026-11-18<br>
 Status: zakres, progi i DEC-01–03 zatwierdzone; wymagania integralności
 i błędów wdrożone w T006; protokół T008 opracowany. Pięć SKU pozostaje wstrzymanych.
 
 Nawigacja: [kryteria](acceptance.md) · [plan](plan.md) ·
-[zadania](tasks.md) · [weryfikacja](verification.md).
+[zadania](tasks.md) · [weryfikacja](verification.md) · [projekt IR-1](interpretation-contract.md).
 
 ## 1. Cel dokumentu
 
@@ -76,6 +76,7 @@ ale nie zastępują jej ani stanów w `tasks.md`.
 | DEC-12 | Przygotowano offline w T021, 2026-11-17; niewdrożone | Kandydat evals/routing_prompts/V5.txt zachowuje format V4, z 18 kontrastowymi demonstracjami zgodnymi z T017/T019. Zmieniono dwie reguły „bez mięsa” i wprowadzenie do przykładów w granicach T017; pozostałe instrukcje i wspólny schemat zachowano. Przygotowanie nie potwierdza skuteczności i nie upoważnia do płatnego pomiaru lub wdrożenia. |
 | DEC-13 | Decyzja przeglądu T023, 2026-11-17 | V5 nie kwalifikuje się według T017-v1. W kompletnym pomiarze 02: application 78/96 wobec V4 86/96, sześć regresji per-case i 13 błędnych semantycznie dispatch. Niezamówione fish spadło 4 → 0 w obu trybach, ale intent_004 i diag_004 pozostały 0/3. Pozostawić aktywny V0; bez wdrożenia V4/V5 ani zaliczenia ACC. Przerwany przebieg 01 zachowano osobno. |
 | DEC-14 | Wdrożono w T024, 2026-11-17 | Ograniczona gramatyka lokalnej negacji pojedynczego wykluczenia i nowych klauzul usuwa pięć wskazanych fałszywych blokad. Dodatnie nieobsługiwane wykluczenia, niejednoznaczne listy i pierwszeństwo alergii zachowano. Przejście preflight bez próby LLM nie zalicza interpretacji modelu; dawne wyniki i expected pozostają bez zmian. |
+| DEC-15 | Wybrany projekt T025, 2026-11-18; niewdrożony | IR-1: jeden wymuszony submit_recipe_interpretation ze ścisłym schematem faktów, bez dostępu do katalogu. Aplikacja waliduje fakty, stosuje ROU i defaulty oraz wybiera search/no_search/error. Model nie wypełnia domyślnych argumentów. W przyszłym trybie IR brak calla jest błędem protokołu, a biznesowe no_tool oznacza brak dispatch. Legacy NTO i aktywny V0 pozostają; migracja i scenariusze są w interpretation-contract.md. |
 
 W tym etapie dopuszczalne są poprawki błędów, zmiany promptu, refaktoryzacja,
 korekty istniejących danych, testy, narzędzia pomiarowe i dokumentacja,
@@ -816,6 +817,35 @@ generacja i zapisy katalogu są zablokowane, dokumentacja odróżnia stan
 po T024 od historycznych wyników. Zakres to ograniczona gramatyka,
 bez deklaracji obsługi dowolnej negacji lub wszystkich parafraz.
 
+### T025 — projekt kontraktu interpretacji zakończony
+
+Zakończono 2026-11-18 jako projekt, bez implementacji. DEC-15 wybiera
+[IR-1](interpretation-contract.md), [schemat](contracts/interpretation-v1.schema.json)
+i [fixture'y projektu](contracts/interpretation-v1.examples.json). Nie ma
+nowego pomiaru modelu, adaptera SDK, kompilatora ani promptu V6.
+Poniższe wymagania dotyczą przyszłego, odrębnego trybu IR. Aktywne
+ROU/NTO, RECIPE_TOOLS, parser, preflight T024 i V0 są bez zmian.
+
+| ID | Wymaganie projektu | Weryfikacja po implementacji |
+| --- | --- | --- |
+| IR-01 | Po preflight jeden wymuszony submit_recipe_interpretation, strict=true, bez dostępu narzędzia do katalogu. Nie wymuszać wyszukiwania. | IRC-15/17/19; osobne liczniki SDK, calla interpretacyjnego i dispatch. |
+| IR-02 | Model przekazuje request_kind i fakty kind/value/status/source według wersji IR-1, bez faktów none/standard i domyślnych parametrów. | Schemat, 35 poprawnych formalnie fixture'ów, IRC-01–13. |
+| IR-03 | Walidować cały pakiet, dokładne typy i źródła przed kompilacją. Błąd nie jest brakiem wymagań; nie usuwać niepoprawnego faktu. | IRC-14/16; brak defaultów i backendu po błędzie. |
+| IR-04 | Czysty lokalny kompilator stosuje ROU-12–17, rozróżnia wymaganie/dopuszczenie/cofnięcie, wykrywa konflikty i ustala defaulty. Wynik search zawiera dotychczasowe argumenty, bez zmiany backendu. | Reguły 1–12 w IR-1; IRC-01–12; istniejący parser argumentów. |
+| IR-05 | Brak zgodnej reprezentacji całej prośby daje no_search bez argumentów i dispatch; nie łączyć automatycznie wielu celów, kategorii czy diet. | IRC-05–13; T020 nadal odrębne. |
+| IR-06 | W IR brak wymaganego calla jest błędem protokołu, nie no_tool. No_tool biznesowe oznacza no_search aplikacji, mimo technicznego zgłoszenia interpretacji. Legacy NTO zachowuje stare znaczenie. | Tabela migracji NTO/NTC w IR-1, IRC-15/20. |
+| IR-07 | Zachować MSG-01–08, T022-v1 i INT/ERR. Zwykły content oraz modelowe uzasadnienia nie sterują backendem ani komunikatem; bez drugiego LLM. | IRC-14–19; błędy dostawcy przed parsowaniem, lokalny renderer. |
+| IR-08 | Nie uznawać wymuszonego calla za sukces decyzji. Osobno mierzyć transport, fakty, kompilację i wynik końcowy względem dotychczasowych expected. | Diagnostyka IR-1; ocena pól nieadekwatna bez poprawnego search. |
+| IR-09 | Brak faktu lub dosłowny source nie dowodzą poprawnego rozumienia. Model może pominąć wymóg lub przypisać mu złą etykietę; takie błędy pozostają porażkami semantycznymi. | Dwa jawne przykłady ograniczeń, adnotacje faktów i przyszły pomiar. |
+| IR-10 | Implementacja i kwalifikacja są osobnymi etapami. T026 pozostawia domyślny legacy/V0; T027 wymaga świeżego planu i zgody. Diagnostyka 72 wywołań nie dopuszcza wdrożenia ani nie zalicza ACC. | Reguła IR1-D1, T010/T013, nienaruszone dawne etykiety i dowody. |
+
+Projekt ma 20 scenariuszy akceptacji IRC-01–20, reguły kompilatora,
+wersjonowaną migrację ROU/NTO oraz plan porównania całej warstwy. Nowe
+adnotacje faktów są propozycją do przeglądu przed pomiarem; istniejące
+12 zapytań i expected backendu zachowano dokładnie. Kontrola T025 dotyczy
+spójności projektu i schematu, nie działania kompilatora lub jakości LLM.
+[Dowody](verification.md#t025--projekt-ir-1-zakończony).
+
 ## 6. Granice obsługi
 
 Ograniczenia bez glutenu i bez laktozy oznaczają zgodność z udokumentowaną
@@ -881,9 +911,11 @@ T022 wdrożyło kontrakt w aplikacji i diagnostyce. T023 zakończyło pomiar
 V4/V5 na nowym zamrożeniu źródeł: V5 nie kwalifikuje się (DEC-13), aktywny
 V0 pozostaje. T024 poprawiło pięć fałszywych blokad preflight i zakończyło
 regresję offline; poprawność modelu po odblokowaniu pozostaje niezmierzona.
-Następny T025 projektuje kontrakt interpretacji i podział odpowiedzialności,
-bez implementacji i automatycznego płatnego pomiaru. T020 jest gotowym
-projektem wielu celów; T007 i T011 także pozostają niezależnymi zadaniami.
+T025 zakończyło projekt IR-1, z migracją ROU/NTO i planem oceny; nie zmieniło
+aplikacji. Następny T026 implementuje ten projekt offline, z domyślnym
+legacy/V0. T027 jest odrębną przyszłą diagnostyką wymagającą gotowego
+payloadu, kosztorysu i zgody. T020 jest gotowym projektem wielu celów;
+T007 i T011 także pozostają niezależnymi zadaniami.
 Kolejność opisuje [plan](plan.md), a stan prac
 [zadania](tasks.md). Nie uruchamiamy ponownie wykonanych etapów na podstawie
 dawnych notatek.

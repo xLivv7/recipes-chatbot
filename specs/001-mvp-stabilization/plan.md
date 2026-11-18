@@ -874,3 +874,55 @@ Poniżej zachowano zakres wykonania.
 Po T024 osobny T025 ma zaprojektować kontrakt interpretacji i podział
 odpowiedzialności między model a aplikację. To projekt bez implementacji,
 nowych promptów lub płatnych wywołań. T020 pozostaje niezależnym projektem.
+
+## 17. T025 — projekt IR-1 i podział odpowiedzialności
+
+**Zakończono 2026-11-18 jako projekt (DEC-15).** Wybrano jedno wymuszone
+narzędzie interpretacyjne bez katalogu, ścisły kontrakt faktów i lokalny
+kompilator reguł. [Pełny projekt](interpretation-contract.md),
+[schemat](contracts/interpretation-v1.schema.json),
+[fixture'y](contracts/interpretation-v1.examples.json).
+
+Projekt zawiera IR-01–10, reguły kompilacji, źródła faktów, warianty i wybór,
+20 scenariuszy IRC, migrację legacy NTO oraz diagnostykę. Zwykły JSON
+w content nie staje się fallbackiem. Brak wymaganego calla w IR jest błędem
+protokołu; no_tool biznesowe to no_search/0 dispatch po poprawnej interpretacji.
+Metadane T022, komunikaty oraz INT/ERR pozostają. Jakość rozpoznania nie
+wynika z samego strict ani z cytowania użytkownika.
+
+Lokalnie sprawdzono użyty podzbiór schematu i inwarianty przykładów,
+zgodność 12 istniejących etykiet i argumentów, odnośniki oraz nienaruszenie
+kodu i dowodów. To nie test kompilatora ani nowe 314/314. Ostatni pełny
+wynik kodu pozostaje z T024. API/baza w T025: 0. Nie wdrożono IR-1,
+nie napisano nowego promptu, nie zmieniono modelu. [Dowody](verification.md#t025--projekt-ir-1-zakończony).
+
+## 18. Następne wykonanie IR-1
+
+**T026 — implementacja offline, gotowa do rozpoczęcia.**
+
+1. Zaimplementować czytanie schematu/walidację IR, czysty kompilator
+   i oddzielny adapter odpowiedzi. Nie rozszerzać parsera get_recommendations
+   o fakty. Zachować cały backend i renderer.
+2. Dodać wewnętrzny tryb facts_v1 obok legacy, z domyślnym legacy/V0.
+   Jeden klient modelu; bez narzędzia wyszukiwania widocznego w IR.
+3. Pokryć IRC-01–20, w tym metadata/error, brak/obcy/wielokrotny call,
+   domyślne wartości, konflikty, cytaty, puste i błędne fakty. Sprawdzić
+   brak katalogu/SDK w kompilatorze oraz pełną regresję bez pominięć.
+4. Zamrozić instrukcje i konfigurację kandydata. Nie wykonać LLM ani nie
+   uznać fixture'ów za dowód poprawy. Zakończyć dowodami implementacji,
+   zablokowanych wywołań i niezmienionego trybu aktywnego.
+
+**T027 — przyszła diagnostyka, zależna od T026 i osobnej zgody.**
+
+Pełny protokół i IR1-D1 są w rozdziale 8 IR-1. Świeże legacy/V4 kontra
+IR-1, 12 ustalonych zapytań, trzy rundy — 72 SDK, bez dublowania żądań
+raw/application. Ten sam model, limit 1024 i T024; czynnikiem systemowym
+jest cała warstwa interpretacji. Nie przypisujemy przyczynowo wyniku
+samemu strict, source lub konkretnej instrukcji. Priorytetem oceny jest
+decyzja i semantyka parametrów, nie sama liczba poprawnych calls.
+
+Przed pomiarem przygotować dokładne payloady i kosztorys nowych żądań,
+zamrozić źródła/runtime oraz uzyskać zgodę. T027 wymaga kompletnego raportu
+i decyzji także przy wyniku negatywnym. Nie wdraża automatycznie kandydata.
+Pełna kwalifikacja wymaga T010/T013 i świeżej kontroli aktywnego V0;
+T009/T012 pozostają wstrzymane. Nie ma zgody na 72 wywołania w ramach T025.

@@ -157,11 +157,22 @@ Pozostałe stany: **gotowe do rozpoczęcia**, **w toku**, **oczekuje na zależno
   LLM nie zalicza modelu. Dawne etykiety i wyniki T021/T023 zachowano.
   [Dowody](verification.md#t024--poprawa-preflight-zakończona).
 
+- [x] **T025 — projekt kontraktu interpretacji i podziału odpowiedzialności.**
+  Zakończono 2026-11-18 jako projekt IR-1 (DEC-15). Wybrano wymuszone
+  narzędzie przekazujące fakty bez katalogu, lokalną walidację i kompilator
+  reguł. Opisano migrację legacy NTO, 20 scenariuszy IRC, schemat,
+  fixture'y i ograniczenia kompletności rozpoznania. H-IR1 i IR1-D1
+  oceniają całą warstwę względem świeżego V4, z semantyką jako priorytetem.
+  Bez implementacji, promptu V6, zmiany modelu, SDK i bazy.
+  [Projekt](interpretation-contract.md),
+  [dowody](verification.md#t025--projekt-ir-1-zakończony).
+
 ## Najbliższe zadanie
 
-**T025 — projekt kontraktu interpretacji i podziału odpowiedzialności.**
-Stan: **gotowe do rozpoczęcia**. T024 zakończono poprawką i regresją offline.
-Kolejny etap jest projektem bez implementacji i płatnego pomiaru.
+**T026 — implementacja IR-1 offline.** Stan: **gotowe do rozpoczęcia**.
+T025 zakończono wybranym projektem. Zaimplementować kontrakt, kompilator
+i adapter z atrapami klienta, zachowując domyślny legacy/V0. Płatna ocena
+jest osobnym T027; nie wynika z wykonania T025 lub T026.
 T020 pozostaje gotowym niezależnym projektem wielu celów. Aktywny V0
 pozostaje. T007 i T011 także są niezależnymi gotowymi zadaniami.
 
@@ -181,14 +192,21 @@ nadal wymaga zamknięcia pozostałych luk; T012 jest wstrzymane.
 
 ## Kolejne zadania
 
-- [ ] **T025 — projekt kontraktu interpretacji i podziału odpowiedzialności.**
-  Stan: **gotowe do rozpoczęcia**; T024 zakończono. Na podstawie błędów T023 zaprojektować
-  oddzielenie rozpoznawania jawnych wymagań, stosowania wartości domyślnych
-  oraz decyzji o dispatch. Rozważyć ekstrakcję faktów i ustrukturyzowaną
-  decyzję wraz z ograniczeniami; zachować zgodność lub jawnie opisać
-  migrację ROU/NTO i metadanych błędów. Wskazać hipotezę, scenariusze,
-  zmieniany pojedynczy czynnik i warunek oceny. Gotowe po projekcie
-  i planie weryfikacji; bez implementacji, V6, zmiany modelu i płatnego API.
+- [ ] **T026 — implementacja IR-1 offline.** Stan: **gotowe do rozpoczęcia**.
+  Podstawa: IR-01–10, DEC-15 i projekt T025. Zaimplementować walidację,
+  czysty kompilator oraz adapter submit_recipe_interpretation. Zachować
+  parser argumentów, backend i renderer; domyślny tryb legacy/V0.
+  Gotowe po IRC-01–20, pełnej regresji bez pominięć, dowodach braku
+  rzeczywistego SDK/zapisów katalogu i zamrożeniu konfiguracji kandydata.
+  Bez automatycznego wdrożenia, zmiany modelu lub płatnego pomiaru.
+- [ ] **T027 — mała diagnostyka warstwy IR-1.**
+  Stan: **oczekuje na T026 i zgodę na konkretny plan**. Przygotować świeże
+  V4 kontra IR-1 na 12 ustalonych przypadkach, 3 rundy, do 72 SDK.
+  Przejrzeć nowe etykiety faktów, zamrozić payloady i runtime, sprawdzić
+  model/cennik i policzyć koszt. Osobna zgoda poprzedza wykonanie.
+  Gotowe po pomiarze, raporcie IR1-D1 i decyzji; wynik negatywny także
+  zamyka eksperyment. Bez selective resume i automatycznego wdrożenia.
+  Diagnostyka nie zalicza ACC; T010/T013 i kontrola aktywnego V0 pozostają.
 - [ ] **T020 — projekt obsługi wielu celów żywieniowych.**
   Stan: **gotowe do rozpoczęcia**; podstawa: DEC-11 / INS-07.
   Zaprojektować m.in. low_kcal + keto: znaczenie łącznego spełnienia,
