@@ -1,7 +1,7 @@
 # Plan — stabilizacja istniejącego MVP
 
-Status na 2026-11-18: T026 zakończone offline, domyślny tryb legacy/V0.
-Następne: przygotowanie T027; płatne wykonanie wymaga osobnej zgody.
+Status na 2026-11-18: T026 i pomiar/przegląd T027 zakończone.
+DEC-16 odrzuca IR-1. Domyślny tryb pozostaje legacy/V0.
 T009 i T012 pozostają wstrzymane przez autorkę.
 Zakres i decyzje: [spec.md](spec.md). Warunki ukończenia: [acceptance.md](acceptance.md).
 Szczegółowe zadania i ich stan: [tasks.md](tasks.md).
@@ -928,7 +928,7 @@ Fixture'y potwierdzają reguły dla dostarczonych faktów, a nie zdolność
 modelu do ich rozpoznawania. Dwa znane ograniczenia walidacji pozostają:
 pominięcie faktu i semantycznie błędny fakt z dosłownym źródłem.
 
-**T027 — przyszła diagnostyka, gotowa do przygotowania offline.**
+**T027 — diagnostyka następnie zakończona; wynik i decyzja w sekcji 19.**
 
 Pełny protokół i IR1-D1 są w rozdziale 8 IR-1. Świeże legacy/V4 kontra
 IR-1, 12 ustalonych zapytań, trzy rundy — 72 SDK, bez dublowania żądań
@@ -942,3 +942,71 @@ zamrozić źródła/runtime oraz uzyskać zgodę. T027 wymaga kompletnego raport
 i decyzji także przy wyniku negatywnym. Nie wdraża automatycznie kandydata.
 Pełna kwalifikacja wymaga T010/T013 i świeżej kontroli aktywnego V0;
 T009/T012 pozostają wstrzymane. T025/T026 nie obejmują zgody na 72 wywołania.
+
+## 19. T027 — diagnostyka V4/IR-1
+
+**T027 zakończone 2026-11-18 (DEC-16).** Po osobnej zgodzie wykonano
+72/72 żądania i przegląd IR1-D1. IR-1 raw 22/36 wobec V4 26/36;
+replay 25/36 wobec 29/36. IR-1 nie kwalifikuje się: pięć regresji
+per-case, no_tool 3/9, obsługiwane 19/27 i 11 błędnych symulowanych
+dispatch w replay. Format poprawny 36/36, dokładne fakty 19/36.
+Koszt referencyjny bez cache 0,026496 USD. Aktywny V0 pozostaje.
+[Raport i ograniczenia](../../docs/reports/t027_interpretation_2026-11-18.md),
+[dowody](verification.md#t027--diagnostyka-zakończona).
+Poniżej zachowano protokół ustalony przed pomiarem.
+
+**T027.1 zakończone 2026-11-18.** [Wykonawca](../../evals/run_interpretation_diagnostic.py)
+przygotowuje nowy pakiet i wymaga dokładnego hasha planu oraz budżetu przed
+utworzeniem klienta generacji. T026 zapisano w c20a118. Nie zmieniono
+runtime aplikacji, promptów V0–V5/IR1, schematów, kompilatora ani expected.
+
+Zakres i H-IR1/IR1-D1 pozostają z rozdziału 8 projektu T025. Operacjonalizacja:
+
+1. Dwanaście niezmienionych zapytań, dziewięć tool i trzy no_tool.
+   Przejrzano request_kind, fakty, źródła oraz zgodność kompilacji z gold.
+   Przegląd Codex jest jawny i nie stanowi niezależnej anotacji lub holdoutu.
+2. Trzy rundy A/B, B/A, A/B (A=V4, B=IR1); 72 SDK. Wspólne gpt-4o-mini,
+   temperature=0.1, max_completion_tokens=1024, parallel_tool_calls=false,
+   jawny endpoint api.openai.com, timeout=30 s, retry=0. V4 ma dotychczasowy
+   prompt i auto; IR1 ma prompt i wymuszone ścisłe narzędzie z T026.
+3. Główna ocena IR1-D1 dotyczy raw interpretacji/kompilacji. Każdą zachowaną
+   odpowiedź wykorzystujemy też w zależnym replay preflight/dispatch.
+   Jeden przypadek no_tool jest blokowany przez preflight; jego raw należy
+   jawnie do planu. 72 replay nie oznaczają kolejnych płatnych żądań.
+4. Replay nie uruchamia katalogu: osobno podaje simulated_backend_calls,
+   actual_backend_calls=0 i real_api_calls=0. Jego zgodność z rzeczywistym
+   main sprawdzono w testach obu ramion. Błędy raw nie stają się sukcesami
+   modelu dzięki ochronie aplikacji.
+5. Ekstrakcję B oceniamy po request_kind oraz zbiorze kind/value/status.
+   Poprawny dosłowny source weryfikuje parser; różne poprawne granice cytatu
+   i powtórzenie tego samego faktu nie są regresją ekstrakcji. Brak poprawnej
+   interpretacji oznacza ocenę faktów nieadekwatną, nie sukces. Końcowe pola
+   oceniamy tylko dla poprawnie zwalidowanego search i expected=tool.
+6. Raport przelicza oceny z zachowanych odpowiedzi, pokazuje każdą porażkę,
+   regresje per-case, błędy kanału/decyzji/parametrów, fakty, pola warunkowe,
+   użycie tokenów i referencyjny koszt bez cache. Remis nie kwalifikuje.
+7. Rezerwacja przed każdym żądaniem i checkpoint po odpowiedzi. Pierwszy
+   błąd SDK, sygnał metadanych T022 albo niezatwierdzony/zmieniony resolved
+   model przerywa pomiar. Zwykłe złe decyzje/argumenty/protokół IR są porażką
+   próby i nie zatrzymują pozostałych ocen. Brak SDK retry i resume.
+
+Koszt policzono z nowych pełnych payloadów: długość JSON w bajtach UTF-8
+plus rezerwa 2000 na opakowanie jako proxy tokenów wejściowych; wyjście
+rezerwuje maksymalne 1024 na każde żądanie. Stawki standardowe 0,15/0,60
+USD za milion tokenów wejścia/wyjścia sprawdzono 2026-11-18 w oficjalnej
+[dokumentacji modelu](https://developers.openai.com/api/docs/models/gpt-4o-mini).
+Suma rezerw **0,1637217 USD**, proponowany lokalny próg **0,50 USD**.
+To oszacowanie bez cache, podatków i innego użycia konta, nie limit rachunku.
+Nie potwierdza salda. Jeden GET potwierdził widoczność aliasu, bez generacji;
+do przygotowania/wykonania używamy potwierdzenia nie starszego niż 24 godziny.
+Dokumentacja oznacza model jako deprecated; zachowujemy uzgodniony model,
+a widoczność aliasu nie gwarantuje powodzenia generacji.
+
+Pełna regresja **366/366**, 19 nowych metod, brak pominięć. SDK i zapisy
+do katalogu zablokowane. [Dowody i zamrożony plan](verification.md#t027--przygotowanie-diagnostyki-zakończone).
+
+**T027.2 — wykonane po zgodzie** na plan b2fc0dad3729… i próg 0,50 USD.
+72 odpowiedzi, 72 unikatowe request IDs, 0 błędów API/metadanych, bez
+retry/resume. **T027.3 — wykonane:** ponowne przeliczenie z zachowanych
+odpowiedzi potwierdziło negatywny wynik IR1-D1 i DEC-16. Bez wdrożenia,
+zaliczenia ACC, zmiany aktywnego V0 lub wznowienia T009/T012.

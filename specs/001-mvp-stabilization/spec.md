@@ -1,7 +1,7 @@
 # Specyfikacja — stabilizacja istniejącego MVP
 
 Data: 2026-10-22<br>
-Wersja dokumentu: 0.24; implementacja offline T026 zakończona: 2026-11-18<br>
+Wersja dokumentu: 0.26; T027 zakończone: 2026-11-18<br>
 Status: zakres, progi i DEC-01–03 zatwierdzone; wymagania integralności
 i błędów wdrożone w T006; protokół T008 opracowany. Pięć SKU pozostaje wstrzymanych.
 
@@ -77,6 +77,7 @@ ale nie zastępują jej ani stanów w `tasks.md`.
 | DEC-13 | Decyzja przeglądu T023, 2026-11-17 | V5 nie kwalifikuje się według T017-v1. W kompletnym pomiarze 02: application 78/96 wobec V4 86/96, sześć regresji per-case i 13 błędnych semantycznie dispatch. Niezamówione fish spadło 4 → 0 w obu trybach, ale intent_004 i diag_004 pozostały 0/3. Pozostawić aktywny V0; bez wdrożenia V4/V5 ani zaliczenia ACC. Przerwany przebieg 01 zachowano osobno. |
 | DEC-14 | Wdrożono w T024, 2026-11-17 | Ograniczona gramatyka lokalnej negacji pojedynczego wykluczenia i nowych klauzul usuwa pięć wskazanych fałszywych blokad. Dodatnie nieobsługiwane wykluczenia, niejednoznaczne listy i pierwszeństwo alergii zachowano. Przejście preflight bez próby LLM nie zalicza interpretacji modelu; dawne wyniki i expected pozostają bez zmian. |
 | DEC-15 | Wybrany projekt T025, 2026-11-18; niewdrożony | IR-1: jeden wymuszony submit_recipe_interpretation ze ścisłym schematem faktów, bez dostępu do katalogu. Aplikacja waliduje fakty, stosuje ROU i defaulty oraz wybiera search/no_search/error. Model nie wypełnia domyślnych argumentów. W przyszłym trybie IR brak calla jest błędem protokołu, a biznesowe no_tool oznacza brak dispatch. Legacy NTO i aktywny V0 pozostają; migracja i scenariusze są w interpretation-contract.md. |
+| DEC-16 | Przegląd T027, 2026-11-18 | IR-1 nie kwalifikuje się według IR1-D1: raw 22/36 wobec świeżego V4 26/36, pięć regresji per-case i 11 błędnych symulowanych dispatch w replay. Format IR poprawny 36/36, lecz dokładne fakty tylko 19/36. Pozostawić domyślny legacy/V0; zakończyć eksperyment bez automatycznej podmiany lub kolejnego pomiaru. Następny T028 dotyczy projektu kompletności ekstrakcji, bez API i wdrożenia. |
 
 W tym etapie dopuszczalne są poprawki błędów, zmiany promptu, refaktoryzacja,
 korekty istniejących danych, testy, narzędzia pomiarowe i dokumentacja,
@@ -864,6 +865,48 @@ renderer i artefakty projektowe T025 zachowano. Skuteczność rozpoznawania
 faktów jest niezmierzona; IR-09 pozostaje ograniczeniem. T027 wymaga
 osobnego przygotowania i zgody na płatny plan. [Dowody i pokrycie IRC](verification.md#t026--implementacja-ir-1-offline-zakończona).
 
+### T027 — diagnostyka IR-1 zakończona
+
+Zakończono 2026-11-18: po osobnej zgodzie na plan b2fc0dad3729… wykonano
+72/72 SDK, 0 błędów API/metadanych, jeden resolved model. DEC-16 odrzuca
+IR-1 według zapisanej IR1-D1: raw 22/36 wobec V4 26/36, no_tool 3/9,
+obsługiwane 19/27, stabilne 6/12 i pięć regresji per-case. Replay ma
+25/36 wobec 29/36 V4 i 11 błędnych symulowanych dispatch; realny backend=0.
+
+Wszystkie 36 interpretacji IR są formalnie poprawne, lecz komplet faktów
+zgadza się w 19/36. Pomijane kategorie/cel i błędne fakty o wymaganym
+mięsie/bezmleczności wyjaśniają porażki. Koszt referencyjny z usage bez
+cache 0,026496 USD, przy rezerwie 0,1637217 USD i progu 0,50 USD.
+[Raport](../../docs/reports/t027_interpretation_2026-11-18.md),
+[dowody](verification.md#t027--diagnostyka-zakończona).
+
+Domyślny legacy/V0 pozostaje, bez zaliczenia ACC. T028 ma zaprojektować
+rozróżnienie braku wymagania od pominięcia ekstrakcji i sposób kontroli
+kompletności; nie uruchamia automatycznie nowego promptu lub API.
+
+#### Przygotowanie przed pomiarem
+
+T027.1 zakończono 2026-11-18. Wykonawca porównuje świeże V4 i IR-1
+według IR1-D1 z T025: 12 zachowanych zapytań i expected, po trzy próby
+w obu ramionach, 72 wywołania SDK. Wynikiem głównym jest decyzja i semantyka
+raw interpretacji/kompilacji. Z tej samej odpowiedzi odtwarzamy zachowanie
+preflight i dispatch aplikacji; jest to ocena zależna, bez drugiego LLM
+i rzeczywistego backendu. Osobno raportujemy ekstrakcję faktów.
+
+Zamrożono payloady, adnotacje po przeglądzie, źródła, runtime, cennik,
+harmonogram i regułę. Rezerwa szacunkowa 0,1637217 USD, proponowany lokalny
+próg 0,50 USD; nie jest to gwarancja rachunku. Rzeczywisty SDK retry=0,
+limit odpowiedzi 1024. Wykonanie wymaga zgody na dokładny hash planu
+i próg. Po pierwszej awarii SDK/metadanych lub niezgodnym resolved model
+pomiar jest przerywany, bez selektywnego wznowienia.
+
+19 nowych metod testowych; pełna regresja 366/366 bez pominięć, na atrapach.
+Poza testami jeden odczyt GET metadanych potwierdził widoczność modelu;
+generacje: 0. Nie zmierzono H-IR1 ani nie oceniono IR1-D1 na modelu.
+Na etapie przygotowania T027 pozostawało w toku. Pomiar i przegląd
+wykonano następnie, jak opisano powyżej; domyślny tryb to legacy/V0.
+[Plan, pokrycie i stan zgody](verification.md#t027--przygotowanie-diagnostyki-zakończone).
+
 ## 6. Granice obsługi
 
 Ograniczenia bez glutenu i bez laktozy oznaczają zgodność z udokumentowaną
@@ -933,9 +976,9 @@ T025 zakończyło projekt IR-1, z migracją ROU/NTO i planem oceny; nie zmienił
 aplikacji. T026 zaimplementowało projekt offline: walidację faktów,
 kompilator reguł i adapter w wewnętrznym trybie facts_v1. Pełna regresja
 347/347 na atrapach nie jest pomiarem modelu. Domyślny tryb to nadal
-legacy/V0. T027 jest odrębną przyszłą diagnostyką wymagającą gotowego
-payloadu, kosztorysu i zgody. T020 jest gotowym projektem wielu celów;
-T007 i T011 także pozostają niezależnymi zadaniami.
+legacy/V0. T027 zakończyło zatwierdzony pomiar i przegląd z wynikiem
+negatywnym (DEC-16). Następny T028 dotyczy kompletności ekstrakcji. T020 jest gotowe do rozpoczęcia.
+T007 i T011 pozostają gotowymi zadaniami stabilizacyjnymi.
 Kolejność opisuje [plan](plan.md), a stan prac
 [zadania](tasks.md). Nie uruchamiamy ponownie wykonanych etapów na podstawie
 dawnych notatek.

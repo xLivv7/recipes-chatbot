@@ -176,15 +176,20 @@ Pozostałe stany: **gotowe do rozpoczęcia**, **w toku**, **oczekuje na zależno
   konfigurację i źródła kandydata. Domyślny legacy/V0 pozostaje; jakość
   rozpoznania przez model jest niezmierzona. [Dowody](verification.md#t026--implementacja-ir-1-offline-zakończona).
 
+- [x] **T027 — mała diagnostyka warstwy IR-1.** Zakończono 2026-11-18.
+  - [x] **T027.1 — przygotowanie.** 19 nowych metod, pełna regresja 366/366,
+    przegląd adnotacji, payloady, runtime i kosztorys.
+  - [x] **T027.2 — pomiar po osobnej zgodzie.** 72/72 SDK, 0 błędów
+    API/metadanych, jeden resolved model, bez retry/resume.
+  - [x] **T027.3 — raport i decyzja.** IR-1 raw 22/36 wobec V4 26/36,
+    fakty 19/36, pięć regresji i 11 błędnych symulowanych dispatch w replay.
+    DEC-16: brak kwalifikacji IR1-D1, pozostawić legacy/V0. Koszt
+    referencyjny bez cache 0,026496 USD. [Raport](../../docs/reports/t027_interpretation_2026-11-18.md),
+    [dowody](verification.md#t027--diagnostyka-zakończona).
+
 ## Najbliższe zadanie
 
-**T027 — mała diagnostyka warstwy IR-1.** Stan: **gotowe do przygotowania offline**.
-T026 zakończono. Przygotować wykonawcę, przegląd adnotacji, świeże payloady
-V4/IR-1 i kosztorys według IR1-D1. Wykonanie płatne wymaga osobnej zgody
-na konkretny plan; nie wynika z T026. Nie uruchomiono T027 ani nie zmierzono
-skuteczności kandydata. Domyślny tryb pozostaje legacy/V0.
-T020 pozostaje gotowym niezależnym projektem wielu celów. Aktywny V0
-pozostaje. T007 i T011 także są niezależnymi gotowymi zadaniami.
+**T028 — projekt kompletności ekstrakcji.** T007 i T011 również są gotowe do rozpoczęcia.
 
 **T009P zakończone po zatwierdzeniu płatnego pilotażu przez autorkę.**
 V2: 57/60, ale 15/18 poprawnych no_tool; V0: 42/60 i 18/18 no_tool.
@@ -202,14 +207,6 @@ nadal wymaga zamknięcia pozostałych luk; T012 jest wstrzymane.
 
 ## Kolejne zadania
 
-- [ ] **T027 — mała diagnostyka warstwy IR-1.**
-  Stan: **gotowe do przygotowania offline; wykonanie czeka na zgodę na konkretny plan**. Przygotować świeże
-  V4 kontra IR-1 na 12 ustalonych przypadkach, 3 rundy, do 72 SDK.
-  Przejrzeć nowe etykiety faktów, zamrozić payloady i runtime, sprawdzić
-  model/cennik i policzyć koszt. Osobna zgoda poprzedza wykonanie.
-  Gotowe po pomiarze, raporcie IR1-D1 i decyzji; wynik negatywny także
-  zamyka eksperyment. Bez selective resume i automatycznego wdrożenia.
-  Diagnostyka nie zalicza ACC; T010/T013 i kontrola aktywnego V0 pozostają.
 - [ ] **T020 — projekt obsługi wielu celów żywieniowych.**
   Stan: **gotowe do rozpoczęcia**; podstawa: DEC-11 / INS-07.
   Zaprojektować m.in. low_kcal + keto: znaczenie łącznego spełnienia,

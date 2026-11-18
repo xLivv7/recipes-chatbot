@@ -4,9 +4,9 @@ Nawigacja: [specyfikacja](spec.md) · [kryteria](acceptance.md) ·
 [plan](plan.md) · [zadania](tasks.md).
 
 Data: 2026-10-22<br>
-Aktualizacja: 2026-11-18, T026<br>
-Status: mapa dowodów częściowych; ostatnia pełna regresja 347/347,
-bez pomiaru modelu w T026 i bez zaliczenia ACC.
+Aktualizacja: 2026-11-18, T027<br>
+Status: mapa dowodów częściowych. Ostatnia pełna regresja 366/366.
+T027 pozostaje negatywnym pomiarem 72 SDK; brak zaliczenia ACC.
 Punkt odniesienia opisuje [raport bazowy](../../docs/reports/baseline_2026-10-22.md).
 
 ## 1. Cel i sposób odczytu
@@ -652,6 +652,132 @@ akceptacji schematu przez usługę ani zaliczenie ACC. **Nie wdrożono IR-1
 jako domyślnego trybu i nie rozpoczęto T027.** Następne jest przygotowanie
 osobnej diagnostyki V4/IR-1 i planu do zatwierdzenia. T009/T012 pozostają
 wstrzymane przez autorkę.
+
+### T027 — diagnostyka zakończona
+
+Po osobnym zatwierdzeniu planu b2fc0dad3729… i progu 0,50 USD wykonano
+72/72 żądania, 72 odpowiedzi i unikatowe request IDs, bez API/metadanych
+błędów lub retry/resume. Jeden resolved model gpt-4o-mini-2024-07-18.
+T027.2 i T027.3 zakończone 2026-11-18. **DEC-16: IR-1 nie kwalifikuje się
+według IR1-D1, pozostawić domyślny legacy/V0.**
+
+| Wynik | V4 | IR-1 |
+| --- | ---: | ---: |
+| Raw: poprawne łącznie | 26/36 | 22/36 |
+| Raw: obsługiwane prośby | 20/27 | 19/27 |
+| Raw: no_tool | 6/9 | 3/9 |
+| Raw: stabilne przypadki 3/3 | 8/12 | 6/12 |
+| Replay: poprawne łącznie | 29/36 | 25/36 |
+| Replay: błędny symulowany dispatch | 4 | 11 |
+
+Wszystkie 36 odpowiedzi IR-1 przeszły protokół, schemat i kontrolę source;
+request_kind poprawny 36/36, dokładny zbiór faktów tylko 19/36. Względem
+świeżego V4 pięć regresji per-case. intent_004 ma 0/3 przez pominiętą
+kategorię deser; pozostałe cele intent_003/032 i v5_diag_004 mają 3/3.
+Model pomijał też lunch/low_kcal, zastępował wymagane mięso przy vegan
+przez waived wykluczenie i bezmleczność przez lactose. To porażki semantyki
+i decyzji, bez awarii kanału. Nie naprawiano tych wyników po pomiarze.
+
+[Pełny raport](../../docs/reports/t027_interpretation_2026-11-18.md) zawiera
+wszystkie 12 ID, dziewięć warunków IR1-D1, porażki, ekstrakcję, warunkowe
+pola i ograniczenia. Referencyjny koszt bez cache z usage **0,026496 USD**:
+160416 tokenów wejścia i 4056 wyjścia. Rezerwa 0,1637217 USD, zatwierdzony
+próg 0,50 USD. To wyliczenie referencyjne, nie odczyt faktury.
+
+[Surowe odpowiedzi i oceny](../../dokumentacja%20pracy/2026-11-18_t027/campaign/results.json),
+[porównanie](../../dokumentacja%20pracy/2026-11-18_t027/campaign/comparison.json),
+[rezerwacje i stan](../../dokumentacja%20pracy/2026-11-18_t027/campaign/state.json).
+[Powtórne przeliczenie offline](../../dokumentacja%20pracy/2026-11-18_t027/measurement_audit.json)
+odtworzyło wszystkie oceny z odpowiedzi dostawcy, potwierdziło hash zgody,
+72 rezerwacje i brak zmian źródeł/payloadów przed i podczas pomiaru.
+Nie wykonało SDK ani bazy. [Hashe całego zakończonego pakietu](../../dokumentacja%20pracy/2026-11-18_t027/completed_campaign_hashes.json)
+zachowują wyniki i zamrożone wejścia; nie łączono ich z dawnymi kampaniami.
+
+Replay korzysta z tych samych odpowiedzi, bez dodatkowego SDK i backendu;
+11 oznacza symulowany dispatch, a realny backend=0. Nie oceniono jakości
+przepisów lub rekomendacji od A do Z. Żadne ACC nie jest zaliczone.
+Wynik negatywny kończy T027; następny projekt T028 dotyczy kompletności
+ekstrakcji offline. Brak nowego wariantu/API lub automatycznego wdrożenia.
+T009/T012 pozostają wstrzymane.
+
+[Końcowy audyt dokumentacji i zakresu](../../dokumentacja%20pracy/2026-11-18_t027/final_review.json)
+sprawdza zachowanie pakietu i 150 plików chronionych. Dokumenty SDD
+zaktualizowano po pomiarze; ich bieżące hashe różnią się od historycznych
+frozen_inputs. Stary plan nie służy ponownemu wykonaniu na nowym stanie.
+Pełny wynik kodu pozostaje 366/366; nie powtarzano testów dla samego raportu.
+
+### T027 — przygotowanie diagnostyki zakończone
+
+Stan historyczny przed zgodą, 2026-11-18: **T027.1 wykonane; T027.2
+oczekiwało na zgodę, T027.3 na wyniki.** Pomiar zakończono następnie,
+jak opisano powyżej. Poniżej zachowano zakres przygotowania.
+T026 zapisano w commicie c20a118. [Wykonawca](../../evals/run_interpretation_diagnostic.py)
+realizuje przygotowanie i kontrolowane wykonanie IR1-D1, bez podmiany
+aktywnego legacy/V0. Projekt, instrukcje, schematy i etykiety zachowano.
+[Szczegóły protokołu](plan.md#19-t027--diagnostyka-v4ir-1).
+
+| Artefakt | Znaczenie |
+| --- | --- |
+| [plan.json](../../dokumentacja%20pracy/2026-11-18_t027/campaign/plan.json) | Reguła, konfiguracje, ceny, 72 SDK, rezerwa, proponowany próg i hashe źródeł/runtime. Wymaga osobnej zgody na dokładny hash i budżet. |
+| [payloads.json](../../dokumentacja%20pracy/2026-11-18_t027/campaign/payloads.json) | 24 pełne żądania: 12 kontrolowanych zapytań × V4/IR1. Wyłącznie prompt, zapytanie, schemat i konfiguracja. Bez gold, danych bazy i rzeczywistych rozmów. |
+| [cases.json](../../dokumentacja%20pracy/2026-11-18_t027/campaign/cases.json) | Te same 12 zapytań i expected z T025/T023; nowe etykiety faktów są tylko lokalną podstawą oceny. |
+| [annotation_review.json](../../dokumentacja%20pracy/2026-11-18_t027/campaign/annotation_review.json) | Jawny przegląd Codex: request_kind, kompletność faktów, źródła, dziewięć tool/trzy no_tool i zgodność kompilacji. To nie niezależna anotacja ani nowy holdout. |
+| [schedule.json](../../dokumentacja%20pracy/2026-11-18_t027/campaign/schedule.json) | Trzy rundy A/B, B/A, A/B, po 12 przypadków. Każdy slot ma dokładnie jedno SDK. |
+| [model_access.json](../../dokumentacja%20pracy/2026-11-18_t027/model_access.json) | Jeden rzeczywisty GET /v1/models/gpt-4o-mini potwierdził widoczność aliasu, bez generacji. Nie dowodzi salda lub powodzenia przyszłej generacji. |
+| [state.json](../../dokumentacja%20pracy/2026-11-18_t027/campaign/state.json) | Obecnie końcowy stan pomiaru. Przy przygotowaniu: prepared, 0 prób/odpowiedzi/rezerwacji, brak zgody; potwierdza to scope_checks.json przygotowania. |
+
+SHA-256 planu do zatwierdzenia:
+`b2fc0dad372996b2f5c2b45d7fe27c61b12db08eb563755e35f8e23486291477`.
+
+Rezerwa **0,1637217 USD**, proponowany lokalny próg **0,50 USD**, limit
+odpowiedzi 1024, retry SDK=0, timeout=30 s. Ceny 0,15/0,60 USD za milion
+tokenów wejścia/wyjścia sprawdzono 2026-11-18 przez OpenAI Docs:
+[model](https://developers.openai.com/api/docs/models/gpt-4o-mini),
+[function calling](https://developers.openai.com/api/docs/guides/function-calling).
+Rezerwa wykorzystuje bajtowy proxy wejścia z narzutem i pełny limit wyjścia,
+bez cache. To kontrola szacunku, nie gwarancja rachunku; podatki i inne
+użycie konta są poza nią. Widoczność sprawdzamy ponownie przy przygotowaniu
+nowego planu, jeżeli od potwierdzenia miną 24 godziny.
+
+Główna ocena dotyczy raw decyzji i końcowych parametrów. Z jednej odpowiedzi
+powstaje także zależny replay aplikacji, bez dodatkowego SDK i katalogu.
+Rzeczywiste backend_calls=0; simulated_backend_calls opisuje odtworzony
+dispatch. Jedna prośba no_tool blokowana w application ma jawnie planowany
+raw. Poprawna blokada nie zalicza modelowi błędnej interpretacji.
+Nie są to dwa niezależne pomiary; V4 pozostaje kontrolą diagnostyczną.
+
+Fakty oceniamy przez request_kind i zbiór kind/value/status. Cytat musi
+przejść walidację dokładnego fragmentu bieżącej wiadomości; inne poprawne
+granice source lub powtórzenia faktu nie są błędami. Pola końcowe są
+nieadekwatne dla no_search i błędnych pakietów. Wymuszony call nie zalicza
+decyzji, a formalnie poprawne pominięcie nadal daje porażkę semantyczną.
+
+[19 metod testowych](../../tests/test_interpretation_diagnostic.py) obejmuje:
+zamrożenie i brak SDK/bazy przy przygotowaniu, zgodę przed klientem,
+zmienione/rehaszowane payloady i etykiety, źródła/runtime/regułę, 72 żądania
+bez dublowania replay, rezerwację przed SDK, awarię zapisu przed wysłaniem,
+próg kosztu, zakaz resume, pierwszy błąd API/metadanych w obu ramionach,
+niezgodny resolved model, kontynuację po złym callu IR, pominięte fakty,
+błędne źródło bez defaultów/dispatch, ocenę faktów, remis i regresje IR1-D1,
+odrzucenie edytowanych ocen oraz zgodność replay z rzeczywistym main.
+
+Pełna regresja: **366 testów, 0 niepowodzeń, 0 błędów, 0 pominięć**.
+[Wynik](../../dokumentacja%20pracy/2026-11-18_t027/full.json),
+[log](../../dokumentacja%20pracy/2026-11-18_t027/full.log),
+[harness](../../dokumentacja%20pracy/2026-11-18_t027/run_tests.py).
+Rzeczywiste żądania OpenAI i zapisy katalogu były zablokowane, 0 prób.
+Wykonano 35 SELECT PostgreSQL i operacje tylko we własnej SQLite w pamięci:
+8 CREATE, 8 INSERT, 19 SELECT, 2 UPDATE. Poza harness wykonano wyłącznie
+jeden GET metadanych. **Generacje T027: 0.** Testowe przebiegi mają mock,
+is_model_measurement=false i actual_model_requests=0.
+
+[Kontrola zakresu](../../dokumentacja%20pracy/2026-11-18_t027/scope_checks.json)
+sprawdza 150 plików chronionych, dawny kandydat T026 i pakiety T021/T023,
+brak zmian runtime/promptów/schematów/gold, zgodność zamrożenia i stan 0 API.
+[Kontrola dokumentacji](../../dokumentacja%20pracy/2026-11-18_t027/documentation_checks.json)
+sprawdza odnośniki i rozdzielenie etapów. Na etapie przygotowania nie
+uruchomiono pomiaru ani nie oceniono H-IR1/IR1-D1 na modelu. T027 było
+w toku. Późniejszy pomiar i DEC-16 są powyżej; T009/T012 nadal wstrzymane.
 
 ### Audyt instrukcji — część T017, 2026-11-16
 

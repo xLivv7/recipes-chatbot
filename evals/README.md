@@ -116,9 +116,53 @@ poprawności semantycznej. Przykłady T025 i testy nie są pomiarem LLM.
 
 Wyniki 347/347, zamrożony kandydat i pokrycie IRC:
 [T026](../specs/001-mvp-stabilization/verification.md#t026--implementacja-ir-1-offline-zakończona).
-Istniejące runnery V4/V5 nie wykonują trybu IR-1. T027 wymaga osobnego
-wykonawcy i świeżego planu V4/IR-1, przeglądu adnotacji, payloadów,
-kosztorysu oraz zgody przed płatnym pomiarem. Samo T026 nie uruchamia T027.
+Istniejące runnery V4/V5 nie wykonują trybu IR-1. T027 ma osobnego
+wykonawcę i świeży plan V4/IR-1 z przeglądem adnotacji, payloadami oraz
+kosztorysem, opisany poniżej. Płatny pomiar wymaga zgody na ten plan.
+
+## T027 — diagnostyka V4/IR-1
+
+**T027 zakończone 2026-11-18:** 72/72 SDK po osobnej zgodzie, IR-1 nie
+kwalifikuje się według IR1-D1 (DEC-16). Raw 22/36 wobec V4 26/36,
+replay 25/36 wobec 29/36; koszt referencyjny bez cache 0,026496 USD.
+Domyślny legacy/V0 pozostaje. [Raport](../docs/reports/t027_interpretation_2026-11-18.md).
+[Protokół i reguła IR1-D1](../specs/001-mvp-stabilization/plan.md#19-t027--diagnostyka-v4ir-1),
+[dowody](../specs/001-mvp-stabilization/verification.md#t027--diagnostyka-zakończona).
+Nowy wykonawca zachowuje T026 i historyczne runnery. Poniższe polecenia
+opisują procedurę dla nowego katalogu; nie wznawiają wcześniejszych pomiarów.
+
+```powershell
+venv\Scripts\python.exe evals\run_interpretation_diagnostic.py --check-model --output "dokumentacja pracy\NOWE_T027_model_access.json"
+venv\Scripts\python.exe evals\run_interpretation_diagnostic.py --prepare --model-access "dokumentacja pracy\NOWE_T027_model_access.json" --output "dokumentacja pracy\NOWE_T027"
+```
+
+check-model wykonuje jeden GET metadanych, bez generacji. Prepare działa
+offline i wymaga potwierdzenia widoczności młodszego niż 24 godziny.
+Zapisuje 24 pełne payloady, 12 przypadków z adnotacjami po przeglądzie,
+harmonogram 72 SDK, źródła/runtime i kosztorys. Nie nadpisuje katalogu.
+Rezerwa wykonanego planu wynosiła 0,1637217 USD, zatwierdzony lokalny próg 0,50 USD;
+jest to kontrola szacunku, nie gwarancja rachunku. Brak zgody na koszt
+w prepared. Zakończonego pakietu nie wznawiać; T009/T012 nadal są wstrzymane.
+
+Dopiero po zatwierdzeniu konkretnego planu, payloadów i progu:
+
+```powershell
+venv\Scripts\python.exe evals\run_interpretation_diagnostic.py --execute --output "dokumentacja pracy\NOWE_T027" --approved-plan-sha256 PELNY_ZATWIERDZONY_HASH --approved-budget-usd 0.50
+```
+
+Wykonawca sprawdza hashe/semantykę/runtime przed klientem i rezerwuje koszt
+przed każdym żądaniem. Wspólne gpt-4o-mini, 1024 tokeny, retry=0, timeout=30 s.
+Jedna odpowiedź daje raw ocenę i zależny application_replay bez drugiego
+SDK lub katalogu. Symulowany dispatch jest opisany jako simulated_backend_calls;
+actual_backend_calls=0. Raport zachowuje provider_response i przelicza oceny,
+odróżnia fakty, kanał, decyzję i parametry. Pierwsza awaria API/metadanych
+lub zmiana resolved model przerywa przebieg; zwykłe błędy interpretacji
+pozostają oceną i nie są ponawiane. Brak selective resume.
+
+Symulacja ma execution_kind=mock, is_model_measurement=false i
+actual_model_requests=0. Nawet kwalifikujący wynik diagnostyczny nie włącza
+IR-1, nie zmienia aktywnego V0 i nie zalicza ACC. T027 kończy się raportem
+i decyzją także przy wyniku negatywnym; pełna kwalifikacja to T010/T013.
 
 ## Płatne pomiary i zachowanie raportów
 
