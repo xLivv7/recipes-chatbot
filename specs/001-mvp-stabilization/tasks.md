@@ -196,9 +196,15 @@ Pozostałe stany: **gotowe do rozpoczęcia**, **w toku**, **oczekuje na zależno
   [Projekt](interpretation-completeness.md),
   [dowody](verification.md#t028--projekt-cmp-1-zakończony).
 
+- [x] **T029 — implementacja CMP-1 i replay offline.**
+  Tryb wewnętrzny `facts_checked_v1` zatrzymał 14 błędnych propozycji wyszukania,
+  w tym 11 przechodzących przez preflight. Zero nowych blokad poprawnych
+  wyników na 36 zapisanych odpowiedziach. Pełna regresja 372/372.
+  [Raport T029](../../docs/reports/t029_completeness_2026-11-18.md).
+
 ## Najbliższe zadanie
 
-**T029 — implementacja CMP-1 i replay offline.** T007 i T011 również są gotowe do rozpoczęcia.
+**T020 — projekt obsługi wielu celów żywieniowych.** T007 i T011 również są gotowe do rozpoczęcia.
 
 **T009P zakończone po zatwierdzeniu płatnego pilotażu przez autorkę.**
 V2: 57/60, ale 15/18 poprawnych no_tool; V0: 42/60 i 18/18 no_tool.

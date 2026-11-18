@@ -116,23 +116,25 @@ def run_recommendation_tool(function_args: dict) -> dict:
 
 def chat_with_bot(user_message: str, brand_name: str, *, interpretation_mode="legacy",
                   interpretation_client=None, diagnostics=None) -> str:
-    if interpretation_mode not in {"legacy", "facts_v1"}:
+    facts_mode = interpretation_mode in {"facts_v1", "facts_checked_v1"}
+    checked = interpretation_mode == "facts_checked_v1"
+    if not facts_mode and interpretation_mode != "legacy":
         raise ValueError("Unknown interpretation mode")
-    if interpretation_client is not None and interpretation_mode != "facts_v1":
-        raise ValueError("An interpretation client requires facts_v1")
+    if interpretation_client is not None and not facts_mode:
+        raise ValueError("An interpretation client requires a facts mode")
     trace = diagnostics if diagnostics is not None else {}
     trace.clear()
-    if interpretation_mode == "facts_v1":
-        trace.update(empty_diagnostics())
+    if facts_mode:
+        trace.update(empty_diagnostics(checked))
     if mentions_unsupported_allergy(user_message):
-        if interpretation_mode == "facts_v1":
+        if facts_mode:
             trace.update(guard="allergy", effective_action="no_tool")
         return UNSUPPORTED_ALLERGY_RESPONSE
     if mentions_unsupported_exclusion(user_message):
-        if interpretation_mode == "facts_v1":
+        if facts_mode:
             trace.update(guard="exclusion", effective_action="no_tool")
         return UNSUPPORTED_EXCLUSION_RESPONSE
-    if interpretation_mode == "facts_v1":
+    if facts_mode:
         try:
             request = build_interpretation_request(user_message, brand_name)
         except InterpretationConfigurationError as exc:
@@ -142,9 +144,9 @@ def chat_with_bot(user_message: str, brand_name: str, *, interpretation_mode="le
             return INVALID_TOOL_RESPONSE
         if interpretation_client is None:
             with OpenAI(**CLIENT_CONFIGURATION) as owned_client:
-                outcome = execute_interpretation_request(owned_client, user_message, request)
+                outcome = execute_interpretation_request(owned_client, user_message, request, checked=checked)
         else:
-            outcome = execute_interpretation_request(interpretation_client, user_message, request)
+            outcome = execute_interpretation_request(interpretation_client, user_message, request, checked=checked)
         trace.update(outcome.diagnostics)
         if outcome.action == "error":
             return API_ERROR_RESPONSE if trace["failure_stage"] == "api" else INVALID_TOOL_RESPONSE
@@ -184,12 +186,12 @@ def chat_with_bot(user_message: str, brand_name: str, *, interpretation_mode="le
             logging.getLogger(__name__).warning("Invalid recipe tool arguments")
             return INVALID_TOOL_RESPONSE
     try:
-        if interpretation_mode == "facts_v1":
+        if facts_mode:
             trace["backend_calls"] = 1
         function_result = run_recommendation_tool(function_args)
         return render_recommendations(function_result, brand_name)
     except RecommendationDataError as exc:
-        if interpretation_mode == "facts_v1":
+        if facts_mode:
             trace.update(effective_action="error", failure_stage="dispatch")
         logging.getLogger(__name__).warning(
             'Recommendation data failure: reason=%s recipe=%s concept=%s sku=%s',
@@ -197,7 +199,7 @@ def chat_with_bot(user_message: str, brand_name: str, *, interpretation_mode="le
         )
         return "Nie udało się przygotować przepisów z powodu niespójnych danych. Spróbuj ponownie później."
     except ResponsePayloadError:
-        if interpretation_mode == "facts_v1":
+        if facts_mode:
             trace.update(effective_action="error", failure_stage="render")
         logging.getLogger(__name__).exception("Invalid recommendation response payload")
         return "Nie udało się wyświetlić przepisów z powodu niespójnych danych. Spróbuj ponownie później."

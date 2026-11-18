@@ -1,7 +1,7 @@
 # Specyfikacja — stabilizacja istniejącego MVP
 
 Data: 2026-10-22<br>
-Wersja dokumentu: 0.27; T028 zakończone: 2026-11-18<br>
+Wersja dokumentu: 0.28; T029 zakończone: 2026-11-18<br>
 Status: zakres, progi i DEC-01–03 zatwierdzone; wymagania integralności
 i błędów wdrożone w T006; protokół T008 opracowany. Pięć SKU pozostaje wstrzymanych.
 
@@ -931,6 +931,14 @@ T029 ma wykonać implementację offline i replay T027, bez SDK. Ochrona
 aplikacji nie podnosi historycznej oceny rozpoznawania modelu. Nie
 zmieniono runtime ani danych; T009/T012 nadal wstrzymane.
 
+### T029 — kontrola przed wyszukiwaniem w trybie wewnętrznym
+
+Tryb `facts_checked_v1` sprawdza kategorię, cel, białko i wybrane wykluczenia
+po kompilacji IR-1. Wykryte pominięcie lub nierozstrzygnięty operator przy
+proponowanym wyszukaniu kończy zapytanie komunikatem MSG-06. Na 36 odpowiedziach
+z T027 aplikacja zatrzymała wszystkie 11 wcześniej błędnych wyszukiwań
+i zachowała 25 poprawnych wyników. [Raport T029](../../docs/reports/t029_completeness_2026-11-18.md).
+
 ## 6. Granice obsługi
 
 Ograniczenia bez glutenu i bez laktozy oznaczają zgodność z udokumentowaną
@@ -1001,7 +1009,7 @@ aplikacji. T026 zaimplementowało projekt offline: walidację faktów,
 kompilator reguł i adapter w wewnętrznym trybie facts_v1. Pełna regresja
 347/347 na atrapach nie jest pomiarem modelu. Domyślny tryb to nadal
 legacy/V0. T027 zakończyło zatwierdzony pomiar i przegląd z wynikiem
-negatywnym (DEC-16). T028 zakończyło projekt CMP-1. Następny T029 to implementacja i replay offline. T020 jest gotowe do rozpoczęcia.
+negatywnym (DEC-16). T029 zakończyło implementację i weryfikację CMP-1. T020 jest gotowe do rozpoczęcia.
 T007 i T011 pozostają gotowymi zadaniami stabilizacyjnymi.
 Kolejność opisuje [plan](plan.md), a stan prac
 [zadania](tasks.md). Nie uruchamiamy ponownie wykonanych etapów na podstawie

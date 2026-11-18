@@ -4,8 +4,9 @@ Nawigacja: [specyfikacja](spec.md) · [kryteria](acceptance.md) ·
 [plan](plan.md) · [zadania](tasks.md).
 
 Data: 2026-10-22<br>
-Aktualizacja: 2026-11-18, T028<br>
-Status: mapa dowodów częściowych. Ostatnia pełna regresja 366/366.
+Aktualizacja: 2026-11-18, T029<br>
+Status: mapa dowodów częściowych. Ostatnia pełna regresja 372/372.
+T029 potwierdziło działanie CMP-1 na zapisanych odpowiedziach w trybie wewnętrznym.
 T027 pozostaje negatywnym pomiarem 72 SDK; brak zaliczenia ACC.
 Punkt odniesienia opisuje [raport bazowy](../../docs/reports/baseline_2026-10-22.md).
 
@@ -832,6 +833,18 @@ schematy runtime, model, katalog i wyniki dawnych kampanii bez zmian.
 Ostatnia pełna regresja to **366/366 z T027**, nie powtarzana dla projektu.
 T028 zakończone; T029 gotowe do implementacji i replay offline, bez
 nowych płatnych wywołań. Brak wdrożenia/ACC; T009/T012 nadal wstrzymane.
+
+### T029 — weryfikacja implementacji CMP-1
+
+| Wymagania | Dowód |
+| --- | --- |
+| CMP-01–06, CMP-09 | Czysta funkcja po walidacji i kompilacji. 35 kontrastów CMP-1 sprawdza status i blokadę. Porównanie po usunięciu faktów ujawnia rozpoznane frazy. Testy obejmują duplikaty, kolejność, dosłowne źródła i brak mutacji parametrów. |
+| CMP-07–08 | W trybie sprawdzanym błędny JSON lub source kończy się przed CMP. MSG-06 dla blokady zachowuje poprawność protokołu i zerowy licznik backendu. Sprawdzono priorytet alergii, pięć próśb T024 i zachowanie 35 przykładów IR-1. |
+| CMP-10–11 | Replay pełnych odpowiedzi T027 przez adapter i aplikację. 14 błędnych propozycji oraz 11 błędnych wywołań backendu zatrzymanych, zero fałszywych blokad na zbiorze. Błąd ma nieadekwatne pola i nie zwiększa wyniku intencji. |
+| CMP-12 | 372/372 testy, zero pominięć, żądań SDK i zapisów do katalogu. Domyślny tryb legacy/V0. |
+
+[Testy](../../tests/test_interpretation_completeness.py) ·
+[Raport, odtworzenie i wyniki jednostkowe](../../docs/reports/t029_completeness_2026-11-18.md).
 
 ### Audyt instrukcji — część T017, 2026-11-16
 

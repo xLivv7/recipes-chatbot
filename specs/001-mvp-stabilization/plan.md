@@ -1,7 +1,8 @@
 # Plan — stabilizacja istniejącego MVP
 
 Status na 2026-11-18: T026 i pomiar/przegląd T027 zakończone.
-DEC-16 odrzuca IR-1. Domyślny tryb pozostaje legacy/V0.
+DEC-16 odrzuca IR-1. T029 zakończyło implementację CMP-1 i replay offline
+w trybie wewnętrznym. Domyślny tryb pozostaje legacy/V0.
 T009 i T012 pozostają wstrzymane przez autorkę.
 Zakres i decyzje: [spec.md](spec.md). Warunki ukończenia: [acceptance.md](acceptance.md).
 Szczegółowe zadania i ich stan: [tasks.md](tasks.md).
@@ -1038,7 +1039,8 @@ To projekt: bez nowego schematu/promptu, kodu runtime, SDK i bazy.
 
 ## 21. T029 — implementacja CMP-1 i replay offline
 
-**Gotowe do rozpoczęcia.** Podstawa: DEC-17, CMP-01–12 i kontrasty T028.
+**Zakończono 2026-11-18.** Zrealizowano poniższy plan dla DEC-17 i CMP-01–12.
+Wyniki jednostkowe i ograniczenia opisuje [raport T029](../../docs/reports/t029_completeness_2026-11-18.md).
 
 1. Dodać czysty kontroler z zamkniętymi słownikami/operatorami CMP-1.
    Zachować oryginalne źródła przy normalizacji znaków, granice słów,
