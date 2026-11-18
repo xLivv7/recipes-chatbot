@@ -1,0 +1,2051 @@
+{
+  "policy_version": "CMP-1",
+  "wire_contract_version": "IR-1",
+  "status": "design_annotations_not_detector_results",
+  "source": "T028; T027 queries, labels and provider interpretations remain unchanged.",
+  "evaluation_scope": "After IR validation and tentative compilation, before dispatch; application preflight retains priority.",
+  "annotation_warning": "annotated_cues and expected are local test labels, never runtime inputs or model payloads.",
+  "cases": [
+    {
+      "id": "CMC-01",
+      "name": "T027 correct facts: intent_003",
+      "user_message": "obiad z dużą ilością białka",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": [
+          {
+            "kind": "category",
+            "value": "obiad",
+            "status": "required",
+            "source": "obiad"
+          },
+          {
+            "kind": "nutrition_goal",
+            "value": "high_protein",
+            "status": "required",
+            "source": "dużą ilością białka"
+          }
+        ]
+      },
+      "annotated_cues": [
+        {
+          "rule_id": "CMP-CAT",
+          "source": "obiad",
+          "expected_signature": [
+            "category",
+            "obiad",
+            "required"
+          ]
+        },
+        {
+          "rule_id": "CMP-GOAL",
+          "source": "z dużą ilością białka",
+          "expected_signature": [
+            "nutrition_goal",
+            "high_protein",
+            "required"
+          ]
+        }
+      ],
+      "annotated_unresolved_scope": false,
+      "expected": {
+        "proposed_action": "search",
+        "proposed_arguments": {
+          "diet": "none",
+          "protein_preference": "none",
+          "restrictions": [],
+          "nutrition_goal": "high_protein",
+          "category": "obiad",
+          "top_n": 3
+        },
+        "completeness_status": "consistent",
+        "block_search": false,
+        "effective_action": "tool",
+        "message_id": "renderer"
+      },
+      "known_limitation": null
+    },
+    {
+      "id": "CMC-02",
+      "name": "T027 correct facts: intent_004",
+      "user_message": "deser bez mięsa",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": [
+          {
+            "kind": "category",
+            "value": "deser",
+            "status": "required",
+            "source": "deser"
+          },
+          {
+            "kind": "exclusion",
+            "value": "meat",
+            "status": "required",
+            "source": "bez mięsa"
+          }
+        ]
+      },
+      "annotated_cues": [
+        {
+          "rule_id": "CMP-CAT",
+          "source": "deser",
+          "expected_signature": [
+            "category",
+            "deser",
+            "required"
+          ]
+        },
+        {
+          "rule_id": "CMP-EXCL",
+          "source": "bez mięsa",
+          "expected_signature": [
+            "exclusion",
+            "meat",
+            "required"
+          ]
+        }
+      ],
+      "annotated_unresolved_scope": false,
+      "expected": {
+        "proposed_action": "search",
+        "proposed_arguments": {
+          "diet": "vegetarian",
+          "protein_preference": "none",
+          "restrictions": [],
+          "nutrition_goal": "standard",
+          "category": "deser",
+          "top_n": 3
+        },
+        "completeness_status": "consistent",
+        "block_search": false,
+        "effective_action": "tool",
+        "message_id": "renderer"
+      },
+      "known_limitation": null
+    },
+    {
+      "id": "CMC-03",
+      "name": "T027 correct facts: intent_015",
+      "user_message": "lekka kolacja wegetariańska do pół godziny",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": [
+          {
+            "kind": "nutrition_goal",
+            "value": "low_kcal",
+            "status": "required",
+            "source": "lekka"
+          },
+          {
+            "kind": "category",
+            "value": "kolacja",
+            "status": "required",
+            "source": "kolacja"
+          },
+          {
+            "kind": "diet",
+            "value": "vegetarian",
+            "status": "required",
+            "source": "wegetariańska"
+          },
+          {
+            "kind": "time_limit",
+            "value": 30,
+            "status": "required",
+            "source": "do pół godziny"
+          }
+        ]
+      },
+      "annotated_cues": [
+        {
+          "rule_id": "CMP-CAT",
+          "source": "kolacja",
+          "expected_signature": [
+            "category",
+            "kolacja",
+            "required"
+          ]
+        },
+        {
+          "rule_id": "CMP-GOAL",
+          "source": "lekka",
+          "expected_signature": [
+            "nutrition_goal",
+            "low_kcal",
+            "required"
+          ]
+        }
+      ],
+      "annotated_unresolved_scope": false,
+      "expected": {
+        "proposed_action": "search",
+        "proposed_arguments": {
+          "diet": "vegetarian",
+          "protein_preference": "none",
+          "restrictions": [],
+          "nutrition_goal": "low_kcal",
+          "category": "kolacja",
+          "top_n": 3,
+          "time_max": 30
+        },
+        "completeness_status": "consistent",
+        "block_search": false,
+        "effective_action": "tool",
+        "message_id": "renderer"
+      },
+      "known_limitation": null
+    },
+    {
+      "id": "CMC-04",
+      "name": "T027 correct facts: intent_025",
+      "user_message": "coś na szybko, wegańskie",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": [
+          {
+            "kind": "quick",
+            "value": "quick",
+            "status": "required",
+            "source": "na szybko"
+          },
+          {
+            "kind": "diet",
+            "value": "vegan",
+            "status": "required",
+            "source": "wegańskie"
+          }
+        ]
+      },
+      "annotated_cues": [],
+      "annotated_unresolved_scope": false,
+      "expected": {
+        "proposed_action": "search",
+        "proposed_arguments": {
+          "diet": "vegan",
+          "protein_preference": "none",
+          "restrictions": [],
+          "nutrition_goal": "standard",
+          "category": "kolacja",
+          "top_n": 3,
+          "time_max": 30
+        },
+        "completeness_status": "no_supported_cues",
+        "block_search": false,
+        "effective_action": "tool",
+        "message_id": "renderer"
+      },
+      "known_limitation": null
+    },
+    {
+      "id": "CMC-05",
+      "name": "T027 correct facts: intent_032",
+      "user_message": "proszę o 4 pomysły na kolację pescetariańską",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": [
+          {
+            "kind": "result_count",
+            "value": 4,
+            "status": "required",
+            "source": "4 pomysły"
+          },
+          {
+            "kind": "category",
+            "value": "kolacja",
+            "status": "required",
+            "source": "kolację"
+          },
+          {
+            "kind": "diet",
+            "value": "pescetarian",
+            "status": "required",
+            "source": "pescetariańską"
+          }
+        ]
+      },
+      "annotated_cues": [
+        {
+          "rule_id": "CMP-CAT",
+          "source": "kolację",
+          "expected_signature": [
+            "category",
+            "kolacja",
+            "required"
+          ]
+        }
+      ],
+      "annotated_unresolved_scope": false,
+      "expected": {
+        "proposed_action": "search",
+        "proposed_arguments": {
+          "diet": "pescetarian",
+          "protein_preference": "none",
+          "restrictions": [],
+          "nutrition_goal": "standard",
+          "category": "kolacja",
+          "top_n": 4
+        },
+        "completeness_status": "consistent",
+        "block_search": false,
+        "effective_action": "tool",
+        "message_id": "renderer"
+      },
+      "known_limitation": null
+    },
+    {
+      "id": "CMC-06",
+      "name": "T027 correct facts: v5_diag_004",
+      "user_message": "Na wieczór poproszę danie bez mięsa, ale koniecznie rybne.",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": [
+          {
+            "kind": "category",
+            "value": "kolacja",
+            "status": "required",
+            "source": "Na wieczór"
+          },
+          {
+            "kind": "exclusion",
+            "value": "meat",
+            "status": "required",
+            "source": "bez mięsa"
+          },
+          {
+            "kind": "protein",
+            "value": "fish",
+            "status": "required",
+            "source": "koniecznie rybne"
+          }
+        ]
+      },
+      "annotated_cues": [
+        {
+          "rule_id": "CMP-EXCL",
+          "source": "bez mięsa",
+          "expected_signature": [
+            "exclusion",
+            "meat",
+            "required"
+          ]
+        },
+        {
+          "rule_id": "CMP-PROT",
+          "source": "koniecznie rybne",
+          "expected_signature": [
+            "protein",
+            "fish",
+            "required"
+          ]
+        }
+      ],
+      "annotated_unresolved_scope": false,
+      "expected": {
+        "proposed_action": "search",
+        "proposed_arguments": {
+          "diet": "pescetarian",
+          "protein_preference": "fish",
+          "restrictions": [],
+          "nutrition_goal": "standard",
+          "category": "kolacja",
+          "top_n": 3
+        },
+        "completeness_status": "consistent",
+        "block_search": false,
+        "effective_action": "tool",
+        "message_id": "renderer"
+      },
+      "known_limitation": null
+    },
+    {
+      "id": "CMC-07",
+      "name": "T027 correct facts: v5_diag_008",
+      "user_message": "Chcę fit lunch bez glutenu.",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": [
+          {
+            "kind": "nutrition_goal",
+            "value": "low_kcal",
+            "status": "required",
+            "source": "fit"
+          },
+          {
+            "kind": "category",
+            "value": "lunch",
+            "status": "required",
+            "source": "lunch"
+          },
+          {
+            "kind": "exclusion",
+            "value": "gluten",
+            "status": "required",
+            "source": "bez glutenu"
+          }
+        ]
+      },
+      "annotated_cues": [
+        {
+          "rule_id": "CMP-CAT",
+          "source": "lunch",
+          "expected_signature": [
+            "category",
+            "lunch",
+            "required"
+          ]
+        },
+        {
+          "rule_id": "CMP-GOAL",
+          "source": "fit",
+          "expected_signature": [
+            "nutrition_goal",
+            "low_kcal",
+            "required"
+          ]
+        },
+        {
+          "rule_id": "CMP-EXCL",
+          "source": "bez glutenu",
+          "expected_signature": [
+            "exclusion",
+            "gluten",
+            "required"
+          ]
+        }
+      ],
+      "annotated_unresolved_scope": false,
+      "expected": {
+        "proposed_action": "search",
+        "proposed_arguments": {
+          "diet": "none",
+          "protein_preference": "none",
+          "restrictions": [
+            "gluten_free"
+          ],
+          "nutrition_goal": "low_kcal",
+          "category": "lunch",
+          "top_n": 3
+        },
+        "completeness_status": "consistent",
+        "block_search": false,
+        "effective_action": "tool",
+        "message_id": "renderer"
+      },
+      "known_limitation": null
+    },
+    {
+      "id": "CMC-08",
+      "name": "T027 correct facts: v5_diag_009",
+      "user_message": "Chcę fit lunch bez glutenu do 22 minut.",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": [
+          {
+            "kind": "nutrition_goal",
+            "value": "low_kcal",
+            "status": "required",
+            "source": "fit"
+          },
+          {
+            "kind": "category",
+            "value": "lunch",
+            "status": "required",
+            "source": "lunch"
+          },
+          {
+            "kind": "exclusion",
+            "value": "gluten",
+            "status": "required",
+            "source": "bez glutenu"
+          },
+          {
+            "kind": "time_limit",
+            "value": 22,
+            "status": "required",
+            "source": "do 22 minut"
+          }
+        ]
+      },
+      "annotated_cues": [
+        {
+          "rule_id": "CMP-CAT",
+          "source": "lunch",
+          "expected_signature": [
+            "category",
+            "lunch",
+            "required"
+          ]
+        },
+        {
+          "rule_id": "CMP-GOAL",
+          "source": "fit",
+          "expected_signature": [
+            "nutrition_goal",
+            "low_kcal",
+            "required"
+          ]
+        },
+        {
+          "rule_id": "CMP-EXCL",
+          "source": "bez glutenu",
+          "expected_signature": [
+            "exclusion",
+            "gluten",
+            "required"
+          ]
+        }
+      ],
+      "annotated_unresolved_scope": false,
+      "expected": {
+        "proposed_action": "search",
+        "proposed_arguments": {
+          "diet": "none",
+          "protein_preference": "none",
+          "restrictions": [
+            "gluten_free"
+          ],
+          "nutrition_goal": "low_kcal",
+          "category": "lunch",
+          "top_n": 3,
+          "time_max": 22
+        },
+        "completeness_status": "consistent",
+        "block_search": false,
+        "effective_action": "tool",
+        "message_id": "renderer"
+      },
+      "known_limitation": null
+    },
+    {
+      "id": "CMC-09",
+      "name": "T027 correct facts: v5_diag_010",
+      "user_message": "Poproszę bezlaktozowe śniadanie na szybko, do 50 minut.",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": [
+          {
+            "kind": "exclusion",
+            "value": "lactose",
+            "status": "required",
+            "source": "bezlaktozowe"
+          },
+          {
+            "kind": "category",
+            "value": "śniadanie",
+            "status": "required",
+            "source": "śniadanie"
+          },
+          {
+            "kind": "quick",
+            "value": "quick",
+            "status": "required",
+            "source": "na szybko"
+          },
+          {
+            "kind": "time_limit",
+            "value": 50,
+            "status": "required",
+            "source": "do 50 minut"
+          }
+        ]
+      },
+      "annotated_cues": [
+        {
+          "rule_id": "CMP-CAT",
+          "source": "śniadanie",
+          "expected_signature": [
+            "category",
+            "śniadanie",
+            "required"
+          ]
+        },
+        {
+          "rule_id": "CMP-EXCL",
+          "source": "bezlaktozowe",
+          "expected_signature": [
+            "exclusion",
+            "lactose",
+            "required"
+          ]
+        }
+      ],
+      "annotated_unresolved_scope": false,
+      "expected": {
+        "proposed_action": "search",
+        "proposed_arguments": {
+          "diet": "none",
+          "protein_preference": "none",
+          "restrictions": [
+            "lactose_free"
+          ],
+          "nutrition_goal": "standard",
+          "category": "śniadanie",
+          "top_n": 3,
+          "time_max": 50
+        },
+        "completeness_status": "consistent",
+        "block_search": false,
+        "effective_action": "tool",
+        "message_id": "renderer"
+      },
+      "known_limitation": null
+    },
+    {
+      "id": "CMC-10",
+      "name": "T027 correct facts: routing_005",
+      "user_message": "Jaka jest stolica Francji?",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "other",
+        "facts": []
+      },
+      "annotated_cues": [],
+      "annotated_unresolved_scope": false,
+      "expected": {
+        "proposed_action": "no_search",
+        "proposed_arguments": null,
+        "completeness_status": "not_applicable",
+        "block_search": false,
+        "effective_action": "no_tool",
+        "message_id": "MSG-01"
+      },
+      "known_limitation": null
+    },
+    {
+      "id": "CMC-11",
+      "name": "T027 correct facts: routing_006",
+      "user_message": "Chcę wegański obiad z mięsem, nie zamiennikiem.",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": [
+          {
+            "kind": "diet",
+            "value": "vegan",
+            "status": "required",
+            "source": "wegański"
+          },
+          {
+            "kind": "category",
+            "value": "obiad",
+            "status": "required",
+            "source": "obiad"
+          },
+          {
+            "kind": "protein",
+            "value": "meat",
+            "status": "required",
+            "source": "z mięsem, nie zamiennikiem"
+          }
+        ]
+      },
+      "annotated_cues": [
+        {
+          "rule_id": "CMP-CAT",
+          "source": "obiad",
+          "expected_signature": [
+            "category",
+            "obiad",
+            "required"
+          ]
+        },
+        {
+          "rule_id": "CMP-PROT",
+          "source": "z mięsem",
+          "expected_signature": [
+            "protein",
+            "meat",
+            "required"
+          ]
+        }
+      ],
+      "annotated_unresolved_scope": false,
+      "expected": {
+        "proposed_action": "no_search",
+        "proposed_arguments": null,
+        "completeness_status": "not_applicable",
+        "block_search": false,
+        "effective_action": "no_tool",
+        "message_id": "MSG-01"
+      },
+      "known_limitation": null
+    },
+    {
+      "id": "CMC-12",
+      "name": "T027 correct facts: v5_diag_012",
+      "user_message": "Wybierz bezmleczny lunch do 15 minut.",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": [
+          {
+            "kind": "unsupported",
+            "value": "exclusion",
+            "status": "required",
+            "source": "bezmleczny"
+          },
+          {
+            "kind": "category",
+            "value": "lunch",
+            "status": "required",
+            "source": "lunch"
+          },
+          {
+            "kind": "time_limit",
+            "value": 15,
+            "status": "required",
+            "source": "do 15 minut"
+          }
+        ]
+      },
+      "annotated_cues": [
+        {
+          "rule_id": "CMP-CAT",
+          "source": "lunch",
+          "expected_signature": [
+            "category",
+            "lunch",
+            "required"
+          ]
+        },
+        {
+          "rule_id": "CMP-EXCL",
+          "source": "bezmleczny",
+          "expected_signature": [
+            "unsupported",
+            "exclusion",
+            "required"
+          ]
+        }
+      ],
+      "annotated_unresolved_scope": false,
+      "expected": {
+        "proposed_action": "no_search",
+        "proposed_arguments": null,
+        "completeness_status": "not_applicable",
+        "block_search": false,
+        "effective_action": "no_tool",
+        "message_id": "MSG-01"
+      },
+      "known_limitation": null
+    },
+    {
+      "id": "CMC-13",
+      "name": "Observed T027 error: intent_004",
+      "user_message": "deser bez mięsa",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": [
+          {
+            "kind": "exclusion",
+            "value": "meat",
+            "status": "required",
+            "source": "deser bez mięsa"
+          }
+        ]
+      },
+      "annotated_cues": [
+        {
+          "rule_id": "CMP-CAT",
+          "source": "deser",
+          "expected_signature": [
+            "category",
+            "deser",
+            "required"
+          ]
+        },
+        {
+          "rule_id": "CMP-EXCL",
+          "source": "bez mięsa",
+          "expected_signature": [
+            "exclusion",
+            "meat",
+            "required"
+          ]
+        }
+      ],
+      "annotated_unresolved_scope": false,
+      "expected": {
+        "proposed_action": "search",
+        "proposed_arguments": {
+          "diet": "vegetarian",
+          "protein_preference": "none",
+          "restrictions": [],
+          "nutrition_goal": "standard",
+          "category": "kolacja",
+          "top_n": 3
+        },
+        "completeness_status": "inconsistent",
+        "block_search": true,
+        "effective_action": "error",
+        "message_id": "MSG-06"
+      },
+      "known_limitation": null
+    },
+    {
+      "id": "CMC-14",
+      "name": "Observed T027 error: intent_015",
+      "user_message": "lekka kolacja wegetariańska do pół godziny",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": [
+          {
+            "kind": "diet",
+            "value": "vegetarian",
+            "status": "required",
+            "source": "wegetariańska"
+          },
+          {
+            "kind": "category",
+            "value": "kolacja",
+            "status": "required",
+            "source": "kolacja"
+          },
+          {
+            "kind": "time_limit",
+            "value": 30,
+            "status": "required",
+            "source": "do pół godziny"
+          }
+        ]
+      },
+      "annotated_cues": [
+        {
+          "rule_id": "CMP-CAT",
+          "source": "kolacja",
+          "expected_signature": [
+            "category",
+            "kolacja",
+            "required"
+          ]
+        },
+        {
+          "rule_id": "CMP-GOAL",
+          "source": "lekka",
+          "expected_signature": [
+            "nutrition_goal",
+            "low_kcal",
+            "required"
+          ]
+        }
+      ],
+      "annotated_unresolved_scope": false,
+      "expected": {
+        "proposed_action": "search",
+        "proposed_arguments": {
+          "diet": "vegetarian",
+          "protein_preference": "none",
+          "restrictions": [],
+          "nutrition_goal": "standard",
+          "category": "kolacja",
+          "top_n": 3,
+          "time_max": 30
+        },
+        "completeness_status": "inconsistent",
+        "block_search": true,
+        "effective_action": "error",
+        "message_id": "MSG-06"
+      },
+      "known_limitation": null
+    },
+    {
+      "id": "CMC-15",
+      "name": "Observed T027 error: v5_diag_008",
+      "user_message": "Chcę fit lunch bez glutenu.",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": [
+          {
+            "kind": "nutrition_goal",
+            "value": "low_kcal",
+            "status": "required",
+            "source": "fit lunch"
+          },
+          {
+            "kind": "exclusion",
+            "value": "gluten",
+            "status": "required",
+            "source": "bez glutenu"
+          }
+        ]
+      },
+      "annotated_cues": [
+        {
+          "rule_id": "CMP-CAT",
+          "source": "lunch",
+          "expected_signature": [
+            "category",
+            "lunch",
+            "required"
+          ]
+        },
+        {
+          "rule_id": "CMP-GOAL",
+          "source": "fit",
+          "expected_signature": [
+            "nutrition_goal",
+            "low_kcal",
+            "required"
+          ]
+        },
+        {
+          "rule_id": "CMP-EXCL",
+          "source": "bez glutenu",
+          "expected_signature": [
+            "exclusion",
+            "gluten",
+            "required"
+          ]
+        }
+      ],
+      "annotated_unresolved_scope": false,
+      "expected": {
+        "proposed_action": "search",
+        "proposed_arguments": {
+          "diet": "none",
+          "protein_preference": "none",
+          "restrictions": [
+            "gluten_free"
+          ],
+          "nutrition_goal": "low_kcal",
+          "category": "kolacja",
+          "top_n": 3
+        },
+        "completeness_status": "inconsistent",
+        "block_search": true,
+        "effective_action": "error",
+        "message_id": "MSG-06"
+      },
+      "known_limitation": null
+    },
+    {
+      "id": "CMC-16",
+      "name": "Observed T027 error: v5_diag_009",
+      "user_message": "Chcę fit lunch bez glutenu do 22 minut.",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": [
+          {
+            "kind": "nutrition_goal",
+            "value": "low_kcal",
+            "status": "required",
+            "source": "fit lunch"
+          },
+          {
+            "kind": "exclusion",
+            "value": "gluten",
+            "status": "required",
+            "source": "bez glutenu"
+          },
+          {
+            "kind": "time_limit",
+            "value": 22,
+            "status": "required",
+            "source": "do 22 minut"
+          }
+        ]
+      },
+      "annotated_cues": [
+        {
+          "rule_id": "CMP-CAT",
+          "source": "lunch",
+          "expected_signature": [
+            "category",
+            "lunch",
+            "required"
+          ]
+        },
+        {
+          "rule_id": "CMP-GOAL",
+          "source": "fit",
+          "expected_signature": [
+            "nutrition_goal",
+            "low_kcal",
+            "required"
+          ]
+        },
+        {
+          "rule_id": "CMP-EXCL",
+          "source": "bez glutenu",
+          "expected_signature": [
+            "exclusion",
+            "gluten",
+            "required"
+          ]
+        }
+      ],
+      "annotated_unresolved_scope": false,
+      "expected": {
+        "proposed_action": "search",
+        "proposed_arguments": {
+          "diet": "none",
+          "protein_preference": "none",
+          "restrictions": [
+            "gluten_free"
+          ],
+          "nutrition_goal": "low_kcal",
+          "category": "kolacja",
+          "top_n": 3,
+          "time_max": 22
+        },
+        "completeness_status": "inconsistent",
+        "block_search": true,
+        "effective_action": "error",
+        "message_id": "MSG-06"
+      },
+      "known_limitation": null
+    },
+    {
+      "id": "CMC-17",
+      "name": "Observed T027 error: routing_006",
+      "user_message": "Chcę wegański obiad z mięsem, nie zamiennikiem.",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": [
+          {
+            "kind": "diet",
+            "value": "vegan",
+            "status": "required",
+            "source": "Chcę wegański obiad"
+          },
+          {
+            "kind": "exclusion",
+            "value": "meat",
+            "status": "waived",
+            "source": "z mięsem, nie zamiennikiem."
+          }
+        ]
+      },
+      "annotated_cues": [
+        {
+          "rule_id": "CMP-CAT",
+          "source": "obiad",
+          "expected_signature": [
+            "category",
+            "obiad",
+            "required"
+          ]
+        },
+        {
+          "rule_id": "CMP-PROT",
+          "source": "z mięsem",
+          "expected_signature": [
+            "protein",
+            "meat",
+            "required"
+          ]
+        }
+      ],
+      "annotated_unresolved_scope": false,
+      "expected": {
+        "proposed_action": "search",
+        "proposed_arguments": {
+          "diet": "vegan",
+          "protein_preference": "none",
+          "restrictions": [],
+          "nutrition_goal": "standard",
+          "category": "kolacja",
+          "top_n": 3
+        },
+        "completeness_status": "inconsistent",
+        "block_search": true,
+        "effective_action": "error",
+        "message_id": "MSG-06"
+      },
+      "known_limitation": null
+    },
+    {
+      "id": "CMC-18",
+      "name": "Observed T027 error: v5_diag_012",
+      "user_message": "Wybierz bezmleczny lunch do 15 minut.",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": [
+          {
+            "kind": "exclusion",
+            "value": "lactose",
+            "status": "required",
+            "source": "bezmleczny"
+          },
+          {
+            "kind": "category",
+            "value": "lunch",
+            "status": "required",
+            "source": "lunch"
+          },
+          {
+            "kind": "time_limit",
+            "value": 15,
+            "status": "required",
+            "source": "do 15 minut"
+          }
+        ]
+      },
+      "annotated_cues": [
+        {
+          "rule_id": "CMP-CAT",
+          "source": "lunch",
+          "expected_signature": [
+            "category",
+            "lunch",
+            "required"
+          ]
+        },
+        {
+          "rule_id": "CMP-EXCL",
+          "source": "bezmleczny",
+          "expected_signature": [
+            "unsupported",
+            "exclusion",
+            "required"
+          ]
+        }
+      ],
+      "annotated_unresolved_scope": false,
+      "expected": {
+        "proposed_action": "search",
+        "proposed_arguments": {
+          "diet": "none",
+          "protein_preference": "none",
+          "restrictions": [
+            "lactose_free"
+          ],
+          "nutrition_goal": "standard",
+          "category": "lunch",
+          "top_n": 3,
+          "time_max": 15
+        },
+        "completeness_status": "inconsistent",
+        "block_search": true,
+        "effective_action": "error",
+        "message_id": "MSG-06"
+      },
+      "known_limitation": null
+    },
+    {
+      "id": "CMC-19",
+      "name": "Absent requirement retains defaults",
+      "user_message": "Podaj przepis",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": []
+      },
+      "annotated_cues": [],
+      "annotated_unresolved_scope": false,
+      "expected": {
+        "proposed_action": "search",
+        "proposed_arguments": {
+          "diet": "none",
+          "protein_preference": "none",
+          "restrictions": [],
+          "nutrition_goal": "standard",
+          "category": "kolacja",
+          "top_n": 3
+        },
+        "completeness_status": "no_supported_cues",
+        "block_search": false,
+        "effective_action": "tool",
+        "message_id": "renderer"
+      },
+      "known_limitation": null
+    },
+    {
+      "id": "CMC-20",
+      "name": "Operator contrast: Kolacja bez mięsa, ryby mogą być",
+      "user_message": "Kolacja bez mięsa, ryby mogą być",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": [
+          {
+            "kind": "category",
+            "value": "kolacja",
+            "status": "required",
+            "source": "Kolacja"
+          },
+          {
+            "kind": "exclusion",
+            "value": "meat",
+            "status": "required",
+            "source": "bez mięsa"
+          },
+          {
+            "kind": "protein",
+            "value": "fish",
+            "status": "permitted",
+            "source": "ryby mogą być"
+          }
+        ]
+      },
+      "annotated_cues": [
+        {
+          "rule_id": "CMP-CAT",
+          "source": "Kolacja",
+          "expected_signature": [
+            "category",
+            "kolacja",
+            "required"
+          ]
+        },
+        {
+          "rule_id": "CMP-EXCL",
+          "source": "bez mięsa",
+          "expected_signature": [
+            "exclusion",
+            "meat",
+            "required"
+          ]
+        },
+        {
+          "rule_id": "CMP-PROT",
+          "source": "ryby mogą być",
+          "expected_signature": [
+            "protein",
+            "fish",
+            "permitted"
+          ]
+        }
+      ],
+      "annotated_unresolved_scope": false,
+      "expected": {
+        "proposed_action": "search",
+        "proposed_arguments": {
+          "diet": "pescetarian",
+          "protein_preference": "none",
+          "restrictions": [],
+          "nutrition_goal": "standard",
+          "category": "kolacja",
+          "top_n": 3
+        },
+        "completeness_status": "consistent",
+        "block_search": false,
+        "effective_action": "tool",
+        "message_id": "renderer"
+      },
+      "known_limitation": null
+    },
+    {
+      "id": "CMC-21",
+      "name": "Operator contrast: Kolacja bez mięsa, nie musi być z rybą",
+      "user_message": "Kolacja bez mięsa, nie musi być z rybą",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": [
+          {
+            "kind": "category",
+            "value": "kolacja",
+            "status": "required",
+            "source": "Kolacja"
+          },
+          {
+            "kind": "exclusion",
+            "value": "meat",
+            "status": "required",
+            "source": "bez mięsa"
+          },
+          {
+            "kind": "protein",
+            "value": "fish",
+            "status": "waived",
+            "source": "nie musi być z rybą"
+          }
+        ]
+      },
+      "annotated_cues": [
+        {
+          "rule_id": "CMP-CAT",
+          "source": "Kolacja",
+          "expected_signature": [
+            "category",
+            "kolacja",
+            "required"
+          ]
+        },
+        {
+          "rule_id": "CMP-EXCL",
+          "source": "bez mięsa",
+          "expected_signature": [
+            "exclusion",
+            "meat",
+            "required"
+          ]
+        },
+        {
+          "rule_id": "CMP-PROT",
+          "source": "nie musi być z rybą",
+          "expected_signature": [
+            "protein",
+            "fish",
+            "waived"
+          ]
+        }
+      ],
+      "annotated_unresolved_scope": false,
+      "expected": {
+        "proposed_action": "search",
+        "proposed_arguments": {
+          "diet": "vegetarian",
+          "protein_preference": "none",
+          "restrictions": [],
+          "nutrition_goal": "standard",
+          "category": "kolacja",
+          "top_n": 3
+        },
+        "completeness_status": "consistent",
+        "block_search": false,
+        "effective_action": "tool",
+        "message_id": "renderer"
+      },
+      "known_limitation": null
+    },
+    {
+      "id": "CMC-22",
+      "name": "Operator contrast: Kolacja nie musi być bez mięsa",
+      "user_message": "Kolacja nie musi być bez mięsa",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": [
+          {
+            "kind": "category",
+            "value": "kolacja",
+            "status": "required",
+            "source": "Kolacja"
+          },
+          {
+            "kind": "exclusion",
+            "value": "meat",
+            "status": "waived",
+            "source": "nie musi być bez mięsa"
+          }
+        ]
+      },
+      "annotated_cues": [
+        {
+          "rule_id": "CMP-CAT",
+          "source": "Kolacja",
+          "expected_signature": [
+            "category",
+            "kolacja",
+            "required"
+          ]
+        },
+        {
+          "rule_id": "CMP-EXCL",
+          "source": "nie musi być bez mięsa",
+          "expected_signature": [
+            "exclusion",
+            "meat",
+            "waived"
+          ]
+        }
+      ],
+      "annotated_unresolved_scope": false,
+      "expected": {
+        "proposed_action": "search",
+        "proposed_arguments": {
+          "diet": "none",
+          "protein_preference": "none",
+          "restrictions": [],
+          "nutrition_goal": "standard",
+          "category": "kolacja",
+          "top_n": 3
+        },
+        "completeness_status": "consistent",
+        "block_search": false,
+        "effective_action": "tool",
+        "message_id": "renderer"
+      },
+      "known_limitation": null
+    },
+    {
+      "id": "CMC-23",
+      "name": "Operator contrast: Kolacja wegańska, nie musi być bez mięsa",
+      "user_message": "Kolacja wegańska, nie musi być bez mięsa",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": [
+          {
+            "kind": "category",
+            "value": "kolacja",
+            "status": "required",
+            "source": "Kolacja"
+          },
+          {
+            "kind": "diet",
+            "value": "vegan",
+            "status": "required",
+            "source": "wegańska"
+          },
+          {
+            "kind": "exclusion",
+            "value": "meat",
+            "status": "waived",
+            "source": "nie musi być bez mięsa"
+          }
+        ]
+      },
+      "annotated_cues": [
+        {
+          "rule_id": "CMP-CAT",
+          "source": "Kolacja",
+          "expected_signature": [
+            "category",
+            "kolacja",
+            "required"
+          ]
+        },
+        {
+          "rule_id": "CMP-EXCL",
+          "source": "nie musi być bez mięsa",
+          "expected_signature": [
+            "exclusion",
+            "meat",
+            "waived"
+          ]
+        }
+      ],
+      "annotated_unresolved_scope": false,
+      "expected": {
+        "proposed_action": "search",
+        "proposed_arguments": {
+          "diet": "vegan",
+          "protein_preference": "none",
+          "restrictions": [],
+          "nutrition_goal": "standard",
+          "category": "kolacja",
+          "top_n": 3
+        },
+        "completeness_status": "consistent",
+        "block_search": false,
+        "effective_action": "tool",
+        "message_id": "renderer"
+      },
+      "known_limitation": null
+    },
+    {
+      "id": "CMC-24",
+      "name": "Waived goal is not a required goal",
+      "user_message": "Nie musi być lekka kolacja",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": [
+          {
+            "kind": "nutrition_goal",
+            "value": "low_kcal",
+            "status": "waived",
+            "source": "Nie musi być lekka"
+          },
+          {
+            "kind": "category",
+            "value": "kolacja",
+            "status": "required",
+            "source": "kolacja"
+          }
+        ]
+      },
+      "annotated_cues": [
+        {
+          "rule_id": "CMP-GOAL",
+          "source": "Nie musi być lekka",
+          "expected_signature": [
+            "nutrition_goal",
+            "low_kcal",
+            "waived"
+          ]
+        },
+        {
+          "rule_id": "CMP-CAT",
+          "source": "kolacja",
+          "expected_signature": [
+            "category",
+            "kolacja",
+            "required"
+          ]
+        }
+      ],
+      "annotated_unresolved_scope": false,
+      "expected": {
+        "proposed_action": "search",
+        "proposed_arguments": {
+          "diet": "none",
+          "protein_preference": "none",
+          "restrictions": [],
+          "nutrition_goal": "standard",
+          "category": "kolacja",
+          "top_n": 3
+        },
+        "completeness_status": "consistent",
+        "block_search": false,
+        "effective_action": "tool",
+        "message_id": "renderer"
+      },
+      "known_limitation": null
+    },
+    {
+      "id": "CMC-25",
+      "name": "Required fish after new clause",
+      "user_message": "Kolacja bez mięsa, chcę danie z rybą",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": [
+          {
+            "kind": "category",
+            "value": "kolacja",
+            "status": "required",
+            "source": "Kolacja"
+          },
+          {
+            "kind": "exclusion",
+            "value": "meat",
+            "status": "required",
+            "source": "bez mięsa"
+          },
+          {
+            "kind": "protein",
+            "value": "fish",
+            "status": "required",
+            "source": "z rybą"
+          }
+        ]
+      },
+      "annotated_cues": [
+        {
+          "rule_id": "CMP-CAT",
+          "source": "Kolacja",
+          "expected_signature": [
+            "category",
+            "kolacja",
+            "required"
+          ]
+        },
+        {
+          "rule_id": "CMP-EXCL",
+          "source": "bez mięsa",
+          "expected_signature": [
+            "exclusion",
+            "meat",
+            "required"
+          ]
+        },
+        {
+          "rule_id": "CMP-PROT",
+          "source": "z rybą",
+          "expected_signature": [
+            "protein",
+            "fish",
+            "required"
+          ]
+        }
+      ],
+      "annotated_unresolved_scope": false,
+      "expected": {
+        "proposed_action": "search",
+        "proposed_arguments": {
+          "diet": "pescetarian",
+          "protein_preference": "fish",
+          "restrictions": [],
+          "nutrition_goal": "standard",
+          "category": "kolacja",
+          "top_n": 3
+        },
+        "completeness_status": "consistent",
+        "block_search": false,
+        "effective_action": "tool",
+        "message_id": "renderer"
+      },
+      "known_limitation": null
+    },
+    {
+      "id": "CMC-26",
+      "name": "Released T024 unknown optional exclusion",
+      "user_message": "Nie musi być bez jaj, chcę kolację",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": [
+          {
+            "kind": "category",
+            "value": "kolacja",
+            "status": "required",
+            "source": "kolację"
+          }
+        ]
+      },
+      "annotated_cues": [
+        {
+          "rule_id": "CMP-CAT",
+          "source": "kolację",
+          "expected_signature": [
+            "category",
+            "kolacja",
+            "required"
+          ]
+        }
+      ],
+      "annotated_unresolved_scope": false,
+      "expected": {
+        "proposed_action": "search",
+        "proposed_arguments": {
+          "diet": "none",
+          "protein_preference": "none",
+          "restrictions": [],
+          "nutrition_goal": "standard",
+          "category": "kolacja",
+          "top_n": 3
+        },
+        "completeness_status": "consistent",
+        "block_search": false,
+        "effective_action": "tool",
+        "message_id": "renderer"
+      },
+      "known_limitation": null
+    },
+    {
+      "id": "CMC-27",
+      "name": "Second requested category omitted",
+      "user_message": "Podaj obiad i deser",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": [
+          {
+            "kind": "category",
+            "value": "obiad",
+            "status": "required",
+            "source": "obiad"
+          }
+        ]
+      },
+      "annotated_cues": [
+        {
+          "rule_id": "CMP-CAT",
+          "source": "obiad",
+          "expected_signature": [
+            "category",
+            "obiad",
+            "required"
+          ]
+        },
+        {
+          "rule_id": "CMP-CAT",
+          "source": "deser",
+          "expected_signature": [
+            "category",
+            "deser",
+            "required"
+          ]
+        }
+      ],
+      "annotated_unresolved_scope": false,
+      "expected": {
+        "proposed_action": "search",
+        "proposed_arguments": {
+          "diet": "none",
+          "protein_preference": "none",
+          "restrictions": [],
+          "nutrition_goal": "standard",
+          "category": "obiad",
+          "top_n": 3
+        },
+        "completeness_status": "inconsistent",
+        "block_search": true,
+        "effective_action": "error",
+        "message_id": "MSG-06"
+      },
+      "known_limitation": null
+    },
+    {
+      "id": "CMC-28",
+      "name": "Unresolved category alternative cannot select first",
+      "user_message": "Kolacja albo deser",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": [
+          {
+            "kind": "category",
+            "value": "kolacja",
+            "status": "required",
+            "source": "Kolacja"
+          }
+        ]
+      },
+      "annotated_cues": [],
+      "annotated_unresolved_scope": true,
+      "expected": {
+        "proposed_action": "search",
+        "proposed_arguments": {
+          "diet": "none",
+          "protein_preference": "none",
+          "restrictions": [],
+          "nutrition_goal": "standard",
+          "category": "kolacja",
+          "top_n": 3
+        },
+        "completeness_status": "unresolved",
+        "block_search": true,
+        "effective_action": "error",
+        "message_id": "MSG-06"
+      },
+      "known_limitation": null
+    },
+    {
+      "id": "CMC-29",
+      "name": "Other request is not a recipe cue",
+      "user_message": "Wyjaśnij słowo deser",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "other",
+        "facts": []
+      },
+      "annotated_cues": [],
+      "annotated_unresolved_scope": false,
+      "expected": {
+        "proposed_action": "no_search",
+        "proposed_arguments": null,
+        "completeness_status": "not_applicable",
+        "block_search": false,
+        "effective_action": "no_tool",
+        "message_id": "MSG-01"
+      },
+      "known_limitation": null
+    },
+    {
+      "id": "CMC-30",
+      "name": "Quotes alone do not block correct model interpretation",
+      "user_message": "Poproszę „deser”",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": [
+          {
+            "kind": "category",
+            "value": "deser",
+            "status": "required",
+            "source": "deser"
+          }
+        ]
+      },
+      "annotated_cues": [],
+      "annotated_unresolved_scope": false,
+      "expected": {
+        "proposed_action": "search",
+        "proposed_arguments": {
+          "diet": "none",
+          "protein_preference": "none",
+          "restrictions": [],
+          "nutrition_goal": "standard",
+          "category": "deser",
+          "top_n": 3
+        },
+        "completeness_status": "no_supported_cues",
+        "block_search": false,
+        "effective_action": "tool",
+        "message_id": "renderer"
+      },
+      "known_limitation": null
+    },
+    {
+      "id": "CMC-31",
+      "name": "Original source survives case whitespace and NFD",
+      "user_message": "DESER\nBEZ MIĘSA",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": [
+          {
+            "kind": "category",
+            "value": "deser",
+            "status": "required",
+            "source": "DESER"
+          },
+          {
+            "kind": "exclusion",
+            "value": "meat",
+            "status": "required",
+            "source": "BEZ MIĘSA"
+          }
+        ]
+      },
+      "annotated_cues": [
+        {
+          "rule_id": "CMP-CAT",
+          "source": "DESER",
+          "expected_signature": [
+            "category",
+            "deser",
+            "required"
+          ]
+        },
+        {
+          "rule_id": "CMP-EXCL",
+          "source": "BEZ MIĘSA",
+          "expected_signature": [
+            "exclusion",
+            "meat",
+            "required"
+          ]
+        }
+      ],
+      "annotated_unresolved_scope": false,
+      "expected": {
+        "proposed_action": "search",
+        "proposed_arguments": {
+          "diet": "vegetarian",
+          "protein_preference": "none",
+          "restrictions": [],
+          "nutrition_goal": "standard",
+          "category": "deser",
+          "top_n": 3
+        },
+        "completeness_status": "consistent",
+        "block_search": false,
+        "effective_action": "tool",
+        "message_id": "renderer"
+      },
+      "known_limitation": null
+    },
+    {
+      "id": "CMC-32",
+      "name": "Inflected snack does not alter explicit count",
+      "user_message": "Podaj sześć przekąsek",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": [
+          {
+            "kind": "category",
+            "value": "przekąska",
+            "status": "required",
+            "source": "przekąsek"
+          },
+          {
+            "kind": "result_count",
+            "value": 6,
+            "status": "required",
+            "source": "sześć"
+          }
+        ]
+      },
+      "annotated_cues": [
+        {
+          "rule_id": "CMP-CAT",
+          "source": "przekąsek",
+          "expected_signature": [
+            "category",
+            "przekąska",
+            "required"
+          ]
+        }
+      ],
+      "annotated_unresolved_scope": false,
+      "expected": {
+        "proposed_action": "search",
+        "proposed_arguments": {
+          "diet": "none",
+          "protein_preference": "none",
+          "restrictions": [],
+          "nutrition_goal": "standard",
+          "category": "przekąska",
+          "top_n": 6
+        },
+        "completeness_status": "consistent",
+        "block_search": false,
+        "effective_action": "tool",
+        "message_id": "renderer"
+      },
+      "known_limitation": null
+    },
+    {
+      "id": "CMC-33",
+      "name": "Known limit: implicit category hidden by matching default",
+      "user_message": "Na wieczór poproszę danie bez mięsa, ale koniecznie rybne.",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": [
+          {
+            "kind": "exclusion",
+            "value": "meat",
+            "status": "required",
+            "source": "danie bez mięsa"
+          },
+          {
+            "kind": "protein",
+            "value": "fish",
+            "status": "required",
+            "source": "koniecznie rybne"
+          }
+        ]
+      },
+      "annotated_cues": [
+        {
+          "rule_id": "CMP-EXCL",
+          "source": "bez mięsa",
+          "expected_signature": [
+            "exclusion",
+            "meat",
+            "required"
+          ]
+        },
+        {
+          "rule_id": "CMP-PROT",
+          "source": "koniecznie rybne",
+          "expected_signature": [
+            "protein",
+            "fish",
+            "required"
+          ]
+        }
+      ],
+      "annotated_unresolved_scope": false,
+      "expected": {
+        "proposed_action": "search",
+        "proposed_arguments": {
+          "diet": "pescetarian",
+          "protein_preference": "fish",
+          "restrictions": [],
+          "nutrition_goal": "standard",
+          "category": "kolacja",
+          "top_n": 3
+        },
+        "completeness_status": "consistent",
+        "block_search": false,
+        "effective_action": "tool",
+        "message_id": "renderer"
+      },
+      "known_limitation": "Missing category/kolacja is outside literal CMP-CAT; final arguments happen to match gold."
+    },
+    {
+      "id": "CMC-34",
+      "name": "Known limit: uncovered paraphrase",
+      "user_message": "Mam ochotę na słodkie zakończenie posiłku",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": []
+      },
+      "annotated_cues": [],
+      "annotated_unresolved_scope": false,
+      "expected": {
+        "proposed_action": "search",
+        "proposed_arguments": {
+          "diet": "none",
+          "protein_preference": "none",
+          "restrictions": [],
+          "nutrition_goal": "standard",
+          "category": "kolacja",
+          "top_n": 3
+        },
+        "completeness_status": "no_supported_cues",
+        "block_search": false,
+        "effective_action": "tool",
+        "message_id": "renderer"
+      },
+      "known_limitation": "No local cue does not prove that no category was requested; a default may still be wrong."
+    },
+    {
+      "id": "CMC-35",
+      "name": "Known limit: all witnesses present beside spurious required fact",
+      "user_message": "Kolacja bez mięsa, ryby mogą być",
+      "interpretation": {
+        "contract_version": "IR-1",
+        "request_kind": "recipe",
+        "facts": [
+          {
+            "kind": "category",
+            "value": "kolacja",
+            "status": "required",
+            "source": "Kolacja"
+          },
+          {
+            "kind": "exclusion",
+            "value": "meat",
+            "status": "required",
+            "source": "bez mięsa"
+          },
+          {
+            "kind": "protein",
+            "value": "fish",
+            "status": "permitted",
+            "source": "ryby mogą być"
+          },
+          {
+            "kind": "protein",
+            "value": "fish",
+            "status": "required",
+            "source": "Kolacja bez mięsa, ryby mogą być"
+          }
+        ]
+      },
+      "annotated_cues": [
+        {
+          "rule_id": "CMP-CAT",
+          "source": "Kolacja",
+          "expected_signature": [
+            "category",
+            "kolacja",
+            "required"
+          ]
+        },
+        {
+          "rule_id": "CMP-EXCL",
+          "source": "bez mięsa",
+          "expected_signature": [
+            "exclusion",
+            "meat",
+            "required"
+          ]
+        },
+        {
+          "rule_id": "CMP-PROT",
+          "source": "ryby mogą być",
+          "expected_signature": [
+            "protein",
+            "fish",
+            "permitted"
+          ]
+        }
+      ],
+      "annotated_unresolved_scope": false,
+      "expected": {
+        "proposed_action": "search",
+        "proposed_arguments": {
+          "diet": "pescetarian",
+          "protein_preference": "fish",
+          "restrictions": [],
+          "nutrition_goal": "standard",
+          "category": "kolacja",
+          "top_n": 3
+        },
+        "completeness_status": "consistent",
+        "block_search": false,
+        "effective_action": "tool",
+        "message_id": "renderer"
+      },
+      "known_limitation": "CMP does not validate every spurious fact; required fish can still create an incorrect dispatch."
+    }
+  ]
+}

@@ -187,9 +187,18 @@ Pozostałe stany: **gotowe do rozpoczęcia**, **w toku**, **oczekuje na zależno
     referencyjny bez cache 0,026496 USD. [Raport](../../docs/reports/t027_interpretation_2026-11-18.md),
     [dowody](verification.md#t027--diagnostyka-zakończona).
 
+- [x] **T028 — projekt kompletności ekstrakcji.** Zakończono 2026-11-18.
+  DEC-17 wybiera CMP-1: ograniczoną kontrolę sygnałów przed dispatch,
+  bez dopisywania faktów i zmiany wire IR-1. Porównano listę faktów,
+  jawne grupy pól oraz reguły domenowe. Określono stany, lokalne operatory,
+  defaulty, MSG-06 i diagnostykę coverage. 35 kontrastów z trzema znanymi
+  ograniczeniami, CMP-01–12 i plan T029. Bez runtime, promptu, SDK i bazy.
+  [Projekt](interpretation-completeness.md),
+  [dowody](verification.md#t028--projekt-cmp-1-zakończony).
+
 ## Najbliższe zadanie
 
-**T028 — projekt kompletności ekstrakcji.** T007 i T011 również są gotowe do rozpoczęcia.
+**T029 — implementacja CMP-1 i replay offline.** T007 i T011 również są gotowe do rozpoczęcia.
 
 **T009P zakończone po zatwierdzeniu płatnego pilotażu przez autorkę.**
 V2: 57/60, ale 15/18 poprawnych no_tool; V0: 42/60 i 18/18 no_tool.

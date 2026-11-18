@@ -4,7 +4,7 @@ Nawigacja: [specyfikacja](spec.md) · [kryteria](acceptance.md) ·
 [plan](plan.md) · [zadania](tasks.md).
 
 Data: 2026-10-22<br>
-Aktualizacja: 2026-11-18, T027<br>
+Aktualizacja: 2026-11-18, T028<br>
 Status: mapa dowodów częściowych. Ostatnia pełna regresja 366/366.
 T027 pozostaje negatywnym pomiarem 72 SDK; brak zaliczenia ACC.
 Punkt odniesienia opisuje [raport bazowy](../../docs/reports/baseline_2026-10-22.md).
@@ -778,6 +778,60 @@ brak zmian runtime/promptów/schematów/gold, zgodność zamrożenia i stan 0 AP
 sprawdza odnośniki i rozdzielenie etapów. Na etapie przygotowania nie
 uruchomiono pomiaru ani nie oceniono H-IR1/IR1-D1 na modelu. T027 było
 w toku. Późniejszy pomiar i DEC-16 są powyżej; T009/T012 nadal wstrzymane.
+
+### T028 — projekt CMP-1 zakończony
+
+Data: 2026-11-18. **Projekt, bez implementacji i nowego pomiaru.** DEC-17
+wybiera lokalną kontrolę znanych sygnałów przed dispatch. Porównano listę
+faktów, wymagane grupy pól i reguły domenowe. Sam wymagany stan absent
+nie dowodzi braku pominięcia. [Kontrakt CMP-1](interpretation-completeness.md),
+[35 anotowanych kontrastów](contracts/interpretation-completeness.examples.json).
+
+Projekt określa zamknięte słowniki kategorii/celów oraz lokalne operatory
+białka i wybranych wykluczeń. Brak odpowiadającej sygnatury lub unresolved
+przy proponowanym search ma dawać coverage error/MSG-06 z backend=0,
+bez zmiany faktów. no_search i preflight zachowują znaczenie i pierwszeństwo.
+Zgodność z wykrytymi sygnałami nie oznacza globalnej kompletności.
+
+| CMP / zagadnienie | Dowód projektu i plan implementacji |
+| --- | --- |
+| CMP-01–03 | Czysty lokalny kontrakt i kolejność IR → kompilacja bez lookup → CMP → dispatch. W T028 sprawdzono formalną poprawność fixture'ów przez istniejący walidator, nie nowy kontroler. |
+| CMP-04–06 | Zamknięte cztery grupy reguł i zakres operatorów; CMC-13–18 dla rzeczywistych porażek T027, CMC-20–28 dla required/permitted/waived, kategorii i alternatyw. |
+| CMP-07–09 | Osobna faza coverage i MSG-06; brak dopisywania faktów, zachowane defaulty, no_search i preflight. CMC-19, CMC-26, CMC-29–32 oraz testy granic, kolejności/duplikatów do T029. |
+| CMP-10–11 | Anotacja znanych sygnałów dla 12 zapytań i 36 odpowiedzi T027. 14 błędnych raw zamiarów search i 11 błędnych dispatch replay to przypadki docelowe do sprawdzenia, bez nadpisania modelu 22/36. |
+| CMP-12 | T029 wymaga pełnej regresji bez pominięć, blokady SDK/zapisów i domyślnego V0. Nie wykonano teraz implementacji ani nowych testów aplikacji. |
+| CMC-01–12 | Poprawne interpretacje dotychczasowych 12 zapytań; zapytania/expected T027 i artefakty T025 bez zmian. |
+| CMC-33–35 | Celowo dopuszczone ograniczenia: niejawna kategoria ukryta przez default, nieobjęta parafraza oraz dodatkowe required fish obok poprawnego permitted. Nie oznaczają poprawności semantycznej. |
+
+[Kontrola projektu](../../dokumentacja%20pracy/2026-11-18_t028/design_checks.json)
+sprawdza 35 struktur IR przez niezmieniony walidator i kompilator, źródła
+anotowanych sygnałów, oczekiwane stany i brak mutacji. Używa jawnych etykiet
+sygnałów, a nie rozpoznawania tekstu. **Nie jest implementacją ani testem
+skuteczności planowanego detektora.** Scenariusze mają status design_annotations,
+a adnotacje nie mogą być wejściem runtime.
+
+Kontrola śladów T027 zestawia wszystkie brakujące i błędne fakty:
+13 pominięć kategorii, 1 celu, 3 wymaganego mięsa, 3 unsupported/exclusion;
+3 spurious exclusion/meat/waived i 3 exclusion/lactose/required.
+17 z 36 interpretacji ma niezgodny zbiór faktów; 3 mimo tego dają poprawny
+wynik przez domyślną kolację. Anotacje wskazują sygnały dla 14 błędnych
+raw zamiarów search, bez wskazania blokady 22 poprawnych wyników. Działający
+kontroler musi to dopiero potwierdzić; trzy blokady replay pochodzą już
+z preflight. Nie zaliczamy przewidywanej blokady jako poprawnej intencji.
+
+[Skrypt kontroli](../../dokumentacja%20pracy/2026-11-18_t028/check_design.py),
+[stan sprzed T028](../../dokumentacja%20pracy/2026-11-18_t028/before_hashes.json)
+i [hashe artefaktów](../../dokumentacja%20pracy/2026-11-18_t028/artifact_hashes.json).
+Sprawdzono niezmienność 154 plików spoza zakresu oraz 254 historycznych
+plików, w tym pakietu i dowodów T027. Zachowano również niezacommitowany
+stan T027; nie wykonano commita w ramach T028.
+
+W T028 **0 wywołań API i 0 operacji bazy**. Kontrola ma blokadę sieci,
+nie importuje SDK/main/SQLAlchemy i nie czyta sekretów. Kod, prompty,
+schematy runtime, model, katalog i wyniki dawnych kampanii bez zmian.
+Ostatnia pełna regresja to **366/366 z T027**, nie powtarzana dla projektu.
+T028 zakończone; T029 gotowe do implementacji i replay offline, bez
+nowych płatnych wywołań. Brak wdrożenia/ACC; T009/T012 nadal wstrzymane.
 
 ### Audyt instrukcji — część T017, 2026-11-16
 

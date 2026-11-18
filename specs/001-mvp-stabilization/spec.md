@@ -1,7 +1,7 @@
 # Specyfikacja — stabilizacja istniejącego MVP
 
 Data: 2026-10-22<br>
-Wersja dokumentu: 0.26; T027 zakończone: 2026-11-18<br>
+Wersja dokumentu: 0.27; T028 zakończone: 2026-11-18<br>
 Status: zakres, progi i DEC-01–03 zatwierdzone; wymagania integralności
 i błędów wdrożone w T006; protokół T008 opracowany. Pięć SKU pozostaje wstrzymanych.
 
@@ -78,6 +78,7 @@ ale nie zastępują jej ani stanów w `tasks.md`.
 | DEC-14 | Wdrożono w T024, 2026-11-17 | Ograniczona gramatyka lokalnej negacji pojedynczego wykluczenia i nowych klauzul usuwa pięć wskazanych fałszywych blokad. Dodatnie nieobsługiwane wykluczenia, niejednoznaczne listy i pierwszeństwo alergii zachowano. Przejście preflight bez próby LLM nie zalicza interpretacji modelu; dawne wyniki i expected pozostają bez zmian. |
 | DEC-15 | Wybrany projekt T025, 2026-11-18; niewdrożony | IR-1: jeden wymuszony submit_recipe_interpretation ze ścisłym schematem faktów, bez dostępu do katalogu. Aplikacja waliduje fakty, stosuje ROU i defaulty oraz wybiera search/no_search/error. Model nie wypełnia domyślnych argumentów. W przyszłym trybie IR brak calla jest błędem protokołu, a biznesowe no_tool oznacza brak dispatch. Legacy NTO i aktywny V0 pozostają; migracja i scenariusze są w interpretation-contract.md. |
 | DEC-16 | Przegląd T027, 2026-11-18 | IR-1 nie kwalifikuje się według IR1-D1: raw 22/36 wobec świeżego V4 26/36, pięć regresji per-case i 11 błędnych symulowanych dispatch w replay. Format IR poprawny 36/36, lecz dokładne fakty tylko 19/36. Pozostawić domyślny legacy/V0; zakończyć eksperyment bez automatycznej podmiany lub kolejnego pomiaru. Następny T028 dotyczy projektu kompletności ekstrakcji, bez API i wdrożenia. |
+| DEC-17 | Projekt T028, 2026-11-18; niewdrożony | CMP-1: ograniczona lokalna kontrola kategorii, celu, operatorów białka i wybranych wykluczeń przed dispatch. Zachować wire IR-1 i kompilator; nie dopisywać faktów. Wykryty brak lub nierozstrzygnięty zakres przy proponowanym search daje coverage error/MSG-06, nie poprawne no_tool. Brak dopasowania nie dowodzi kompletności. T029 implementuje i sprawdza ochronę offline na zachowanych odpowiedziach, bez ponawiania API i zmiany domyślnego legacy/V0. |
 
 W tym etapie dopuszczalne są poprawki błędów, zmiany promptu, refaktoryzacja,
 korekty istniejących danych, testy, narzędzia pomiarowe i dokumentacja,
@@ -907,6 +908,29 @@ Na etapie przygotowania T027 pozostawało w toku. Pomiar i przegląd
 wykonano następnie, jak opisano powyżej; domyślny tryb to legacy/V0.
 [Plan, pokrycie i stan zgody](verification.md#t027--przygotowanie-diagnostyki-zakończone).
 
+### T028 — projekt kontroli kompletności zakończony
+
+Zakończono 2026-11-18 jako projekt CMP-1 (DEC-17).
+[Kontrakt i zamknięty zakres reguł](interpretation-completeness.md)
+porównują listę faktów, jawne grupy pól oraz reguły domenowe. Wybrano
+najmniejszą warstwę ochronną: kontrolę wykrytych sygnałów przed dispatch,
+bez zmiany modelu, promptu, schematu lub kompilatora.
+
+Projekt rozróżnia brak wymagania, waived, pominięcie, błędną etykietę
+i nierozstrzygnięty zakres. Default pozostaje dla poprawnej prośby bez
+preferencji, lecz lokalny sygnał deser bez faktu kategorii ma zatrzymać
+search. To kontrolowany błąd interpretacji (MSG-06), nie poprawna odmowa
+biznesowa ani automatyczna naprawa. Nie twierdzimy, że brak sygnału
+potwierdza brak wymagania.
+
+CMP-01–12 obejmują lokalny zakres operatorów, preflight, niezmienność
+faktów, defaulty, diagnostykę, replay i ochronę przed fałszywymi blokadami.
+35 kontrastów zawiera trzy jawne ograniczenia; kontrola T028 sprawdza
+adnotacje i spójność projektu, nie działający detektor. [Dowody](verification.md#t028--projekt-cmp-1-zakończony).
+T029 ma wykonać implementację offline i replay T027, bez SDK. Ochrona
+aplikacji nie podnosi historycznej oceny rozpoznawania modelu. Nie
+zmieniono runtime ani danych; T009/T012 nadal wstrzymane.
+
 ## 6. Granice obsługi
 
 Ograniczenia bez glutenu i bez laktozy oznaczają zgodność z udokumentowaną
@@ -977,7 +1001,7 @@ aplikacji. T026 zaimplementowało projekt offline: walidację faktów,
 kompilator reguł i adapter w wewnętrznym trybie facts_v1. Pełna regresja
 347/347 na atrapach nie jest pomiarem modelu. Domyślny tryb to nadal
 legacy/V0. T027 zakończyło zatwierdzony pomiar i przegląd z wynikiem
-negatywnym (DEC-16). Następny T028 dotyczy kompletności ekstrakcji. T020 jest gotowe do rozpoczęcia.
+negatywnym (DEC-16). T028 zakończyło projekt CMP-1. Następny T029 to implementacja i replay offline. T020 jest gotowe do rozpoczęcia.
 T007 i T011 pozostają gotowymi zadaniami stabilizacyjnymi.
 Kolejność opisuje [plan](plan.md), a stan prac
 [zadania](tasks.md). Nie uruchamiamy ponownie wykonanych etapów na podstawie

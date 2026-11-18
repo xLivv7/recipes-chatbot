@@ -1010,3 +1010,58 @@ do katalogu zablokowane. [Dowody i zamrożony plan](verification.md#t027--przygo
 retry/resume. **T027.3 — wykonane:** ponowne przeliczenie z zachowanych
 odpowiedzi potwierdziło negatywny wynik IR1-D1 i DEC-16. Bez wdrożenia,
 zaliczenia ACC, zmiany aktywnego V0 lub wznowienia T009/T012.
+
+## 20. T028 — projekt kompletności ekstrakcji
+
+**Zakończono 2026-11-18 (DEC-17).** [Projekt CMP-1](interpretation-completeness.md)
+wybiera ograniczoną lokalną kontrolę przed dispatch bez zmiany wire IR-1,
+modelu lub promptu. Porównano grupy pól, listę faktów i reguły domenowe;
+sam wymagany stan absent nie dowodzi poprawności rozpoznania.
+Poniżej zachowano zakres zadania.
+
+1. Opisać brak jawnego wymagania, świadome cofnięcie i pominięte rozpoznanie
+   jako odrębne sytuacje. Zestawić wszystkie zaobserwowane braki i błędne
+   etykiety, w tym kategorię ukrytą przez zgodny default.
+2. Porównać utrzymanie listy faktów, jawne grupy pól/sloty oraz ograniczone
+   reguły domenowe. Określić, co faktycznie może wykryć aplikacja i kiedy
+   potrzebna jest odmowa; nie deklarować ogólnej gwarancji kompletności.
+3. Wybrać najmniejszą zmianę i opisać kontrakt, wpływ na defaulty,
+   kategorię/cel, wymagane białko vs negację i unsupported/exclusion.
+   Ustalić kontrasty, kryteria i przyszłą kontrolę przed implementacją.
+
+Wynik: kontrakt, zamknięta gramatyka i słowniki czterech grup reguł,
+CMP-01–12, 35 anotowanych kontrastów i trzy jawne ograniczenia.
+Z brakującego faktu przy wykrytym sygnale powstanie coverage error/MSG-06,
+bez naprawy faktów i bez zaliczenia no_tool. Defaulty, kompilator,
+preflight i aktywny V0 pozostają. [Dowody](verification.md#t028--projekt-cmp-1-zakończony).
+To projekt: bez nowego schematu/promptu, kodu runtime, SDK i bazy.
+
+## 21. T029 — implementacja CMP-1 i replay offline
+
+**Gotowe do rozpoczęcia.** Podstawa: DEC-17, CMP-01–12 i kontrasty T028.
+
+1. Dodać czysty kontroler z zamkniętymi słownikami/operatorami CMP-1.
+   Zachować oryginalne źródła przy normalizacji znaków, granice słów,
+   lokalną negację i pierwszeństwo dłuższych fraz. Nie dopisywać faktów.
+2. Dodać wyłącznie wewnętrzny facts_checked_v1. Po pełnej walidacji IR
+   i czystej kompilacji kontrolować zamiar search przed backendem.
+   coverage ma osobną fazę, MSG-06 i backend=0. Zachować facts_v1 oraz
+   domyślny legacy/V0, preflight i komunikaty no_search.
+3. Pokryć kontrasty T028, 35 przykładów IR-1, pięć odblokowanych próśb
+   T024, kolejność/duplikaty i granice Unicode. Anotacji nie przekazywać
+   runtime. Sprawdzić, że brak sygnału nie jest oceną confirmed_absent.
+4. Odtworzyć wszystkie 36 odpowiedzi IR-1 z T027 przez kontroler i aplikację
+   na atrapach. Cel: zatrzymać 14 błędnych raw zamiarów search i 11 błędnych
+   dispatch replay, bez nowych blokad 22 poprawnych wyników raw. Trzy
+   pozostałe blokady replay pochodzą z preflight, nie z CMP. Zachować znane
+   ograniczenia i każdy nowy błąd; nie przeliczać historycznego T027.
+5. Raportować osobno jakość modelu, efekt ochrony, fałszywe blokady i pola
+   nieadekwatne po błędzie. Kontrolowana awaria nie staje się poprawnym
+   wynikiem intencji. Pełna regresja bez pominięć z blokadą SDK i zapisów
+   katalogu; zachować źródła/payloady/wyniki T027 i domyślny V0.
+
+Gotowe po spełnieniu CMP-01–12, replay, pełnej regresji i raporcie.
+Niespełnienie celu ochrony trzeba zapisać jako otwartą lukę, bez obniżania
+kryteriów lub zaliczenia błędu jako poprawnej odmowy. Bez płatnych wywołań, nowego promptu/modelu,
+zmiany schematu IR-1, danych, golden labels lub automatycznego wdrożenia.
+Nowy eksperyment LLM wymaga odrębnego planu; T027 nie jest wznawiane.
