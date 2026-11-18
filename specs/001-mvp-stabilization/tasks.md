@@ -202,9 +202,16 @@ Pozostałe stany: **gotowe do rozpoczęcia**, **w toku**, **oczekuje na zależno
   wyników na 36 zapisanych odpowiedziach. Pełna regresja 372/372.
   [Raport T029](../../docs/reports/t029_completeness_2026-11-18.md).
 
+- [x] **T020 — projekt obsługi wielu celów żywieniowych.** Ustalono
+  kwalifikację według wszystkich wymagań, ranking jednej lub dwóch
+  preferencji, kontrakt v2 i zgodność pojedynczych celów. G01–G13 określają
+  oczekiwane wyniki. Implementację zaplanowano po MVP.
+  [Projekt i scenariusze](nutrition-goals.md).
+
 ## Najbliższe zadanie
 
-**T020 — projekt obsługi wielu celów żywieniowych.** T007 i T011 również są gotowe do rozpoczęcia.
+**T007 — przegląd czterech konceptów z ostrzeżeniami kcal.** Dotyczy
+C012, C338, C357 i C367. T011 (odtworzenie środowiska) jest również gotowe.
 
 **T009P zakończone po zatwierdzeniu płatnego pilotażu przez autorkę.**
 V2: 57/60, ale 15/18 poprawnych no_tool; V0: 42/60 i 18/18 no_tool.
@@ -222,18 +229,6 @@ nadal wymaga zamknięcia pozostałych luk; T012 jest wstrzymane.
 
 ## Kolejne zadania
 
-- [ ] **T020 — projekt obsługi wielu celów żywieniowych.**
-  Stan: **gotowe do rozpoczęcia**; podstawa: DEC-11 / INS-07.
-  Zaprojektować m.in. low_kcal + keto: znaczenie łącznego spełnienia,
-  warunki obowiązkowe, preferencje i ranking. Rozstrzygnąć, czy low_kcal
-  oznacza próg czy preferencję; ocenić pozostałe kombinacje istniejących
-  celów, duplikaty, brak celów i niemożność spełnienia zestawu.
-  Zaproponować kontrakt danych oraz zgodność pojedynczych celów, wpływ
-  na parser, backend, dobór SKU, normalizację, renderer i ewaluację.
-  Gotowe po projekcie semantyki, kontraktu, rankingu, scenariuszy oraz
-  ocenie zmiany zakresu MVP i planie migracji. Zachowanie odmowy uzgodnić
-  z T019. Bez implementacji, zmian katalogu, API ani automatycznego
-  rozszerzania innych pól (np. kategorii) do wielu wartości.
 - [ ] **T007 — przegląd używanych konceptów z ostrzeżeniami kcal.**
   Stan: **gotowe do rozpoczęcia**. Sprawdzić źródła C012/C338/C357/C367;
   zapisać uzasadnioną akceptację albo propozycję korekty. Nie zmieniać kcal

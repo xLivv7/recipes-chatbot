@@ -4,9 +4,10 @@ Nawigacja: [specyfikacja](spec.md) · [kryteria](acceptance.md) ·
 [plan](plan.md) · [zadania](tasks.md).
 
 Data: 2026-10-22<br>
-Aktualizacja: 2026-11-18, T029<br>
+Aktualizacja: 2026-11-18, T020<br>
 Status: mapa dowodów częściowych. Ostatnia pełna regresja 372/372.
 T029 potwierdziło działanie CMP-1 na zapisanych odpowiedziach w trybie wewnętrznym.
+T020 zakończyło projekt po MVP. Ostatni wynik testów pochodzi z T029.
 T027 pozostaje negatywnym pomiarem 72 SDK; brak zaliczenia ACC.
 Punkt odniesienia opisuje [raport bazowy](../../docs/reports/baseline_2026-10-22.md).
 
@@ -845,6 +846,18 @@ nowych płatnych wywołań. Brak wdrożenia/ACC; T009/T012 nadal wstrzymane.
 
 [Testy](../../tests/test_interpretation_completeness.py) ·
 [Raport, odtworzenie i wyniki jednostkowe](../../docs/reports/t029_completeness_2026-11-18.md).
+
+### T020 — weryfikacja projektu wielu celów
+
+| Warunek zakończenia | Materiał w projekcie |
+| --- | --- |
+| Semantyka, kontrakt i zgodność v1 | Przypisanie keto do wymagań, kcal i białka do preferencji. Jawny priorytet, kombinacje bez priorytetu, walidacja duplikatów i pustych zbiorów. |
+| Ranking i scenariusze | G01–G13 obejmują pojedyncze cele, trzy pary, pełny zestaw, zmianę kolejności słów, próg po doborze SKU, błędy i puste wyniki. Oczekiwane kolejności sprawdzono rachunkowo na czterech przykładach A–D. |
+| Wpływ i migracja | Wskazano miejsca zmian od schematu po renderer, oceny ACC wymagające przyszłych przypadków i trzy części implementacji po MVP. |
+
+Sprawdzenie dotyczyło spójności projektu. Wynik 372/372 pozostaje dowodem
+regresji T029. T020 nie uruchamiało nowej kampanii ani testów aplikacji.
+[Projekt T020](nutrition-goals.md).
 
 ### Audyt instrukcji — część T017, 2026-11-16
 

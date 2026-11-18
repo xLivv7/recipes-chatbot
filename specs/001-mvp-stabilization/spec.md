@@ -1,7 +1,7 @@
 # Specyfikacja — stabilizacja istniejącego MVP
 
 Data: 2026-10-22<br>
-Wersja dokumentu: 0.28; T029 zakończone: 2026-11-18<br>
+Wersja dokumentu: 0.29; projekt T020 zakończony: 2026-11-18<br>
 Status: zakres, progi i DEC-01–03 zatwierdzone; wymagania integralności
 i błędów wdrożone w T006; protokół T008 opracowany. Pięć SKU pozostaje wstrzymanych.
 
@@ -682,13 +682,12 @@ odpowiedzi przed dispatch i zgodną diagnostykę raw/application.
 Poprawa gramatyki preflight pozostaje osobnym zakresem; jej fałszywe blokady
 nie zostały w T019 zaakceptowane jako poprawne no_tool.
 
-T020 jest zadaniem projektowym dotyczącym INS-07 dla celów żywieniowych.
-Ma określić łączenie wymagań i preferencji, np. keto z preferencją niższej
-kaloryczności, oraz odróżnić twarde warunki od rankingu. Obecne low_kcal
-nie ustanawia progu kcal; projekt musi to uwzględnić i rozstrzygnąć znaczenie
-„niskokaloryczne”. Trzeba ocenić zmiany schematu, parsera, doboru SKU,
-obliczeń, rankingu i ewaluacji oraz wpływ na zakres MVP. Z-04 i aktualny
-interfejs jednego nutrition_goal obowiązują do osobnej zmiany implementacyjnej.
+T020 zamyka projekt z DEC-11 / INS-07. W wersji proponowanej po MVP
+keto kwalifikuje przepis według finalnych węglowodanów na porcję.
+Niższa kaloryczność i wyższa zawartość białka porządkują zgodne dania.
+Projekt określa sposób rozstrzygania dwóch preferencji, dobór SKU, kontrakt
+v2 i migrację. W obecnym MVP obowiązują Z-04, jeden `nutrition_goal`
+i dotychczasowa granica T019. [Projekt T020](nutrition-goals.md).
 
 **Punkty 4/5 audytu — kierunek ustalony (DEC-12):** T021 ma przygotować
 `evals/routing_prompts/V5.txt`. Zachować format V4: zapytanie, wskazane
@@ -1009,7 +1008,8 @@ aplikacji. T026 zaimplementowało projekt offline: walidację faktów,
 kompilator reguł i adapter w wewnętrznym trybie facts_v1. Pełna regresja
 347/347 na atrapach nie jest pomiarem modelu. Domyślny tryb to nadal
 legacy/V0. T027 zakończyło zatwierdzony pomiar i przegląd z wynikiem
-negatywnym (DEC-16). T029 zakończyło implementację i weryfikację CMP-1. T020 jest gotowe do rozpoczęcia.
+negatywnym (DEC-16). T029 zakończyło implementację i lokalną weryfikację
+kontroli CMP-1 (DEC-17). T020 zakończyło projekt wielu celów po MVP.
 T007 i T011 pozostają gotowymi zadaniami stabilizacyjnymi.
 Kolejność opisuje [plan](plan.md), a stan prac
 [zadania](tasks.md). Nie uruchamiamy ponownie wykonanych etapów na podstawie

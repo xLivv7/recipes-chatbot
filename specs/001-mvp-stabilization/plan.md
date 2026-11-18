@@ -3,6 +3,7 @@
 Status na 2026-11-18: T026 i pomiar/przegląd T027 zakończone.
 DEC-16 odrzuca IR-1. T029 zakończyło implementację CMP-1 i replay offline
 w trybie wewnętrznym. Domyślny tryb pozostaje legacy/V0.
+T020 zakończyło projekt łączenia celów dla etapu po MVP.
 T009 i T012 pozostają wstrzymane przez autorkę.
 Zakres i decyzje: [spec.md](spec.md). Warunki ukończenia: [acceptance.md](acceptance.md).
 Szczegółowe zadania i ich stan: [tasks.md](tasks.md).
@@ -526,6 +527,9 @@ jest wdrożone. Zmiany ochrony, komunikatów i klasyfikacji nie są wpływem
 promptu V5. Nie uruchamiać API w T019 i nie wznawiać T009 ani T012.
 
 ## 12. T020 — projekt wielu celów żywieniowych
+
+**Zakończono 2026-11-18.** [Kontrakt, przykłady G01–G13 i plan migracji](nutrition-goals.md)
+realizują poniższy zakres. Implementacja należy do osobnego etapu po MVP.
 
 Zadanie projektowe na podstawie DEC-11 / INS-07, obejmujące istniejące cele
 low_kcal, high_protein i keto. Nie rozszerza automatycznie kategorii, diet
