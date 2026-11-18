@@ -27,6 +27,7 @@ DATASETS = ('evals/intent_cases.json', 'evals/routing_cases.json', 'evals/applic
 ACC11_IDS = {'routing_001', 'routing_002', 'routing_003', 'routing_004', 'routing_006',
              'guard_001', 'guard_002', 'guard_003', 'guard_004'}
 SOURCES = ('main.py', 'core/llm_tools.py', 'core/request_safety.py', 'core/tool_call_validation.py',
+           'core/llm_response_validation.py',
            'evals/run_llm_eval.py', 'evals/run_routing_eval.py', 'evals/run_routing_experiment.py',
            'specs/001-mvp-stabilization/spec.md', 'specs/001-mvp-stabilization/plan.md',
            'specs/001-mvp-stabilization/acceptance.md')

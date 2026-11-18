@@ -4,7 +4,8 @@ Katalog zawiera zbiory przypadków i programy weryfikujące interpretację
 zapytań, routing oraz lokalny renderer. Polecenia uruchamiaj w katalogu
 głównym projektu, z przygotowanym środowiskiem `venv`. Runner routingu
 importuje aplikację i wymaga dostępu do lokalnego katalogu PostgreSQL,
-również przy `--dry-run`.
+również przy `--dry-run`. Wyjątkiem jest opisany poniżej program
+`prepare_routing_v5.py`: działa bez SDK, bazy i klucza.
 
 ## Ustalenia i dokumentacja
 
@@ -45,7 +46,91 @@ oraz wywołań API. Nie wykonuje pomiaru jakości i nie zapisuje raportu.
 pełnego przepływu od zapytania do rzeczywistego wyniku. Zatrzymania przez
 preflight nie są sukcesami interpretacji modelu.
 
+## V5 / T021 — przygotowanie całkowicie offline
+
+```powershell
+venv\Scripts\python.exe evals\prepare_routing_v5.py --check
+venv\Scripts\python.exe evals\prepare_routing_v5.py --output "dokumentacja pracy\NOWE_PRZYGOTOWANIE_V5"
+```
+
+Program sprawdza zakres zmian V4/V5, 18 demonstracji, argumenty, kontrasty
+i odrębne zapytania diagnostyczne. `--output` wymaga nowego katalogu;
+zapisuje prompty, schemat, przypadki, diff, kopie źródeł, hashe i plan.
+Nie importuje aplikacji, SDK ani bazy i nie korzysta z kluczy lub sieci.
+Nie ma `--execute` i nie wykonuje pomiaru jakości modelu.
+
+Plan ma 20 zachowanych przypadków starego pilota i 12 nowych: 32 przypadki,
+384 oceny / 354 wywołania, wykonane później w porównaniu V4/V5 w T023.
+Osobny audyt offline pokazuje pięć znanych fałszywych blokad preflight
+z expected=tool; nie zalicza ich jako sukcesów modelu ani aplikacji.
+Mapa przykładów, metryki, kosztorys i ograniczenia są w
+[planie T021](../specs/001-mvp-stabilization/plan.md#13-t021--przygotowanie-v5-dla-punktów-4-i-5-audytu),
+a lokalne dowody w [mapie weryfikacji](../specs/001-mvp-stabilization/verification.md#t021--przygotowanie-v5-offline-zakończone).
+
+Oryginalny pakiet T021 opisuje stan aplikacji sprzed T022. Nowe przygotowanie
+zbiera bieżące hashe i deklarowany status T022. T023 dostarczyło instrumentację,
+nowe zamrożenie po zmianach, potwierdzenie modelu/cennika oraz osobno
+zatwierdzony pomiar. Ponowny pomiar wymaga nowego planu i zgody na jego
+payload oraz koszt; zakończone T023 nie jest poleceniem powtórzenia. Stare profile poniżej
+nie wykonują porównania V4/V5. Aktywny prompt pozostaje V0.
+
+## Walidacja odpowiedzi po T022
+
+Aplikacja i oba tryby runnera korzystają ze wspólnej kontroli odpowiedzi.
+Brak choices, length, content_filter oraz niepuste pole refusal zatrzymują
+lookup, także gdy odpowiedź zawiera poprawnie wyglądające argumenty.
+Runner oznacza je jako błąd protokołu, z technicznym response_failure_reason
+i bez punktu za decyzję modelu lub wartości parametrów. Ślad narzędzi
+i metadane pozostają dostępne diagnostycznie.
+
+Nowe raporty i wiersze mają response_validation_version=T022-v1; źródła
+zamrożenia obejmują `core/llm_response_validation.py`. Zwykłe no_tool
+nadal jest oceniane względem expected, a fałszywe blokady preflight są błędami
+aplikacji. Starych raportów i przygotowania T021 nie przeliczano. Po zmianie
+aplikacji/runnera trzeba utworzyć nowy manifest; starego pakietu T021 nie
+wykonywać na nowym kodzie. [Dowody T022](../specs/001-mvp-stabilization/verification.md#t022--wdrożenie-no_tool-zakończone).
+
 ## Płatne pomiary i zachowanie raportów
+
+### T023 — porównanie V4/V5 po T022
+
+**Zakończone 2026-11-17:** po osobnej zgodzie wykonano cały przebieg 02,
+384 oceny / 354 wywołania, bez błędów technicznych. V5 nie kwalifikuje się
+według T017-v1 (DEC-13); aktywny V0 pozostaje. Wyniki i koszty obu prób:
+[raport](../docs/reports/t023_routing_2026-11-17.md).
+Poniższe komendy opisują procedurę, nie polecenie ponownego pomiaru.
+
+Pierwszy zatwierdzony przebieg przerwał błąd zapisu checkpointu Windows;
+zachowano 262 oceny i 242 odpowiedzi API. [Raport](../docs/reports/t023_routing_2026-11-17.md).
+Nie wznawiać go ani nie łączyć wyników z nowym pełnym przebiegiem.
+Poprawiony zapis ponawia tylko lokalne zastąpienie pliku po PermissionError
+(pięć oczekiwań, do 1,55 s); trwała awaria nadal przerywa kampanię.
+Retry SDK pozostaje 0. Nowy pakiet wymaga osobnej zgody.
+
+```powershell
+venv\Scripts\python.exe evals\run_routing_v5.py --prepare --model-access "dokumentacja pracy\2026-11-17_t023\model_access.json" --output "dokumentacja pracy\NOWE_T023"
+```
+
+Przygotowanie korzysta z potwierdzenia metadanych GET modelu, bez generacji.
+Nowy katalog zawiera `plan.json`, payloady, harmonogram, źródła z hashami
+i `state.json` z zerowym licznikiem. Plan obejmuje 384 oceny / maksymalnie
+354 wywołania, szacunkową rezerwę ok. 0,87 USD i proponowany lokalny próg
+rezerw 1,00 USD. Szczegóły i reguła T017-v1: sekcja 15
+[planu](../specs/001-mvp-stabilization/plan.md#15-t023--przygotowanie-wykonania-i-porównanie-v4v5).
+
+Dopiero po osobnym zatwierdzeniu konkretnego planu można wykonać:
+
+```powershell
+venv\Scripts\python.exe evals\run_routing_v5.py --execute --output "dokumentacja pracy\NOWE_T023" --approved-plan-sha256 PELNY_ZATWIERDZONY_HASH --approved-budget-usd 1.00
+```
+
+Wykonanie sprawdza hashe i runtime przed klientem, narzuca dokładny payload,
+limit 354 żądań, 512 tokenów odpowiedzi i retry=0. Rezerwa jest zapisywana
+przed żądaniem. To kontrola szacunku, nie gwarancja rachunku; podatki i inne
+użycie konta są poza nią. Pierwsza awaria API lub błąd metadanych przerywa
+kampanię z checkpointem, bez selektywnego wznowienia. Zwykłe błędy decyzji
+są raportowane dla całego zestawu. Lookup pozostaje atrapą; brak zmiany V0.
+Symulacje mają execution_kind=mock i is_model_measurement=false.
 
 ### Kontrolowane porównanie T009
 

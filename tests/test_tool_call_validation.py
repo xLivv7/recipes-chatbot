@@ -80,6 +80,35 @@ class ToolCallValidationTests(unittest.TestCase):
                 self.assertEqual(chat_with_bot("Zapytanie", "Winiary"), INVALID_TOOL_RESPONSE)
                 backend.assert_not_called()
 
+    def test_incomplete_filtered_or_refused_responses_stop_before_arguments_and_backend(self):
+        signals = (("length", None), ("content_filter", None),
+                   ("stop", "PROVIDER_REFUSAL_TEXT"), ("content_filter", "PROVIDER_REFUSAL_TEXT"))
+        call = SimpleNamespace(function=SimpleNamespace(name="get_recommendations",
+                                                       arguments=json.dumps(arguments())))
+        for finish, refusal in signals:
+            for calls in ([], [call]):
+                value = SimpleNamespace(choices=[SimpleNamespace(finish_reason=finish,
+                    message=SimpleNamespace(tool_calls=calls, content="MODEL_CONTENT", refusal=refusal))])
+                with self.subTest(finish=finish, refusal=bool(refusal), calls=len(calls)), \
+                        patch("main.client.chat.completions.create", return_value=value) as api, \
+                        patch("main.parse_recipe_tool_arguments") as parser, \
+                        patch("main.get_recommendations") as backend:
+                    result = chat_with_bot("Podaj przepis", "Winiary")
+                    self.assertEqual(result, INVALID_TOOL_RESPONSE)
+                    parser.assert_not_called()
+                    backend.assert_not_called()
+                    api.assert_called_once()
+                    self.assertNotIn("PROVIDER_REFUSAL_TEXT", result)
+                    self.assertNotIn("MODEL_CONTENT", result)
+
+    def test_unknown_function_uses_the_same_invalid_response_without_dispatch(self):
+        call = SimpleNamespace(function=SimpleNamespace(name="unknown", arguments=json.dumps(arguments())))
+        value = SimpleNamespace(choices=[SimpleNamespace(message=SimpleNamespace(tool_calls=[call]))])
+        with patch("main.client.chat.completions.create", return_value=value), \
+                patch("main.get_recommendations") as backend:
+            self.assertEqual(chat_with_bot("Podaj przepis", "Winiary"), INVALID_TOOL_RESPONSE)
+            backend.assert_not_called()
+
     def test_api_errors_use_safe_response_without_exception_details(self):
         request = httpx.Request("POST", "https://api.openai.com/v1/chat/completions")
         errors = [APIConnectionError(request=request), APITimeoutError(request=request)]

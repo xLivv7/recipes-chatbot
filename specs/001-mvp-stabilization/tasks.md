@@ -93,16 +93,69 @@ Pozostałe stany: **gotowe do rozpoczęcia**, **w toku**, **oczekuje na zależno
   Pełna regresja 265/265 bez błędów i pominięć, API zablokowane.
   [Dowody](verification.md#t018--usunięcie-ins-01-zakończone).
 
+- [x] **T019 — kontrakt odpowiedzi no_tool.** Zakończono 2026-11-17
+  jako projekt: NTO-01–08, tabela decyzja → wykonanie → komunikat,
+  MSG-01–08, 18 scenariuszy NTC i plan kontroli ACC-05/06/07/09/11.
+  Wybrano brak nowego pola powodu: treść modelu jest ignorowana,
+  a aplikacja zna tylko lokalny etap wykonania. Zachowano domyślne
+  argumenty i rozróżnienie błędnej odmowy, blokady, awarii oraz pustego wyniku.
+  W 12 kontrolach obecnej funkcji z atrapami potwierdzono również luki
+  obsługi metadanych odpowiedzi; wdrożenie kontraktu otrzymało T022.
+  Bez zmian kodu/promptów/expected i bez rzeczywistego API lub bazy.
+  [Kontrakt](spec.md#t019--kontrakt-odpowiedzi-no_tool),
+  [dowody i ograniczenia](verification.md#t019--kontrakt-no_tool-zakończony).
+
+- [x] **T021 — przygotowanie V5: format V4 i kontrastowe przykłady.**
+  Wykonano 2026-11-17 offline: V5 z 18 demonstracjami (14 tool, 4 no_tool),
+  mapa D5-01–18, 12 odrębnych nowych przypadków i 20 zachowanych z pilota.
+  Kontrola diffu, argumentów, kontrastów i rozdzielenia zapytań; 9 testów
+  przygotowania. Osobny audyt zachowuje pięć fałszywych blokad z expected=tool.
+  Manifest przewiduje 384 oceny / 354 wywołania, ale ma wykonanie wyłączone;
+  rzeczywiste API=0, baza=0. Stan aplikacji T022 i ograniczenia są jawne.
+  Kod aplikacji, schemat, V0–V4 i stare expected pozostały bez zmian.
+  [Plik V5](../../evals/routing_prompts/V5.txt),
+  [plan i mapa](plan.md#13-t021--przygotowanie-v5-dla-punktów-4-i-5-audytu),
+  [dowody](verification.md#t021--przygotowanie-v5-offline-zakończone).
+
+- [x] **T022 — wdrożenie kontraktu no_tool w aplikacji i diagnostyce.**
+  Wykonano 2026-11-17: MSG-01, wspólny MSG-06 dla nieznanej funkcji,
+  kontrola length/content_filter/refusal przed parserem i lookup oraz
+  zgodna klasyfikacja raw/application w wersji T022-v1.
+  Pełna regresja 283/283, bez pominięć; rzeczywiste żądania OpenAI i zapisy
+  do katalogu zablokowane. Kontrole korzystały z odczytów PostgreSQL
+  oraz izolowanej SQLite w pamięci. Pięć fałszywych blokad nadal jest błędami.
+  V0–V5, schemat, parser preferencji, dane i expected bez zmian.
+  Nowe manifesty zawierają hash walidacji; przygotowania T021 nie nadpisano.
+  [Dowody i pokrycie NTC](verification.md#t022--wdrożenie-no_tool-zakończone).
+
+- [x] **T023 — przygotowanie wykonania i porównanie V4/V5.**
+  Zakończono 2026-11-17: instrumentacja, kompletny pomiar 02, audyt i DEC-13.
+  V5 nie kwalifikuje się; aktywny V0 pozostaje, bez zaliczenia ACC.
+  [Raport](../../docs/reports/t023_routing_2026-11-17.md),
+  [dowody](verification.md#t023--porównanie-v4v5-zakończone).
+  - [x] **T023.1 — instrumentacja, kontrole i plan.** 19 nowych testów,
+    pełna regresja 302/302 bez pominięć, zamrożone źródła po T022,
+    dokładne payloady, rezerwy i obsługa chwilowej blokady zapisu Windows.
+    Generacje testowe na atrapach; brak zapisów do katalogu.
+  - [x] **T023.2 — płatny pomiar po osobnej zgodzie.** Przerwany 01:
+    262 oceny / 242 odpowiedzi API, zachowany bez wznowienia. Po poprawce
+    i nowej zgodzie pełny 02: 384 oceny / 354 wywołania, 0 błędów technicznych,
+    jeden resolved model. Koszt referencyjny obu prób bez cache 0,32163075 USD;
+    wyniki jakości wyłącznie z 02, bez łączenia obserwacji.
+  - [x] **T023.3 — raport i decyzja.** T017-v1 przeliczona niezależnie;
+    V5 application 78/96 wobec V4 86/96, sześć regresji per-case i 13
+    błędnych dispatch. Niezamówione fish 4 → 0 w obu trybach, ale intent_004
+    i diag_004 nadal 0/3. DEC-13: pozostawić V0. Pięć fałszywych blokad
+    pozostaje błędami osobnego audytu. T009/T012 nadal wstrzymane.
+
 ## Najbliższe zadanie
 
-**T019 — kontrakt odpowiedzi no_tool.** Stan: **gotowe do rozpoczęcia**.
-T017 zakończyło diagnozę i specyfikację diet/protein; naprawa zachowania
-modelu pozostaje do sprawdzenia. T019 ma określić odpowiedzialność modelu
-i aplikacji, komunikat i źródło przyczyny, respektując ROU-12–17.
-Następnie **T021 — przygotowanie V5**, ze scenariuszami i protokołem T017-v1.
-Pozostała zależność T021 to T019. **T020 — projekt wielu celów żywieniowych**
-można prowadzić niezależnie. Aktywny V0 pozostaje; bez automatycznego API.
-T007 i T011 także są niezależne.
+**T020 — projekt wielu celów żywieniowych.** Stan: **gotowe do rozpoczęcia**.
+Zakres jest projektem semantyki i kontraktu, bez implementacji i API.
+T023 zakończono wynikiem negatywnym; routing nadal wymaga poprawy.
+Kolejną iterację routingu należy najpierw opisać osobnym zadaniem i hipotezą
+na podstawie raportu, bez automatycznego tworzenia V6 lub nowych pomiarów.
+Aktywny V0 pozostaje. T007 i T011 także są niezależnymi gotowymi zadaniami.
 
 **T009P zakończone po zatwierdzeniu płatnego pilotażu przez autorkę.**
 V2: 57/60, ale 15/18 poprawnych no_tool; V0: 42/60 i 18/18 no_tool.
@@ -120,18 +173,6 @@ nadal wymaga zamknięcia pozostałych luk; T012 jest wstrzymane.
 
 ## Kolejne zadania
 
-- [ ] **T019 — kontrakt odpowiedzi no_tool.**
-  Stan: **gotowe do rozpoczęcia**; podstawa: DEC-10 / INS-03.
-  Określić warunki braku narzędzia dla próśb poza zakresem, sprzeczności
-  i braku wystarczającej informacji, respektując obsługiwane wartości domyślne.
-  Rozdzielić brak wyszukiwania, pusty
-  wynik, błąd API i niepoprawne wywołanie. Ustalić odpowiedzialność modelu
-  i aplikacji, rolę content oraz pochodzenie powodu odmowy; nie zakładać,
-  że sam brak tool_calls taki powód przekazuje. Zdefiniować komunikaty,
-  brak dispatch i ocenę błędnej odmowy dla obsługiwanej prośby.
-  Gotowe po tabeli decyzja → zachowanie → komunikat, granicach zmian
-  i scenariuszach przypisanych do ACC-05/06/07/09/11. Na tym etapie
-  dokumentacja kontraktu i plan testów, bez implementacji lub API.
 - [ ] **T020 — projekt obsługi wielu celów żywieniowych.**
   Stan: **gotowe do rozpoczęcia**; podstawa: DEC-11 / INS-07.
   Zaprojektować m.in. low_kcal + keto: znaczenie łącznego spełnienia,
@@ -144,26 +185,6 @@ nadal wymaga zamknięcia pozostałych luk; T012 jest wstrzymane.
   ocenie zmiany zakresu MVP i planie migracji. Zachowanie odmowy uzgodnić
   z T019. Bez implementacji, zmian katalogu, API ani automatycznego
   rozszerzania innych pól (np. kategorii) do wielu wartości.
-- [ ] **T021 — przygotowanie V5: format V4 i kontrastowe przykłady.**
-  Stan: **oczekuje na zależność** — T019; T017 ukończone. Podstawa: DEC-12,
-  INS-04/05, ACC-06/09/11. Plik docelowy: `evals/routing_prompts/V5.txt`.
-  Utworzyć nowego kandydata na bazie V4; zachować format „Zapytanie /
-  Narzędzie / Argumenty”, zastępując dotychczasowy zestaw kontrastami.
-  Po T017 dopuszczone są minimalne korekty dwóch zdań „bez mięsa” do
-  ROU-12/13 oraz wprowadzenia obejmującego także no_tool; inne instrukcje
-  zachować. Pokryć dietę a jawną preferencję białka,
-  regułę „bez mięsa”, obsługiwane i nieobsługiwane wymagania, niezależność
-  celu od czasu, różne top_n oraz no_tool zgodne z T019. Każdy przykład
-  wymaga pełnych poprawnych argumentów albo jawnego braku wywołania;
-  wskazać regułę, którą ilustruje. Nie dopisywać narzędzia o nazwie no_tool.
-  Przygotować odrębne zapytania diagnostyczne i uszczegółowić T017-v1:
-  porównanie V4/V5 z tym samym schematem po T018, modelem i ustawieniami.
-  Gotowe po utworzeniu V5, mapie pokrycia, kontroli argumentów i diffu,
-  przejściu odpowiednich testów offline oraz zapisaniu protokołu pomiaru.
-  Przygotowanie nie oznacza potwierdzenia skuteczności. Bez płatnego API,
-  wdrożenia do main.py, zmian backendu i nadpisywania V0–V4/expected.
-  T020 nie blokuje zadania; nowe kombinacje wielu celów wymagają osobno
-  ukończonego projektu i implementacji przed użyciem ich w przykładach.
 - [ ] **T007 — przegląd używanych konceptów z ostrzeżeniami kcal.**
   Stan: **gotowe do rozpoczęcia**. Sprawdzić źródła C012/C338/C357/C367;
   zapisać uzasadnioną akceptację albo propozycję korekty. Nie zmieniać kcal
@@ -198,10 +219,10 @@ nadal wymaga zamknięcia pozostałych luk; T012 jest wstrzymane.
 - **Punkt 4 / INS-04:** dla nowego kandydata zachować format V4.
 - **Punkt 5 / INS-05:** wymienić zestaw na przykłady kontrastowe w V5.
 
-Przygotowanie wariantu jest T021, po ukończonym T017 i przyszłym T019. Tabela
-interpretacji i scenariusze testowe nie są automatycznie przykładami promptu:
-dobór demonstracji i odrębnych zapytań diagnostycznych należy udokumentować.
-Płatny pomiar i decyzja wdrożeniowa otrzymają odrębny zakres po przygotowaniu V5.
+T021 wykonało przygotowanie po T017/T019: demonstracje są oddzielone od
+diagnostyki, a znane fałszywe blokady mają osobny audyt. T023 zakończyło
+pomiar i przegląd: DEC-13 odrzuca V5 według T017-v1, pozostawiając V0.
+Wynik nie zamyka problemów routingu; kolejna iteracja wymaga osobnego zadania.
 
 Nowa istotna czynność otrzymuje ID i warunek ukończenia. Wykonane zadanie
 wskazuje dowód. Wznowienie T012 wymaga decyzji autorki; nie wynika

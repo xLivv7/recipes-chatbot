@@ -110,7 +110,7 @@ zaakceptowaną semantykę; DEC-10/11 zlecają opracowanie kontraktów.
 | Zadanie | Podstawa | Wymagany rezultat i przyszły dowód |
 | --- | --- | --- |
 | T017 — kontrakt diet/protein | Punkt 2, DEC-09, INS-02; ROU-12–17, ACC-09/11 | Wykonane 2026-11-16: kontrakt, macierz, DP-01–28, mapa istniejących etykiet, diagnoza, H-T017 i protokół T017-v1. Dowody i granice poniżej; zachowanie modelu nie zostało ponownie zmierzone. |
-| T019 — kontrakt no_tool | Punkt 3, DEC-10, INS-03; ACC-05/06/07/09/11 | Tabela decyzja → zachowanie → komunikat, odpowiedzialność modelu/aplikacji, źródło przyczyny, brak dispatch i scenariusze odróżniające poprawną odmowę od błędu modelu oraz pustego wyniku. |
+| T019 — kontrakt no_tool | Punkt 3, DEC-10, INS-03; NTO-01–08; ACC-05/06/07/09/11 | Wykonane 2026-11-17 jako projekt: tabela decyzja → wykonanie → komunikat, odpowiedzialność i źródło wiedzy, MSG-01–08, NTC-01–18 oraz plan testów. Wdrożenie T022 i pomiar zachowania pozostają otwarte. |
 | T020 — wiele celów żywieniowych | Punkt 6, DEC-11, INS-07; wpływ na ACC-01/02/03/04/09/14 do oceny | Projekt łączenia wymagań i preferencji, kontraktu danych, filtrów, rankingu, doboru SKU i zgodności pojedynczych celów; scenariusze, ocena zakresu oraz plan migracji. |
 
 Kierunek INS-04/05 ustalono następnie w DEC-12 i T021: format V4 oraz
@@ -162,29 +162,288 @@ przyszłego pomiaru; nie zmieniono reguł ochrony. Projekt no_tool w T019
 powinien uwzględnić pochodzenie takiej blokady, a jej ewentualna naprawa
 wymaga odrębnego zakresu implementacyjnego.
 
-T021 oczekuje teraz tylko na T019. W jego planie zapisano wyjątek dla dwóch
+W chwili ukończenia T017 T021 oczekiwało tylko na T019. W planie zapisano wyjątek dla dwóch
 bezwarunkowych zdań „bez mięsa” i wprowadzenia do demonstracji; pozostałe
 instrukcje V4 mają być zachowane. Zapobiega to sprzeczności nowego V5
 z DEC-09/no_tool. Nie utworzono V5 i nie zmieniono aktywnego V0.
 ROU-12–17 i ACC nadal wymagają późniejszych dowodów zachowania programu.
 
-### Plan dowodów T021 — przygotowanie V5
+### T019 — kontrakt no_tool zakończony
 
-Zadanie zaplanowane 2026-11-16 na polecenie autorki; V5 nie został jeszcze
-utworzony. Podstawa: DEC-12 / INS-04/05; T017 ukończone, pozostała zależność T019.
-Wymagane dowody ukończenia:
+Data: 2026-11-17. Zakończono projekt, bez wdrożenia zmian kodu. Rezultat:
+[NTO-01–08, decyzje, MSG-01–08 i NTC-01–18](spec.md#t019--kontrakt-odpowiedzi-no_tool)
+oraz [granice implementacji i plan kontroli](plan.md#11-t019--kontrakt-odpowiedzi-no_tool).
+Wybrano brak nowego pola/narzędzia przyczyny i stały komunikat aplikacji
+przy no_tool modelu. Model nie tworzy odpowiedzi końcowej ani dialogu.
+Brak pól z wartościami domyślnymi nie uzasadnia odmowy.
 
-- plik `evals/routing_prompts/V5.txt`, format V4, diff pokazujący osobno
-  przykłady oraz minimalne wyjątki redakcyjne określone w T017;
-- mapa przykład → reguła i pokrycie kontrastów zatwierdzonych kontraktów;
-- poprawne pełne argumenty lub brak wywołania dla no_tool, kontrole parsera
-  i odpowiednie testy offline z rzeczywistym API zablokowanym;
-- odrębne zapytania diagnostyczne oraz uszczegółowienie T017-v1 dla V4/V5
-  z tym samym aktualnym schematem i ustawieniami, bez zmiany expected historii.
+Przejrzano `main.chat_with_bot`, preflight, parser, renderer i runner
+raw/application oraz asercje istniejących testów. Kontrola offline na
+źródłach `83004ea` objęła 12 obserwacji obecnej funkcji wyodrębnionej
+z AST, bez importu main/SDK/bazy. Wstrzyknięto lokalną atrapę klienta
+i lookup; odpowiedzi były w pełni kontrolowane.
 
-To dowody poprawnego przygotowania, nie skuteczności interpretacji. Wyników
-T016 nie przenosić na V5 ani nowy opis funkcji po T018. Płatny pomiar,
-regresja jakości i decyzja o wdrożeniu pozostają późniejszymi etapami.
+| Dowód | Ustalenie / ograniczenie |
+| --- | --- |
+| OBS-01/02 | Brak narzędzia daje stały komunikat. Poprawny JSON w content dla obsługiwanej prośby nie jest wykonywany; to nadal błąd decyzji modelu w przyszłej ocenie. |
+| OBS-03 | Poprawny call uruchamia lookup raz; pusta lista daje „Nie znaleziono”, odrębnie od „Nie wyszukano”. |
+| OBS-04/05/06 | Symulowany wyjątek API, niepoprawne argumenty i brak choices nie uruchamiają lookup. Kontrola wyjątku używa lokalnej klasy zastępczej, nie sprawdza zachowania SDK. |
+| OBS-07 | Nieznana funkcja nie uruchamia backendu; ma inny komunikat niż docelowy wspólny MSG-06. Ujednolicenie w T022. |
+| OBS-08/09 | length oraz content_filter/refusal bez call są obecnie traktowane jak zwykłe no_tool. Luka NTO-06, do T022. |
+| OBS-10 | Poprawnie wyglądający call z length uruchamia obecnie lookup. Docelowo NTO-06 wymaga 0 wywołań i błędu; poprawka do T022. |
+| OBS-11/12 | Preflight pomija klienta i lookup. OBS-12 pozostaje fałszywą blokadą DP-02, bez zmiany expected lub reguły ochrony. Nie wykonano próby modelu. |
+
+Przechwycono **10 wywołań lokalnej atrapy klienta i 2 wywołania atrapy
+lookup**, **0 rzeczywistych wywołań API i 0 operacji bazy**. Kontrole
+opisują stan zastany, a nie przejście nowych NTC lub poprawę rozumienia
+przez model. Nie uruchamiano pełnej regresji aplikacji dla projektu
+dokumentacji. Hashe 130 plików poza czterema dokumentami SDD pozostały
+niezmienione, w tym kod, prompty, expected i raporty. Nie użyto zapytań
+holdoutu do projektowania.
+
+Dowody: [current_behavior_checks.json](../../dokumentacja%20pracy/2026-11-17_t019/current_behavior_checks.json),
+[skrypt kontroli](../../dokumentacja%20pracy/2026-11-17_t019/check_current_behavior.py),
+[hashe sprzed T019](../../dokumentacja%20pracy/2026-11-17_t019/before_hashes.json).
+W chwili ukończenia T019 T021 było gotowe do rozpoczęcia. Wdrożenie
+komunikatu i obsługi metadanych jest odrębnym T022. Fałszywe blokady
+preflight pozostają osobną luką. Żadne ACC nie zostało tutaj zaliczone.
+
+### T021 — przygotowanie V5 offline zakończone
+
+Data: 2026-11-17. Podstawa: DEC-12 / INS-04/05 oraz kontrakty T017/T019.
+Utworzono [V5](../../evals/routing_prompts/V5.txt),
+[nowe przypadki](../../evals/routing_v5_cases.json) i niezależny od SDK/bazy
+[program przygotowania](../../evals/prepare_routing_v5.py).
+Mapa D5-01–18, wybór kohort i dokładny plan są w
+[sekcji 13 planu](plan.md#13-t021--przygotowanie-v5-dla-punktów-4-i-5-audytu).
+
+| Kontrola | Dowód i rezultat |
+| --- | --- |
+| Zakres V4/V5 | Walidator dopuszcza tylko dwie korekty „bez mięsa”, wprowadzenie i nowy blok przykładów. Pozostałe instrukcje oraz końcowy akapit V4 zachowano. Diff zapisany w przygotowaniu. |
+| Demonstracje | 18 pozycji: 14 pełnych obiektów przyjętych przez istniejący parser, 4 jawne braki wywołania. Reguły każdego przykładu są w mapie; sprawdzono pary diet/protein i czasu oraz macierz 12 kombinacji. |
+| Diagnostyka | 20 niezmienionych przypadków pilota + 12 nowych = 32, w tym 25 tool i 7 no_tool. Kontrola argumentów i identyfikatorów; zapytania różne od demonstracji także po normalizacji. |
+| Audyt preflight | Osobne guard_005/006 i DP-02/03/22: expected=tool, pięć fałszywych blokad, bez modelu. Nie są sukcesami no_tool i pozostają luką MVP poza mianownikiem małego porównania. |
+| Testy przygotowania | 9 testów bez błędów/pominięć: brak sieci i zależności od klucza/bazy, zamrożenie wejść, zakaz nadpisania, zakres zmian, niezamówione fish, fikcyjne no_tool, przeciek zapytań, niepoprawne etykiety oraz rozdzielenie kohort. |
+| Ochrona historii | Hashe 129 wcześniejszych plików poza edytowaną dokumentacją bez zmian, w tym main, wspólny schemat, V0–V4, stare expected, testy i raporty. Zmiany T019 w dokumentacji zachowano. |
+
+Testy są w [test_routing_v5_preparation.py](../../tests/test_routing_v5_preparation.py).
+Nie importują main, SDK, bazy ani starego runnera wymagającego PostgreSQL.
+Korzystają z istniejącego parsera, schematu i reguł preflight. Sprawdzają
+przygotowanie i granice danych, nie rozumienie przez model. Nie uruchamiano
+pełnej regresji aplikacji, której kod w T021 nie został zmieniony.
+
+Dowody lokalne:
+
+- [manifest](../../dokumentacja%20pracy/2026-11-17_t021/preparation/manifest.json),
+  [checks i mapa przykładów](../../dokumentacja%20pracy/2026-11-17_t021/preparation/checks.json),
+  [diff V4/V5](../../dokumentacja%20pracy/2026-11-17_t021/preparation/V4_V5.diff);
+- [wynik testów](../../dokumentacja%20pracy/2026-11-17_t021/tests.json),
+  [log](../../dokumentacja%20pracy/2026-11-17_t021/tests.log),
+  [hashe sprzed T021](../../dokumentacja%20pracy/2026-11-17_t021/before_hashes.json).
+
+Przygotowanie przewiduje 384 oceny / 354 wywołania, szacunkową rezerwę
+0,86790195 USD, aktualny schemat po T018 i niewdrożone T022. Ma
+execution_enabled=false, actual_api_calls=0, brak zatwierdzonego budżetu
+i nie posiada płatnego wykonawcy. **0 rzeczywistych wywołań API i 0 operacji
+bazy.** Model gpt-4o-mini zachowano; status deprecated, źródło i data cennika
+są zapisane w manifeście. Dostępności konta nie sprawdzano wywołaniem modelu.
+
+Po T021 zaplanowano T022, którego ukończenie opisano poniżej. T023 wymaga nowej instrumentacji i manifestu
+na tej samej wersji aplikacji dla V4/V5. Wyników T016 nie przeniesiono
+na nowy opis funkcji lub V5. Nie zmieniono aktywnego V0, nie potwierdzono
+H-T017 ani ACC i nie wznowiono T009/T012.
+
+### T022 — wdrożenie no_tool zakończone
+
+Data: 2026-11-17. Wdrożono MSG-01, wspólny MSG-06 dla nieznanego narzędzia
+i kontrolę NTO-06 przed parserem/dispatch. [Wspólny walidator](../../core/llm_response_validation.py)
+jest używany przez [aplikację](../../main.py) i [runner](../../evals/run_routing_eval.py).
+Nie odczytuje content jako przyczyny ani argumentów. Refusal jest
+rozpoznawane po polu metadanych odpowiedzi, nie po tekście odmowy w content.
+
+Diagnoza ma wersję `response_validation_version=T022-v1`. Brak choices,
+length, content_filter i niepuste refusal oznaczają failure_stage=protocol,
+effective_action=error, bez model_action, model_decision_correct i ocen pól.
+Metadane i ślad narzędzi pozostają w diagnostyce; żaden taki call nie trafia
+do backendu. Normalne no_tool nadal jest oceniane względem expected;
+fałszywy guard pozostaje błędem preflight, bez próby modelu.
+
+Pełna regresja: **283 testy, 0 niepowodzeń, 0 błędów, 0 pominięć**.
+W T022 dodano 9 testów; pozostałe istniejące testy granicy, dawnych profili,
+przygotowania V5, renderera i rekomendacji również przeszły.
+
+| NTC | Kontrole i istotne asercje |
+| --- | --- |
+| 01–04 | `test_controlled_no_tool_decisions_cover_scope_conflicts_and_nonstandalone_queries`: poza zakresem, sprzeczności T017, alergie/wykluczenia i brak samodzielnej prośby w raw/application; brak lookup oraz rozdzielenie guard od modelu. `test_empty_or_context_dependent_query_does_not_reuse_history`: brak pamięci i treści modelu w odpowiedzi. |
+| 05 | `test_bare_recipe_request_dispatches_default_arguments_once`: jedna interpretacja i jeden lookup z kompletem domyślnych argumentów, bez wymuszonego doprecyzowania. |
+| 06/07 | Istniejące kontrole `test_chat_response_protection.py` i `test_no_tool_diagnostics.py`: null/pusty/tekstowy content, zmyślone produkty/liczby/URL i instrukcje są ignorowane, bez backendu. |
+| 08/09 | Istniejące `test_content_is_preserved_verbatim_without_dispatching_json` i `test_no_tool_decision_is_scored_without_inventing_field_errors`: poprawny JSON lub odmowa bez call nadal jest porażką dla expected=tool, bez wymyślonych argumentów i ocen pól. |
+| 10 | `test_empty_results_are_rendered_without_llm`: lookup jest wykonany, pusty wynik ma własny komunikat, bez dodatkowego modelu. |
+| 11 | `test_api_errors_use_safe_response_without_exception_details` i `test_api_failure_is_not_a_no_tool_success_or_parameter_failure`: wyjątki połączenia, czasu, autoryzacji, limitu i usługi; brak backendu, bez sekretów i sukcesu no_tool. |
+| 12/13 | `test_tool_call_validation.py`: puste choices, nieznana funkcja, wiele calls i niepoprawne argumenty; brak backendu. Nieznana funkcja używa teraz tego samego MSG-06. |
+| 14 | `test_incomplete_filtered_or_refused_responses_stop_before_arguments_and_backend`: 8 kombinacji, parser i backend niewywołane. `test_response_failures_are_not_business_decisions_in_either_mode`: 24 kombinacje sygnałów, obecności calls, expected i trybu; spójna klasyfikacja, zachowany ślad, brak sukcesu i ocen pól. Puste refusal pozostaje dozwolone. |
+| 15 | `test_sc12_chat_data_error_and_programming_error_have_distinct_boundaries` oraz `test_invalid_sku_fails_closed`: rozdzielenie błędu danych/payloadu i błędu programistycznego, bez pozornego pustego wyniku lub redakcji przez model. |
+| 16 | `test_all_five_known_false_blocks_remain_preflight_errors_without_model_attempts`: guard_005/006 i DP-02/03/22, niezmienione expected=tool, 0 prób klienta, 0 backendu; wynik pozostaje błędny. |
+| 17 | `test_allergy_guard_has_priority`: pierwszeństwo reguły alergii przed wykluczeniem, bez klienta i backendu. |
+| 18 | `test_no_tool_does_not_repeat_a_model_claim_that_it_searched_the_catalog`: nie powiela twierdzenia o przeszukaniu, pustym wyniku ani domniemanego powodu. |
+
+To kontrole aplikacji na odpowiedziach podstawionych, nie nowe wyniki
+interpretacji przez model. **0 rzeczywistych żądań OpenAI**; harness
+blokował metodę żądania SDK, a liczba prób użycia tej ścieżki wynosiła 0.
+Import aplikacji i testy integracyjne wykonały 35 SELECT lokalnego
+PostgreSQL. Zapisy do katalogu były zablokowane, bez prób zapisu. Istniejące
+testy curation korzystały z własnej SQLite w pamięci (8 CREATE, 8 INSERT,
+19 SELECT, 2 UPDATE); te operacje nie dotyczą katalogu PostgreSQL.
+
+Zachowano przebiegi nieudane: pierwsza próba w sandboxie nie mogła połączyć
+się z localhost; etap red wykazał stare luki; pierwsza pełna regresja miała
+2 niepowodzenia wskutek blokady tymczasowej SQLite w harnessie. Po
+ograniczeniu blokady zapisów do katalogu i dopuszczeniu SQLite w pamięci
+pełna regresja przeszła. Nie usuwano ani nie pomijano testów.
+
+Dowody: [wynik końcowy](../../dokumentacja%20pracy/2026-11-17_t022/final_verified.json),
+[log](../../dokumentacja%20pracy/2026-11-17_t022/final_verified.log),
+[harness](../../dokumentacja%20pracy/2026-11-17_t022/run_tests.py),
+[kontrola zakresu](../../dokumentacja%20pracy/2026-11-17_t022/scope_checks.json),
+[hashe sprzed zmian](../../dokumentacja%20pracy/2026-11-17_t022/before_hashes.json).
+
+Hash wspólnej walidacji dodano do źródeł nowych manifestów. Oryginalne
+30 plików przygotowania T021 pozostaje niezmienione; ten pakiet identyfikuje
+stan przed T022. T023 ma przygotować nowe źródła i manifest. Prompt builder
+V0, sposób wywołania modelu, schemat, parser preferencji, preflight,
+V0–V5, expected, backend i katalog pozostają bez zmian. Nie przeliczono
+historii i nie zaliczono jakości modelu ani końcowej akceptacji MVP.
+
+### T023 — porównanie V4/V5 zakończone
+
+Zakończono 2026-11-17: osobno zatwierdzony pełny przebieg 02, audyt
+i przegląd T017-v1. **DEC-13: V5 nie kwalifikuje się, pozostaje V0.**
+384 oceny / 354 wywołania, 12 pełnych grup, 354 unikatowe request IDs,
+jeden resolved model gpt-4o-mini-2024-07-18 i 0 błędów API/odpowiedzi.
+V4 raw 84/96, application 86/96; V5 raw 75/96, application 78/96.
+V5 ma 21/21 no_tool i spadek niezamówionych fish 4 → 0 w obu trybach,
+lecz sześć regresji w każdym, 13 błędnych dispatch application, obsługiwane
+57/75 i stabilne 25/32. Intent_004 oraz diag_004 nadal 0/3 w obu trybach.
+
+[Raport](../../docs/reports/t023_routing_2026-11-17.md),
+[surowe wyniki](../../dokumentacja%20pracy/2026-11-17_t023/campaign_02/results.json),
+[porównanie](../../dokumentacja%20pracy/2026-11-17_t023/campaign_02/comparison.json),
+[diagnostyka](../../dokumentacja%20pracy/2026-11-17_t023/diagnostics_02.json)
+i [zgoda 02](../../dokumentacja%20pracy/2026-11-17_t023/approval_02.json).
+[Audyt wykonania](../../dokumentacja%20pracy/2026-11-17_t023/execution_audit_02.json)
+niezależnie przeliczył 10 flag reguły (cztery true, sześć false), sprawdził
+payloady, kolejność, rezerwy, zgodę i kompletność. Przed aktualizacją
+specyfikacji potwierdzono niezmienione 25 źródeł i 11 artefaktów;
+[hashami utrwalono 53 pliki 02](../../dokumentacja%20pracy/2026-11-17_t023/campaign_02_hashes.json),
+zachowano 49 plików 01, 30 plików T021 i 134 chronione istniejące pliki.
+
+Usage 02: 1 215 630 tokenów wejścia, 14 900 wyjścia; koszt referencyjny bez
+cache 0,19128450 USD, rezerwa 0,86790195 USD przy progu 1,00 USD.
+Obie osobno zatwierdzone próby łącznie: 596 odpowiedzi generacji,
+0,32163075 USD kosztu referencyjnego, bez cache/podatków/innego użycia;
+to nie rachunek dostawcy. Wykonano też jeden odczyt metadanych modelu.
+Obserwacji 01 nie połączono z 02 i nie ponawiano wybiórczo porażek.
+
+Pełna regresja instrumentacji pozostaje 302/302 po poprawce zapisu,
+bez pominięć, z generacją SDK zablokowaną. Po pomiarze zmieniono tylko
+dokumentację wynikową, bez zmiany kodu aplikacji, promptów, schematu,
+expected i danych. [Kontrola końcowa](../../dokumentacja%20pracy/2026-11-17_t023/final_checks.json)
+sprawdza integralność dowodów, tabele raportu, status zadań i odnośniki.
+Pięć fałszywych blokad nadal jest błędami osobnego audytu bez API;
+lookup był atrapą, zbiór rozwojowy nie jest holdoutem. Brak zaliczenia ACC,
+wdrożenia V4/V5 i wznowienia T009/T012. T023 zakończone jako eksperyment,
+bez uznania routingu za naprawiony.
+
+#### Przygotowanie przed pomiarem
+
+Pierwsze przygotowanie, 2026-11-17, przed generacją. Przygotowano [wykonawcę kampanii](../../evals/run_routing_v5.py)
+i początkowe [16 testów](../../tests/test_routing_v5_campaign.py).
+Na tym etapie T023.1 było wykonane, a T023.2 i T023.3 pozostawały otwarte
+do osobno zatwierdzonego pomiaru oraz przeglądu. Nie było wyników modelu.
+
+Nowy [plan](../../dokumentacja%20pracy/2026-11-17_t023/campaign/plan.json)
+zamraża źródła po T022, T017-v1, runtime, hashe wejść i kosztorys.
+[Payloady](../../dokumentacja%20pracy/2026-11-17_t023/campaign/payloads.json)
+obejmują wyłącznie 32 kontrolowane zapytania, prompty V4/V5 i schemat funkcji;
+expected, dane katalogu i rzeczywiste rozmowy nie są wysyłane.
+[Harmonogram](../../dokumentacja%20pracy/2026-11-17_t023/campaign/schedule.json)
+ma 384 oceny, z czego 354 wymagają generacji, a 30 kończy poprawna ochrona
+application. Stan przygotowania: 0 generacji, brak zatwierdzonego hasha
+i budżetu. SHA-256 planu:
+`f89a18c9702eaa7487af68294c72c26253e37bce3303d014fbb9ad6ccd823783`.
+Rezerwa szacunkowa wynosi 0,86790195 USD, proponowany lokalny
+próg 1,00 USD; nie jest gwarancją rachunku dostawcy.
+
+Wykonawca sprawdza zgodę na dokładny hash i budżet przed utworzeniem klienta,
+zgodność payloadu przed każdym żądaniem oraz zapisuje rezerwę przed wysłaniem.
+Obowiązują limit odpowiedzi 512, retry=0, checkpointy i zakaz selektywnego
+wznawiania. Pierwszy błąd API lub response_failure_reason przerywa kampanię;
+zwykła błędna interpretacja pozostaje wynikiem i nie zatrzymuje pomiaru.
+Pięć fałszywych blokad ma osobny audyt z klientem zabraniającym generacji.
+Nie stają się sukcesami ani częścią mianownika 32 przypadków.
+
+Pełna regresja: **299 testów, 0 niepowodzeń, 0 błędów, 0 pominięć**.
+Dowody: [wynik](../../dokumentacja%20pracy/2026-11-17_t023/full.json),
+[log](../../dokumentacja%20pracy/2026-11-17_t023/full.log),
+[testy nowej instrumentacji](../../dokumentacja%20pracy/2026-11-17_t023/targeted.json)
+i [harness](../../dokumentacja%20pracy/2026-11-17_t023/run_tests.py).
+Pełna symulacja wykonała 384 oceny i 354 wywołania atrap; jest oznaczona
+execution_kind=mock i is_model_measurement=false. Sprawdzono także brak
+klienta przed zgodą, zmienione wejścia/reguły/etykiety, ograniczenia kosztu
+i liczby żądań, checkpoint błędu, zakaz wznowienia, remis i regresje,
+błędny dispatch, utratę fish oraz niepoprawne/niekompletne obserwacje.
+
+Harness zablokował rzeczywiste żądania SDK; 0 prób tej ścieżki. Importy
+i integracja wykonały 35 SELECT lokalnego PostgreSQL, bez zapisu i prób
+zapisu do katalogu. Istniejące testy curation wykonały 8 CREATE, 8 INSERT,
+19 SELECT i 2 UPDATE wyłącznie we własnej SQLite w pamięci.
+Poza testami wykonano **jeden odczyt metadanych modelu**, bez generacji:
+[model_access.json](../../dokumentacja%20pracy/2026-11-17_t023/model_access.json).
+Widoczność gpt-4o-mini nie dowodzi salda ani powodzenia płatnego żądania.
+Łącznie na tym etapie: **0 rzeczywistych żądań generacji**.
+
+[Kontrola zakresu](../../dokumentacja%20pracy/2026-11-17_t023/scope_checks.json)
+porównuje stan sprzed T023, zamrożone źródła i historyczny pakiet T021.
+[Kontrola dokumentacji](../../dokumentacja%20pracy/2026-11-17_t023/documentation_checks.json)
+sprawdza odnośniki i stan zadań. Kod aplikacji, V0–V5, schemat, expected,
+parser, preflight i dane pozostają bez zmian. T009/T012 nadal wstrzymane.
+Na tym etapie T023 pozostawało w toku; symulacja nie zaliczała H-T017 ani ACC.
+
+#### Przerwany przebieg 01 i poprawka zapisu
+
+Po osobnej zgodzie autorki uruchomiono plan wskazany powyżej. Zachowano
+262 oceny i 242 odpowiedzi SDK z unikatowymi request IDs. Zapis kolejnej
+rezerwy przerwał PermissionError przy zastępowaniu pliku stanu na Windows,
+przed wysłaniem żądania. Licznik rezerwacji wynosi 243; jedna jest niewysłana.
+Koszt referencyjny z usage bez cache: 0,13034625 USD. Właściciel blokady
+nie został ustalony. Brak kompletnego porównania i kandydata; nie wznowiono
+ani nie nadpisano danych. [Raport](../../docs/reports/t023_routing_2026-11-17.md),
+[audyt](../../dokumentacja%20pracy/2026-11-17_t023/interrupted_audit.json)
+i [hashe pakietu 01](../../dokumentacja%20pracy/2026-11-17_t023/interrupted_campaign_hashes.json).
+
+Poprawka dotyczy wyłącznie lokalnego, atomowego zastąpienia pliku:
+po PermissionError do pięciu oczekiwań, łącznie do 1,55 s, potem wyjątek.
+Trzy nowe testy potwierdzają chwilową/trwałą blokadę, zachowanie starego
+checkpointu i brak SDK przy nieudanym zapisie rezerwy. Po poprawce:
+**302 testy, 0 niepowodzeń, 0 błędów, 0 pominięć**.
+[Pełny wynik](../../dokumentacja%20pracy/2026-11-17_t023/io_fix_full.json),
+[log](../../dokumentacja%20pracy/2026-11-17_t023/io_fix_full.log)
+i [19 testów instrumentacji](../../dokumentacja%20pracy/2026-11-17_t023/io_fix_targeted.json).
+API generacji w testach zablokowane, 0 prób; 35 SELECT PostgreSQL, bez
+zapisów do katalogu, te same operacje tymczasowej SQLite co wcześniej.
+Nie zmieniono promptów, expected, schematu, modelu i T017-v1.
+
+Nowy [pakiet 02](../../dokumentacja%20pracy/2026-11-17_t023/campaign_02/plan.json)
+zamraża poprawkę. Jest pełnym planem 384 ocen / do 354 wywołań, a nie
+wznowieniem 01. Przed uruchomieniem wymagał osobnej zgody, następnie
+uzyskanej. Obserwacje 01 pozostają osobno; nie potwierdzają kompletnej
+reguły ani akceptacji MVP. Pełny wynik 02 opisano na początku sekcji T023.
+SHA-256 planu 02:
+`7e625d66712d9a3c2211f50691d3a93c2bc1b04210c4f303a745ff31e7e7f388`.
+[Kontrola zakresu 02](../../dokumentacja%20pracy/2026-11-17_t023/scope_checks_02.json)
+potwierdza hashe 25 źródeł, 11 artefaktów, 134 istniejących plików,
+49 plików przerwanego przebiegu i 30 historycznych wejść T021.
+[Kontrola dokumentacji 02](../../dokumentacja%20pracy/2026-11-17_t023/documentation_checks_02.json).
 
 ### Audyt instrukcji — część T017, 2026-11-16
 

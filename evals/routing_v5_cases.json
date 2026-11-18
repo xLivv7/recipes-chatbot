@@ -1,0 +1,85 @@
+[
+  {
+    "id": "v5_diag_001",
+    "user_message": "Przygotuj zestaw dwóch obiadów pescetariańskich.",
+    "expected_action": "tool",
+    "expected": {"diet":"pescetarian","protein_preference":"none","restrictions":[],"nutrition_goal":"standard","category":"obiad","time_max":null,"top_n":2},
+    "rules": ["ROU-14", "ROU-17"]
+  },
+  {
+    "id": "v5_diag_002",
+    "user_message": "Przygotuj zestaw dwóch obiadów pescetariańskich z rybą.",
+    "expected_action": "tool",
+    "expected": {"diet":"pescetarian","protein_preference":"fish","restrictions":[],"nutrition_goal":"standard","category":"obiad","time_max":null,"top_n":2},
+    "rules": ["ROU-14", "ROU-17"]
+  },
+  {
+    "id": "v5_diag_003",
+    "user_message": "Na wieczór poproszę danie bez mięsa, ale ryby mogą się pojawić.",
+    "expected_action": "tool",
+    "expected": {"diet":"pescetarian","protein_preference":"none","restrictions":[],"nutrition_goal":"standard","category":"kolacja","time_max":null,"top_n":3},
+    "rules": ["ROU-12", "ROU-14"]
+  },
+  {
+    "id": "v5_diag_004",
+    "user_message": "Na wieczór poproszę danie bez mięsa, ale koniecznie rybne.",
+    "expected_action": "tool",
+    "expected": {"diet":"pescetarian","protein_preference":"fish","restrictions":[],"nutrition_goal":"standard","category":"kolacja","time_max":null,"top_n":3},
+    "rules": ["ROU-12", "ROU-14"]
+  },
+  {
+    "id": "v5_diag_005",
+    "user_message": "Pięć wegańskich kolacji bez mięsa poproszę.",
+    "expected_action": "tool",
+    "expected": {"diet":"vegan","protein_preference":"none","restrictions":[],"nutrition_goal":"standard","category":"kolacja","time_max":null,"top_n":5},
+    "rules": ["ROU-13", "ROU-17"]
+  },
+  {
+    "id": "v5_diag_006",
+    "user_message": "Proszę o wysokobiałkową kolację, nie musi zawierać ryby.",
+    "expected_action": "tool",
+    "expected": {"diet":"none","protein_preference":"none","restrictions":[],"nutrition_goal":"high_protein","category":"kolacja","time_max":null,"top_n":3},
+    "rules": ["ROU-14", "ROU-15"]
+  },
+  {
+    "id": "v5_diag_007",
+    "user_message": "Na przekąskę coś mięsnego bez laktozy.",
+    "expected_action": "tool",
+    "expected": {"diet":"none","protein_preference":"meat","restrictions":["lactose_free"],"nutrition_goal":"standard","category":"przekąska","time_max":null,"top_n":3},
+    "rules": ["ROU-14", "ROU-17"]
+  },
+  {
+    "id": "v5_diag_008",
+    "user_message": "Chcę fit lunch bez glutenu.",
+    "expected_action": "tool",
+    "expected": {"diet":"none","protein_preference":"none","restrictions":["gluten_free"],"nutrition_goal":"low_kcal","category":"lunch","time_max":null,"top_n":3},
+    "rules": ["ROU-17"]
+  },
+  {
+    "id": "v5_diag_009",
+    "user_message": "Chcę fit lunch bez glutenu do 22 minut.",
+    "expected_action": "tool",
+    "expected": {"diet":"none","protein_preference":"none","restrictions":["gluten_free"],"nutrition_goal":"low_kcal","category":"lunch","time_max":22,"top_n":3},
+    "rules": ["ROU-17"]
+  },
+  {
+    "id": "v5_diag_010",
+    "user_message": "Poproszę bezlaktozowe śniadanie na szybko, do 50 minut.",
+    "expected_action": "tool",
+    "expected": {"diet":"none","protein_preference":"none","restrictions":["lactose_free"],"nutrition_goal":"standard","category":"śniadanie","time_max":50,"top_n":3},
+    "rules": ["ROU-17"]
+  },
+  {
+    "id": "v5_diag_011",
+    "user_message": "Proszę o pomysł na posiłek.",
+    "expected_action": "tool",
+    "expected": {"diet":"none","protein_preference":"none","restrictions":[],"nutrition_goal":"standard","category":"kolacja","time_max":null,"top_n":3},
+    "rules": ["NTO-01", "NTO-08"]
+  },
+  {
+    "id": "v5_diag_012",
+    "user_message": "Wybierz bezmleczny lunch do 15 minut.",
+    "expected_action": "no_tool",
+    "rules": ["NTO-01", "NTO-03", "ROU-07"]
+  }
+]

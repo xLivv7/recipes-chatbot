@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 from openai import APIError, OpenAI
 
 from core.llm_tools import RECIPE_TOOLS
+from core.llm_response_validation import response_failure_reason
 from core.recommendation_normalization import normalize_recommendations_output
 from core.recommendations import get_recommendations
 from core.recommendation_errors import RecommendationDataError
@@ -18,10 +19,10 @@ load_dotenv()
 client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
 NO_TOOL_RESPONSE = (
-    "Nie wyszukano przepisów. Doprecyzuj rodzaj posiłku i swoje wymagania. "
-    "Obsługiwane ograniczenia to bez glutenu i bez laktozy. "
+    "Nie wyszukano przepisów. Możesz ponownie opisać posiłek i swoje wymagania. "
+    "Obsługiwane są dostępne diety oraz ograniczenia bez glutenu i bez laktozy. "
     "Bez laktozy nie oznacza bez mleka ani bez nabiału. "
-    "Ten chatbot nie obsługuje doboru przepisów dla alergii na mleko lub jego białka."
+    "Chatbot nie obsługuje doboru przepisów dla alergii."
 )
 INVALID_TOOL_RESPONSE = "Nie udało się odczytać parametrów zapytania. Doprecyzuj wymagania i spróbuj ponownie."
 API_ERROR_RESPONSE = "Usługa interpretacji zapytań jest obecnie niedostępna. Spróbuj ponownie później."
@@ -133,7 +134,9 @@ def chat_with_bot(user_message: str, brand_name: str) -> str:
         logging.getLogger(__name__).warning("LLM API failure: %s", type(exc).__name__)
         return API_ERROR_RESPONSE
 
-    if not response.choices:
+    failure_reason = response_failure_reason(response)
+    if failure_reason:
+        logging.getLogger(__name__).warning("Invalid LLM response: %s", failure_reason)
         return INVALID_TOOL_RESPONSE
     response_message = response.choices[0].message
     if not response_message.tool_calls:
@@ -145,7 +148,7 @@ def chat_with_bot(user_message: str, brand_name: str) -> str:
     function_name = tool_call.function.name
 
     if function_name != "get_recommendations":
-        return "Nie udało się obsłużyć zapytania. Spróbuj ponownie."
+        return INVALID_TOOL_RESPONSE
     try:
         function_args = parse_recipe_tool_arguments(tool_call.function.arguments)
     except ToolArgumentsError:

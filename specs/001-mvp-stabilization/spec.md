@@ -1,7 +1,7 @@
 # Specyfikacja — stabilizacja istniejącego MVP
 
 Data: 2026-10-22<br>
-Wersja dokumentu: 0.14; kontrakt diet/protein T017: 2026-11-16<br>
+Wersja dokumentu: 0.20; pomiar i przegląd T023 zakończone: 2026-11-17<br>
 Status: zakres, progi i DEC-01–03 zatwierdzone; wymagania integralności
 i błędów wdrożone w T006; protokół T008 opracowany. Pięć SKU pozostaje wstrzymanych.
 
@@ -71,9 +71,10 @@ ale nie zastępują jej ani stanów w `tasks.md`.
 | DEC-07 | Decyzja przeglądu T014.4, 2026-11-03 | Pozostawić aktywny V0; V3 zachowuje kwalifikację kandydata T014.3, ale wymaga dalszego dopracowania. W application pomija dietę w intent_004, błędnie odmawia obsługi intent_010 i ma niestabilną regresję intent_032. Nie wdrażać V3 na podstawie tego pomiaru. Uzasadnienie i dowody w sekcji T014.4 mapy weryfikacji; ACC i reguła wyboru pozostają bez zmian. |
 | DEC-08 | Decyzja przeglądu T016, 2026-11-03 | V4 nie kwalifikuje się według T015-v1 mimo 57/60 application. W intent_032 dodaje fish bez jawnej prośby: regresja application 3/3 → 0/3 i trzy wywołania backendu z błędną semantyką. Pozostawić V0; dalsza diagnoza relacji diety i preferencji białka w T017 offline. Zachować progi, expected i regułę oraz raport T016. |
 | DEC-09 | Zatwierdzona przez autorkę 2026-11-16 | Samo „bez mięsa” oznacza domyślnie vegetarian. Jawne dopuszczenie ryb lub wskazanie diety doprecyzowuje tę regułę; sama zgoda na ryby nie wymaga fish. Obowiązuje tabela prośba → interpretacja poniżej, rozwinięta w kontrakcie T017. |
-| DEC-10 | Zlecono opracowanie kontraktu, 2026-11-16 | T019 ma określić no_tool: warunki decyzji, odpowiedzialność modelu i aplikacji, komunikat oraz ocenę poprawności. Sam brak wywołania nie może ukrywać błędu dla obsługiwanej prośby. Szczegóły pozostają do zaprojektowania. |
+| DEC-10 | Kontrakt T019; komunikat i kontrola odpowiedzi wdrożone w T022, 2026-11-17 | No_tool oznacza brak wywołania, bez nowego narzędzia ani pola powodu. Model wybiera decyzję, aplikacja tworzy komunikat. Powód biznesowy pozostaje nieznany; znany jest etap wykonania. NTO-01–08 określają kontrakt; T022 wdrożyło MSG-01/06 oraz zatrzymanie length/content_filter/refusal przed dispatch, ze wspólną diagnostyką T022-v1. Jakość decyzji modelu wymaga pomiaru. |
 | DEC-11 | Zlecono projekt, 2026-11-16 | T020 ma zaprojektować obsługę wielu celów żywieniowych, np. low_kcal + keto. Zakres obejmuje semantykę połączeń i wpływ na kontrakt oraz backend. Nie jest zleceniem implementacji ani rozszerzeniem wszystkich pól do list. |
-| DEC-12 | Uzgodniono kierunek przygotowania, 2026-11-16 | Punkty 4/5 audytu realizować przez kandydata evals/routing_prompts/V5.txt: format przykładów jak w V4, z kontrastowym doborem treści zgodnym z T017/T019. Pozostałe instrukcje i wspólny schemat zachować. T021 obejmuje przygotowanie i kontrolę offline; skuteczność, płatny pomiar i wdrożenie pozostają osobnymi etapami. |
+| DEC-12 | Przygotowano offline w T021, 2026-11-17; niewdrożone | Kandydat evals/routing_prompts/V5.txt zachowuje format V4, z 18 kontrastowymi demonstracjami zgodnymi z T017/T019. Zmieniono dwie reguły „bez mięsa” i wprowadzenie do przykładów w granicach T017; pozostałe instrukcje i wspólny schemat zachowano. Przygotowanie nie potwierdza skuteczności i nie upoważnia do płatnego pomiaru lub wdrożenia. |
+| DEC-13 | Decyzja przeglądu T023, 2026-11-17 | V5 nie kwalifikuje się według T017-v1. W kompletnym pomiarze 02: application 78/96 wobec V4 86/96, sześć regresji per-case i 13 błędnych semantycznie dispatch. Niezamówione fish spadło 4 → 0 w obu trybach, ale intent_004 i diag_004 pozostały 0/3. Pozostawić aktywny V0; bez wdrożenia V4/V5 ani zaliczenia ACC. Przerwany przebieg 01 zachowano osobno. |
 
 W tym etapie dopuszczalne są poprawki błędów, zmiany promptu, refaktoryzacja,
 korekty istniejących danych, testy, narzędzia pomiarowe i dokumentacja,
@@ -568,11 +569,112 @@ i granic odmowy. To hipoteza o całym nowym wariancie, nie dowód przyczyny
 błędu T016 ani obietnica poprawy. Przygotowanie V5 prowadzi T021 po T019;
 protokół i warunki oceny przed pomiarem określa sekcja 9 planu.
 
-T019 dotyczy kontraktu no_tool (INS-03): sytuacji zakończenia bez narzędzia,
-roli content, komunikatów aplikacji, błędów i planu weryfikacji. Przy obecnym
-interfejsie brak tool_calls nie niesie jednoznacznej przyczyny; projekt ma
-rozstrzygnąć, kiedy wystarczy komunikat ogólny i skąd mogą pochodzić powody.
-Nie należy dopisywać do odpowiedzi pewnej przyczyny, której aplikacja nie zna.
+### T019 — kontrakt odpowiedzi no_tool
+
+Opracowano 2026-11-17 na podstawie DEC-10 / INS-03 i ROU-12–17.
+T022 wdrożyło komunikat i kontrolę protokołu; poprawność decyzji modelu
+pozostaje do zmierzenia. Kontrakt rozdziela brak wywołania
+narzędzia przez model, zatrzymanie przed modelem, pusty wynik po wyszukiwaniu
+i awarię. W każdym przypadku końcową odpowiedź tworzy aplikacja.
+
+| ID | Wymaganie | Powiązanie |
+| --- | --- | --- |
+| NTO-01 | Model nie wywołuje narzędzia dla wypowiedzi niezwiązanej z prośbą o przepis, rzeczywiście nieobsługiwanego wymagania, sprzeczności według T017 lub wypowiedzi, z której nie da się ustalić samodzielnej prośby o posiłek. Brak kategorii, diety, celu, liczby lub czasu nie jest sam w sobie brakiem informacji: stosować istniejące wartości domyślne. „Podaj przepis” jest obsługiwane. | ACC-09/11; ROU-01/07/12–17 |
+| NTO-02 | No_tool z modelu oznacza brak pozycji w tool_calls w odpowiedzi bez sygnałów błędu technicznego. Nie istnieje narzędzie no_tool ani obiekt argumentów odmowy. Nie dodawać action/reason do schematu. content może być null, pusty lub niepusty; aplikacja go nie wykonuje, nie wyświetla i nie używa jako źródła przyczyny. | ACC-06; ROU-02/03 |
+| NTO-03 | Uzasadnienie komunikatu może pochodzić tylko z lokalnie zaobserwowanego etapu: zadziałała reguła preflight, wystąpił błąd API/walidacji lub wyszukiwanie zwróciło pustą listę. Reguła alergii stwierdza wzmiankę, nie diagnozę użytkownika; reguła wykluczeń może oznaczać niejednoznaczny zapis. Sam brak tool_calls nie dowodzi alergii, konfliktu, nieobsługiwanego wymagania ani braku danych w katalogu. | ACC-05/07/11 |
+| NTO-04 | Dla zwykłego no_tool modelu aplikacja zwraca jeden stały komunikat MSG-01, niezależny od content/refusal i domniemanego powodu. Komunikaty preflight oraz błędów dobiera z własnej ścieżki wykonania. Nie może twierdzić „nie znaleziono”, jeśli wyszukiwanie nie nastąpiło. Nie wolno przejść do wyszukiwania przez odczytanie JSON-a z content. | ACC-05/06/07 |
+| NTO-05 | Poprawne pojedyncze wywołanie dopiero po walidacji uruchamia backend. Pusta lista recommendations oznacza wykonane wyszukiwanie bez wyników; zachować wymagania i użyć MSG-04. Błąd przygotowania/payloadu pozostaje błędem, nawet jeśli wystąpił po uruchomieniu backendu; nie zamieniać go na pustą listę ani no_tool. | ACC-05/06/07; DEC-03 |
+| NTO-06 | Błąd API, brak choices, nieznane/wielokrotne narzędzie i niepoprawne argumenty nie są poprawnym no_tool. Jawne ucięcie (finish_reason=length), odfiltrowanie (content_filter) lub niepuste refusal także nie dowodzą decyzji biznesowej modelu. Przed dispatch zatrzymać takie odpowiedzi i zwrócić kontrolowany błąd; nie wykonywać nawet wyglądających poprawnie argumentów z uciętej odpowiedzi. | ACC-06/07; T017-v1 |
+| NTO-07 | W ocenie porównywać działanie z expected ustalonym przed pomiarem. Brak narzędzia dla obsługiwanej prośby to błąd decyzji; fałszywa blokada preflight to błąd ochrony. Nie przypisywać brakującym argumentom wymyślonych wartości i nie zaliczać poprawnego JSON-a w content. Dla no_tool bez argumentów ocena pól jest nieadekwatna, a nie poprawna lub błędna. Błąd techniczny nie jest sukcesem odmowy. | ACC-06/09/11; ROU-09 |
+| NTO-08 | Doprecyzowanie oznacza możliwość podania nowego, samodzielnego zapytania, bez pamięci poprzedniej wypowiedzi. Model nie prowadzi dialogu i nie musi wygenerować pytania. Nie wymagać literalnej odpowiedzi „no_tool”, kodu przyczyny ani pustego content jako warunku poprawnej decyzji. Brak takiego dodatkowego sygnału jest świadomą granicą MVP. | Z-03/04; INS-03; ACC-09 |
+
+**Podział odpowiedzialności:** model interpretuje prośbę i wybiera jedno
+narzędzie z argumentami albo brak wywołania. Aplikacja odpowiada za preflight,
+walidację odpowiedzi i argumentów, dispatch oraz komunikat. Ewaluacja zna
+etykietę expected i może stwierdzić błędną odmowę; aktywna aplikacja nie ma
+takiej etykiety i nie może odtwarzać przyczyny z samej nieobecności wywołania.
+Metadane refusal/finish_reason są sygnałem przebiegu odpowiedzi, nie
+wiarygodnym uzasadnieniem dietetycznym. Ich treści nie pokazywać użytkownikowi.
+
+#### Decyzja → wykonanie → komunikat
+
+Liczby oznaczają wywołania backendu, nie liczbę przepisów. API nie jest
+wywoływane przy blokadzie preflight. Dla pozostałych ścieżek nie dodawać
+drugiego wywołania modelu do redakcji ani ustalenia powodu.
+
+| Sytuacja | Oczekiwana decyzja / źródło wiedzy | Backend | Komunikat |
+| --- | --- | --- | --- |
+| Preflight rozpoznaje wzmiankę o alergii. | Zatrzymanie aplikacji przed modelem; znana jest reguła, nie stan zdrowia. | 0 | MSG-02 |
+| Preflight rozpoznaje wykluczenie lub niejednoznaczny zapis. | Zatrzymanie aplikacji przed modelem; poprawność blokady ocenić osobno. | 0 | MSG-03 |
+| Model poprawnie nie wywołuje narzędzia dla prośby poza zakresem, sprzeczności lub braku samodzielnej prośby. | No_tool; aplikacja zna brak wywołania, bez pewnego powodu biznesowego. | 0 | MSG-01 |
+| Model nie wywołuje narzędzia dla obsługiwanej prośby. | Błędna decyzja w ewaluacji; aplikacja nadal zna tylko brak wywołania. | 0 | MSG-01; wynik testu pozostaje błędem. |
+| Poprawne jedno wywołanie i niepusty wynik. | Wyszukiwanie wykonane, payload poprawny. | 1 | Lokalny renderer. |
+| Poprawne jedno wywołanie i pusta lista wyników. | Wyszukiwanie wykonane bez zgodnych wyników. | 1 | MSG-04 |
+| Wyjątek API. | Błąd usługi interpretacji, bez decyzji modelu. | 0 | MSG-05 |
+| Brak choices, nieznane narzędzie, wiele wywołań lub błędne argumenty. | Błąd protokołu albo argumentów. | 0 | MSG-06 |
+| Ucięcie, filtrowanie lub refusal, z narzędziem albo bez. | Błąd/odmowa na poziomie odpowiedzi dostawcy; nie utożsamiać z granicą katalogu. | 0 | MSG-06 |
+| Błąd przygotowania danych po dispatch. | Błąd danych, nie pusty wynik. | 1 | MSG-07 |
+| Niepoprawny payload po dispatch. | Błąd prezentacji danych, nie pusty wynik. | 1 | MSG-08 |
+
+#### Komunikaty aplikacji
+
+MSG to identyfikatory specyfikacji, nie nowe narzędzia lub pola API.
+MSG-01 oraz dobór MSG-06 dla błędów metadanych i nieznanej funkcji wdrożono
+w T022. Komunikaty preflight zachowują swój tekst.
+
+| ID | Treść lub istniejący szablon |
+| --- | --- |
+| MSG-01 | „Nie wyszukano przepisów. Możesz ponownie opisać posiłek i swoje wymagania. Obsługiwane są dostępne diety oraz ograniczenia bez glutenu i bez laktozy. Bez laktozy nie oznacza bez mleka ani bez nabiału. Chatbot nie obsługuje doboru przepisów dla alergii.” |
+| MSG-02 | Istniejące UNSUPPORTED_ALLERGY_RESPONSE: informacja o wzmiance o alergii, braku wyszukiwania i braku obsługi doboru dla alergii. Nie stwierdza, że użytkownik ma alergię. |
+| MSG-03 | Istniejące UNSUPPORTED_EXCLUSION_RESPONSE: wykluczenie nieobsługiwane lub niejednoznaczny zapis, bez wyszukiwania i zastępowania wymagania innym filtrem. |
+| MSG-04 | „Nie znaleziono przepisów spełniających podane kryteria.” — wyłącznie po poprawnym wyszukiwaniu. |
+| MSG-05 | Istniejące API_ERROR_RESPONSE: „Usługa interpretacji zapytań jest obecnie niedostępna. Spróbuj ponownie później.” |
+| MSG-06 | Istniejące INVALID_TOOL_RESPONSE: „Nie udało się odczytać parametrów zapytania. Doprecyzuj wymagania i spróbuj ponownie.” |
+| MSG-07 | Istniejący komunikat danych: „Nie udało się przygotować przepisów z powodu niespójnych danych. Spróbuj ponownie później.” |
+| MSG-08 | Istniejący komunikat payloadu: „Nie udało się wyświetlić przepisów z powodu niespójnych danych. Spróbuj ponownie później.” |
+
+Nie pokazujemy treści wyjątków, tekstu modelu ani jego zapewnień o produktach,
+liczbach lub wyszukaniu bazy. Ogólna wskazówka MSG-01 nie oznacza, że brakowało
+konkretnego pola; pola domyślne nadal są obsługiwane.
+
+#### Scenariusze kontraktu no_tool do wdrożenia i weryfikacji
+
+To plan jawnych kontroli, bez nowego holdoutu i bez wyników żywego modelu.
+Odpowiedzi modelu można podstawiać w testach granicy aplikacji; nie dowodzi
+to poprawnej interpretacji rzeczywistych zapytań przez model.
+
+| ID | Scenariusz | Oczekiwanie | Powiązanie |
+| --- | --- | --- | --- |
+| NTC-01 | Pytanie poza przepisami, np. routing_005. | No_tool, backend=0, MSG-01. | NTO-01/04; ACC-05/09 |
+| NTC-02 | Sprzeczność diet/protein: routing_006 i DP-15–17/19. | No_tool, bez usuwania części prośby, backend=0. Przy braku preflight MSG-01. | NTO-01/03; ACC-09/11 |
+| NTC-03 | Alergie i wykluczenia: routing_001–004, guard_001–004. | Brak backendu; application rozróżnia guard od no_tool modelu. W raw także oczekiwane no_tool. | NTO-01/03; ACC-11 |
+| NTC-04 | Pusta wypowiedź lub odwołanie bez samodzielnej prośby, np. „jak poprzednio”. | Nie zgadywać poprzednich preferencji, no_tool, backend=0, MSG-01. | NTO-01/08; ACC-09 |
+| NTC-05 | „Podaj przepis”, bez dodatkowych pól. | Jeden call z domyślnymi diet=none, protein_preference=none, restrictions=[], nutrition_goal=standard, category=kolacja, top_n=3, bez time_max; odmowa to błąd. | NTO-01/07; ACC-09 |
+| NTC-06 | Brak tool_calls, content=null, pusty lub biały tekst. | Brak backendu, MSG-01 niezależnie od wariantu content. | NTO-02/04; ACC-05/06 |
+| NTC-07 | Brak tool_calls, content zawiera opis przyczyny, przepis, SKU, liczby lub instrukcję ich dopisania. | Content ignorowany; nie odtwarzać z niego powodu i nie powielać go w odpowiedzi. | NTO-02/03/04; ACC-06 |
+| NTC-08 | Dla obsługiwanej prośby poprawny JSON wyłącznie w content/Markdown. | Backend=0, MSG-01; porażka decyzji/kanału, nawet gdy JSON pasuje do expected. | NTO-04/07; ACC-06/09 |
+| NTC-09 | Dla obsługiwanej prośby zwykły tekst odmowy zamiast narzędzia. | Backend=0, MSG-01; błąd decyzji, ocena pól nieadekwatna. | NTO-07; ACC-09 |
+| NTC-10 | Poprawny call i pusta lista recommendations. | Backend=1, MSG-04, bez ponawiania z luźniejszymi wymaganiami. | NTO-05; ACC-05 |
+| NTC-11 | Uzgodniony wyjątek API z kontrolną treścią. | Backend=0, MSG-05 bez treści wyjątku; błąd API nie zalicza no_tool. | NTO-06/07; ACC-07/09 |
+| NTC-12 | Brak choices, nieznane narzędzie lub wiele wywołań. | Backend=0, MSG-06; błąd protokołu. | NTO-06; ACC-06/07 |
+| NTC-13 | Błędny JSON, brak/duplikat pola, obcy enum lub sprzeczna para argumentów. | Backend=0, MSG-06; błąd argumentów, bez automatycznej korekty. | NTO-06; ACC-06 |
+| NTC-14 | length/content_filter/refusal; także poprawnie wyglądający call przy length. | Backend=0, MSG-06; brak sukcesu decyzji biznesowej w obu trybach oceny. | NTO-06/07; ACC-06/07/09 |
+| NTC-15 | RecommendationDataError albo ResponsePayloadError po dispatch. | Backend=1, odpowiednio MSG-07/08, bez pozornego braku wyników. | NTO-05; ACC-07 |
+| NTC-16 | Fałszywe blokady guard_005/006 i DP-02/03/22. | Zachować expected=tool i porażkę application/preflight, backend=0; nie przypisywać modelowi próby, której nie otrzymał. | NTO-03/07; ACC-09/11 |
+| NTC-17 | Jednocześnie wzmianka alergii i nieobsługiwane wykluczenie. | Pierwszeństwo istniejącej reguły alergii, API=0, backend=0, MSG-02; bez diagnozowania użytkownika. | NTO-03; ACC-07/11 |
+| NTC-18 | Model bez narzędzia twierdzi w content „przeszukano bazę, brak wyników”. | Backend=0 i MSG-01, bez powielenia twierdzenia ani MSG-04. | NTO-03/04; ACC-05/06 |
+
+T021 zapisze demonstrację odmowy jako `Narzędzie: brak wywołania` oraz
+`Argumenty: nie dotyczy`, zachowując linię `Zapytanie: ...`. To opis decyzji
+w przykładzie systemowym, nie treść do wypisania użytkownikowi ani nowe
+narzędzie. Pozostałe instrukcje V4 już powierzają odpowiedź aplikacji;
+do wprowadzenia przykładów dopisać znaczenie braku wywołania zgodne z NTO-02/08.
+
+Nie dodajemy kanału powodu odmowy, nowego schematu odpowiedzi ani drugiego
+modelu. T022 wdrożyło komunikat ogólny, klasyfikację znanych błędów
+odpowiedzi przed dispatch i zgodną diagnostykę raw/application.
+Poprawa gramatyki preflight pozostaje osobnym zakresem; jej fałszywe blokady
+nie zostały w T019 zaakceptowane jako poprawne no_tool.
 
 T020 jest zadaniem projektowym dotyczącym INS-07 dla celów żywieniowych.
 Ma określić łączenie wymagań i preferencji, np. keto z preferencją niższej
@@ -599,6 +701,85 @@ które w V4 zapowiada wyłącznie wywołania. Bez tych wyjątków zachowanie
 całego tekstu V4 kolidowałoby z kontrastami DEC-09 i no_tool. Pozostała
 treść pozostaje bez zmian; diff ma osobno pokazać te korekty i demonstracje.
 Nie jest to polecenie edycji promptów w ramach T017.
+
+### T021 — V5 przygotowane offline
+
+Wykonano 2026-11-17: [V5](../../evals/routing_prompts/V5.txt) zawiera 14
+demonstracji wywołania z pełnymi argumentami oraz 4 demonstracje braku
+wywołania. Zachowano format V4 i zakres korekt INS-02/wprowadzenia ustalony
+w T017/T019. Każdy przykład ma ID D5-01–18 i regułę kontraktu w mapie
+pokrycia w sekcji 13 planu; ID nie są dopisywane do promptu modelu.
+
+[Nowe przypadki diagnostyczne](../../evals/routing_v5_cases.json) są odrębne
+od demonstracji. Do małego porównania zaplanowano 20 niezmienionych
+przypadków starego pilota i 12 nowych. Pięć znanych fałszywych blokad
+preflight ma osobny audyt offline z zachowanym expected=tool; nadal
+pozostają błędami aplikacji i luką w akceptacji MVP.
+
+[Program przygotowania](../../evals/prepare_routing_v5.py) kontroluje
+argumenty, kontrasty, zakres diffu i rozdzielenie zapytań, a następnie może
+zamrozić wejścia i plan. Nie importuje SDK/main/bazy, nie potrzebuje klucza
+i nie ma trybu wykonania płatnego pomiaru. Przygotowanie T021 zamroziło
+stan przed T022; po wdrożeniu T022 wymagany jest nowy manifest.
+Dowody przygotowania są w `verification.md`. Nie uznano H-T017 ani ACC
+za potwierdzone. Aktywny V0, wspólny schemat po T018 i historyczne V0–V4
+pozostały bez zmian. Wykonanie porównania otrzymało odrębne T023.
+
+### T022 — wdrożony kontrakt no_tool w aplikacji i diagnostyce
+
+Wykonano 2026-11-17. Aplikacja używa MSG-01 dla zwykłego braku wywołania
+i MSG-06 dla nieznanej funkcji oraz znanych błędów odpowiedzi. Wspólna
+funkcja w [llm_response_validation.py](../../core/llm_response_validation.py)
+wykrywa brak choices, length, content_filter i niepuste refusal przed
+odczytaniem argumentów lub dispatch. Nie analizuje content jako przyczyny.
+
+W [runnerze](../../evals/run_routing_eval.py) te odpowiedzi mają
+failure_stage=protocol, effective_action=error oraz brak oceny decyzji
+modelu i pól. Zachowano diagnostyczny ślad liczby/nazw/argumentów wywołań
+i metadane, bez wykonywania częściowo poprawnego wywołania. Raporty i wiersze
+oznaczono response_validation_version=T022-v1; response_failure_reason
+jest technicznym powodem błędu, a nie polem schematu modelu lub powodem
+niezgodności prośby z katalogiem.
+
+Regresja obejmuje 283 testy z kontrolowanymi odpowiedziami, bez rzeczywistych
+żądań OpenAI. Znane fałszywe blokady preflight nadal pozostają błędami
+application, bez przypisywania modelowi próby. Dowody i pokrycie NTC są
+w `verification.md`. Nie potwierdzono jakości interpretacji przez model.
+Aktywny V0, schemat narzędzia, parser preferencji, preflight, katalog,
+V0–V5 oraz etykiety zachowano. Nowy plik walidacji jest uwzględniany w hashach
+nowych przygotowań; historyczne przygotowanie T021 i dawne raporty pozostają
+niezmienione. Następny pomiar jest odrębnym T023.
+
+### T023 — pomiar i przegląd V4/V5 zakończone
+
+Zakończono 2026-11-17: [runner V4/V5](../../evals/run_routing_v5.py),
+kontrole, osobno zatwierdzony pomiar, audyt i przegląd T017-v1.
+**DEC-13: V5 nie kwalifikuje się; aktywny V0 pozostaje bez zmiany.**
+[Raport i uzasadnienie](../../docs/reports/t023_routing_2026-11-17.md).
+
+Kompletny przebieg 02 obejmuje 384 oceny / 354 wywołania, 32 przypadki,
+trzy rundy i oba tryby, jeden resolved model oraz 0 błędów technicznych.
+V5: 75/96 raw, 78/96 application; V4: 84/96 raw, 86/96 application.
+V5 zachował no_tool 21/21 i ograniczył niezamówione fish 4 → 0 w obu
+trybach, lecz ma sześć regresji w każdym, 13 błędnych dispatch application
+i tylko 25/32 przypadków stabilnych. Intent_004 i diag_004 pozostały 0/3
+w obu trybach. Nie zmieniono progów, expected ani H-T017 po wynikach.
+Poprawa fish daje częściowe wsparcie kierunku, bez pełnej kwalifikacji V5.
+
+Wykonawca egzekwuje hash planu i budżet przed klientem, dokładne payloady,
+rezerwację przed SDK, retry=0 i zakaz selektywnego wznowienia. Pierwszy
+zatwierdzony przebieg 01 przerwał błąd zastąpienia pliku Windows po 262
+ocenach i 242 odpowiedziach. Zachowano go osobno; poprawiono lokalny zapis
+i dopiero po nowej zgodzie wykonano cały 02. Wyników nie połączono.
+Pełna regresja po poprawce: **302/302**, bez pominięć, z generacją SDK
+i zapisami do katalogu zablokowanymi. Symulacje są oznaczone jako mock.
+
+Koszt referencyjny z usage bez cache: 02 — 0,19128450 USD,
+01 — 0,13034625 USD; suma 0,32163075 USD nie jest rachunkiem dostawcy.
+Osobny audyt zachowuje pięć fałszywych blokad jako błędy preflight poza
+mianownikiem 32. Badano interpretację z atrapą lookup, bez nowego holdoutu,
+pełnej jakości rekomendacji i akceptacji ACC. Katalog, V0–V5, schemat
+i kod aplikacji pozostały bez zmian. Dowody są w `verification.md`.
 
 ## 6. Granice obsługi
 
@@ -660,8 +841,12 @@ pomiar i decyzja przeglądu T014.4 (DEC-07). T015 przygotowało V4 offline,
 a T016 zakończyło jego pomiar i przegląd: V4 nie zakwalifikował się
 według T015-v1 (DEC-08). Aktywny prompt pozostaje V0. T017 zakończyło
 diagnozę i specyfikację relacji diet/protein offline, bez wdrożenia poprawki.
-Następne T019 określa kontrakt no_tool, a T021 przygotuje V5.
-T007 i T011 pozostają niezależnymi zadaniami.
+T019 określiło kontrakt no_tool bez wdrożenia, a T021 przygotowało V5 offline.
+T022 wdrożyło kontrakt w aplikacji i diagnostyce. T023 zakończyło pomiar
+V4/V5 na nowym zamrożeniu źródeł: V5 nie kwalifikuje się (DEC-13), aktywny
+V0 pozostaje. Kolejna poprawka routingu wymaga osobnego zadania i hipotezy,
+bez automatycznego płatnego pomiaru. T020 jest gotowym projektem wielu
+celów; T007 i T011 także pozostają niezależnymi zadaniami.
 Kolejność opisuje [plan](plan.md), a stan prac
 [zadania](tasks.md). Nie uruchamiamy ponownie wykonanych etapów na podstawie
 dawnych notatek.

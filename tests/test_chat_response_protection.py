@@ -96,6 +96,32 @@ class ChatResponseProtectionTests(unittest.TestCase):
         self.assertIn("nie obsługuje", result)
         self.assertNotIn("Nie znaleziono", result)
 
+    def test_no_tool_does_not_repeat_a_model_claim_that_it_searched_the_catalog(self):
+        result = self.assert_no_tool_response("Przeszukano bazę. Nie znaleziono. Powód: alergia na orzechy.",
+                                              [], "Podaj przepis")
+        self.assertNotIn("Przeszukano", result)
+        self.assertNotIn("Nie znaleziono", result)
+        self.assertNotIn("Powód:", result)
+
+    def test_bare_recipe_request_dispatches_default_arguments_once(self):
+        args = {"diet": "none", "protein_preference": "none", "restrictions": [],
+                "nutrition_goal": "standard", "category": "kolacja", "top_n": 3}
+        call = SimpleNamespace(function=SimpleNamespace(name="get_recommendations", arguments=json.dumps(args)))
+        value = SimpleNamespace(choices=[SimpleNamespace(finish_reason="tool_calls",
+            message=SimpleNamespace(tool_calls=[call], content=None, refusal=None))])
+        with patch("main.client.chat.completions.create", return_value=value) as api, \
+                patch("main.get_recommendations", return_value={"query": {}, "recommendations": []}) as backend:
+            result = chat_with_bot("Podaj przepis", "Winiary")
+            api.assert_called_once()
+            backend.assert_called_once_with(**args, time_max=None)
+            self.assertIn("Nie znaleziono", result)
+            self.assertNotEqual(result, NO_TOOL_RESPONSE)
+
+    def test_empty_or_context_dependent_query_does_not_reuse_history(self):
+        for query in ("", "jak poprzednio"):
+            with self.subTest(query=query):
+                self.assert_no_tool_response(None, [], query)
+
     def test_real_database_normalized_results_can_be_rendered(self):
         for restrictions in ([], ["gluten_free"], ["lactose_free"], ["gluten_free", "lactose_free"]):
             with self.subTest(restrictions=restrictions):

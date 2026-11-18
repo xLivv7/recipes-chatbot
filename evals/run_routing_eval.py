@@ -21,6 +21,7 @@ from openai import APIError, OpenAI
 
 import main as application
 from core.llm_tools import RECIPE_TOOLS
+from core.llm_response_validation import RESPONSE_VALIDATION_VERSION, response_failure_reason
 from core.tool_call_validation import ToolArgumentsError, parse_recipe_tool_arguments
 from evals.run_llm_eval import (DEFAULT_CASES_PATH, DEFAULT_ROUTING_CASES_PATH,
                                FIELDS, load_cases, request_intent_response, score_case)
@@ -29,21 +30,34 @@ GUARD_CASES_PATH = Path(__file__).with_name("application_routing_cases.json")
 HOLDOUT_CASES_PATH = Path(__file__).with_name("holdout_cases_v1.json")
 
 
+def empty_observation():
+    return {"model_action": None, "tool_call_count": None, "raw_tool_calls": [],
+            "protocol_valid": None, "arguments_valid": None, "actual": None,
+            "no_tool_content": None, "no_tool_refusal": None, "finish_reason": None,
+            "failure_stage": None, "response_refusal": None, "response_failure_reason": None,
+            "response_validation_version": RESPONSE_VALIDATION_VERSION}
+
+
 def observe_response(response):
-    observation = {"model_action": None, "tool_call_count": None, "raw_tool_calls": [],
-                   "protocol_valid": None, "arguments_valid": None, "actual": None,
-                   "no_tool_content": None, "no_tool_refusal": None, "finish_reason": None,
-                   "failure_stage": None}
+    observation = empty_observation()
+    failure_reason = response_failure_reason(response)
     if not response.choices:
-        return {**observation, "protocol_valid": False, "failure_stage": "protocol"}
+        return {**observation, "protocol_valid": False, "failure_stage": "protocol",
+                "response_failure_reason": failure_reason}
     calls = response.choices[0].message.tool_calls or []
     observation["finish_reason"] = getattr(response.choices[0], "finish_reason", None)
+    observation["response_refusal"] = getattr(response.choices[0].message, "refusal", None)
     if not calls:
         observation["no_tool_content"] = getattr(response.choices[0].message, "content", None)
         observation["no_tool_refusal"] = getattr(response.choices[0].message, "refusal", None)
-    observation.update(model_action="tool" if calls else "no_tool", tool_call_count=len(calls),
+    observation.update(tool_call_count=len(calls),
                        raw_tool_calls=[{"name": call.function.name,
                                         "arguments": call.function.arguments} for call in calls])
+    if failure_reason:
+        # Preserve the trace without scoring an unfinished/provider-refused response as a business decision.
+        return {**observation, "protocol_valid": False, "failure_stage": "protocol",
+                "response_failure_reason": failure_reason}
+    observation["model_action"] = "tool" if calls else "no_tool"
     if calls and (len(calls) != 1 or calls[0].function.name != "get_recommendations"):
         return {**observation, "protocol_valid": False, "failure_stage": "protocol"}
     observation["protocol_valid"] = True
@@ -99,10 +113,7 @@ def evaluate_case(case, mode, client, model="gpt-4o-mini", brand_name="Winiary",
     except APIError:
         pass
 
-    observation = {"model_action": None, "tool_call_count": None, "raw_tool_calls": [],
-                   "protocol_valid": None, "arguments_valid": None, "actual": None,
-                   "no_tool_content": None, "no_tool_refusal": None, "finish_reason": None,
-                   "failure_stage": None}
+    observation = empty_observation()
     if api_errors:
         observation.update(failure_stage="api", error=api_errors[0])
     elif responses:
@@ -207,6 +218,7 @@ def run_eval(args):
               "scope": "routing_only_with_stubbed_recommendation_tool",
               "mode": args.mode, "dry_run": args.dry_run,
               "created_at_utc": datetime.now(timezone.utc).isoformat(),
+              "response_validation_version": RESPONSE_VALIDATION_VERSION,
               "model": args.model, "temperature": 0.1, "parallel_tool_calls": False,
               "system_prompt": application.build_system_prompt(args.brand_name),
               "tool_schema": RECIPE_TOOLS, "brand_name": args.brand_name,
@@ -214,6 +226,7 @@ def run_eval(args):
                                 for path in paths],
               "source_files": {name: hashlib.sha256((PROJECT_ROOT / name).read_bytes()).hexdigest()
                                for name in ("main.py", "core/request_safety.py", "core/tool_call_validation.py",
+                                            "core/llm_response_validation.py",
                                             "evals/run_llm_eval.py", "evals/run_routing_eval.py")},
               "results": []}
     if args.dry_run:
