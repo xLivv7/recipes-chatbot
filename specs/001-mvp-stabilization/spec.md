@@ -1,7 +1,7 @@
 # Specyfikacja — stabilizacja istniejącego MVP
 
 Data: 2026-10-22<br>
-Wersja dokumentu: 0.23; projekt interpretacji T025 zakończony: 2026-11-18<br>
+Wersja dokumentu: 0.24; implementacja offline T026 zakończona: 2026-11-18<br>
 Status: zakres, progi i DEC-01–03 zatwierdzone; wymagania integralności
 i błędów wdrożone w T006; protokół T008 opracowany. Pięć SKU pozostaje wstrzymanych.
 
@@ -823,7 +823,8 @@ Zakończono 2026-11-18 jako projekt, bez implementacji. DEC-15 wybiera
 [IR-1](interpretation-contract.md), [schemat](contracts/interpretation-v1.schema.json)
 i [fixture'y projektu](contracts/interpretation-v1.examples.json). Nie ma
 nowego pomiaru modelu, adaptera SDK, kompilatora ani promptu V6.
-Poniższe wymagania dotyczą przyszłego, odrębnego trybu IR. Aktywne
+T026 następnie zaimplementowało odrębny tryb IR offline; dowody są poniżej.
+Poniższe wymagania dotyczą tego kandydata. Aktywne
 ROU/NTO, RECIPE_TOOLS, parser, preflight T024 i V0 są bez zmian.
 
 | ID | Wymaganie projektu | Weryfikacja po implementacji |
@@ -845,6 +846,23 @@ adnotacje faktów są propozycją do przeglądu przed pomiarem; istniejące
 12 zapytań i expected backendu zachowano dokładnie. Kontrola T025 dotyczy
 spójności projektu i schematu, nie działania kompilatora lub jakości LLM.
 [Dowody](verification.md#t025--projekt-ir-1-zakończony).
+
+### T026 — implementacja IR-1 offline zakończona
+
+Zakończono 2026-11-18 według IR-01–10. Dostępny jest wewnętrzny tryb
+facts_v1: ścisła walidacja całego pakietu, czysty kompilator i adapter
+jednego submit_recipe_interpretation. Instrukcje kandydata IR1 nie zawierają
+pełnych zapytań diagnostycznych. Brak lub błędny call daje błąd protokołu;
+poprawna interpretacja może dać no_search bez wywołania backendu.
+Diagnostyka rozdziela żądanie SDK, call interpretacyjny i dispatch,
+nie przypisując automatycznie sukcesu modelowi.
+
+IRC-01–20 sprawdzono na kontrolowanych odpowiedziach; pełna regresja
+347/347 bez pominięć. Zamrożono konfigurację kandydata, bez API modelu,
+zapisów do katalogu i zmiany domyślnego legacy/V0. Parser, backend,
+renderer i artefakty projektowe T025 zachowano. Skuteczność rozpoznawania
+faktów jest niezmierzona; IR-09 pozostaje ograniczeniem. T027 wymaga
+osobnego przygotowania i zgody na płatny plan. [Dowody i pokrycie IRC](verification.md#t026--implementacja-ir-1-offline-zakończona).
 
 ## 6. Granice obsługi
 
@@ -912,7 +930,9 @@ V4/V5 na nowym zamrożeniu źródeł: V5 nie kwalifikuje się (DEC-13), aktywny
 V0 pozostaje. T024 poprawiło pięć fałszywych blokad preflight i zakończyło
 regresję offline; poprawność modelu po odblokowaniu pozostaje niezmierzona.
 T025 zakończyło projekt IR-1, z migracją ROU/NTO i planem oceny; nie zmieniło
-aplikacji. Następny T026 implementuje ten projekt offline, z domyślnym
+aplikacji. T026 zaimplementowało projekt offline: walidację faktów,
+kompilator reguł i adapter w wewnętrznym trybie facts_v1. Pełna regresja
+347/347 na atrapach nie jest pomiarem modelu. Domyślny tryb to nadal
 legacy/V0. T027 jest odrębną przyszłą diagnostyką wymagającą gotowego
 payloadu, kosztorysu i zgody. T020 jest gotowym projektem wielu celów;
 T007 i T011 także pozostają niezależnymi zadaniami.

@@ -12,6 +12,9 @@ from core.recommendation_errors import RecommendationDataError
 from core.response_renderer import ResponsePayloadError, render_recommendations
 from core.tool_call_validation import ToolArgumentsError, parse_recipe_tool_arguments
 from core.request_safety import mentions_unsupported_allergy, mentions_unsupported_exclusion
+from core.interpretation_contract import (CLIENT_CONFIGURATION, InterpretationConfigurationError,
+                                          build_interpretation_request)
+from core.interpretation_adapter import empty_diagnostics, execute_interpretation_request
 
 
 load_dotenv()
@@ -111,59 +114,91 @@ def run_recommendation_tool(function_args: dict) -> dict:
     return normalize_recommendations_output(raw_data)
 
 
-def chat_with_bot(user_message: str, brand_name: str) -> str:
+def chat_with_bot(user_message: str, brand_name: str, *, interpretation_mode="legacy",
+                  interpretation_client=None, diagnostics=None) -> str:
+    if interpretation_mode not in {"legacy", "facts_v1"}:
+        raise ValueError("Unknown interpretation mode")
+    if interpretation_client is not None and interpretation_mode != "facts_v1":
+        raise ValueError("An interpretation client requires facts_v1")
+    trace = diagnostics if diagnostics is not None else {}
+    trace.clear()
+    if interpretation_mode == "facts_v1":
+        trace.update(empty_diagnostics())
     if mentions_unsupported_allergy(user_message):
+        if interpretation_mode == "facts_v1":
+            trace.update(guard="allergy", effective_action="no_tool")
         return UNSUPPORTED_ALLERGY_RESPONSE
     if mentions_unsupported_exclusion(user_message):
+        if interpretation_mode == "facts_v1":
+            trace.update(guard="exclusion", effective_action="no_tool")
         return UNSUPPORTED_EXCLUSION_RESPONSE
-    messages = [
-        {"role": "system", "content": build_system_prompt(brand_name)},
-        {"role": "user", "content": user_message},
-    ]
-
+    if interpretation_mode == "facts_v1":
+        try:
+            request = build_interpretation_request(user_message, brand_name)
+        except InterpretationConfigurationError as exc:
+            trace.update(validation_status="error", effective_action="error",
+                         failure_stage="configuration", error=exc.reason)
+            logging.getLogger(__name__).warning("IR configuration failure: %s", exc.reason)
+            return INVALID_TOOL_RESPONSE
+        if interpretation_client is None:
+            with OpenAI(**CLIENT_CONFIGURATION) as owned_client:
+                outcome = execute_interpretation_request(owned_client, user_message, request)
+        else:
+            outcome = execute_interpretation_request(interpretation_client, user_message, request)
+        trace.update(outcome.diagnostics)
+        if outcome.action == "error":
+            return API_ERROR_RESPONSE if trace["failure_stage"] == "api" else INVALID_TOOL_RESPONSE
+        if outcome.action == "no_search":
+            return NO_TOOL_RESPONSE
+        function_args = outcome.arguments
+        if outcome.action != "search" or function_args is None:
+            raise RuntimeError("Invalid compiler result")
+    else:
+        messages = [
+            {"role": "system", "content": build_system_prompt(brand_name)},
+            {"role": "user", "content": user_message},
+        ]
+        try:
+            response = client.chat.completions.create(
+                model="gpt-4o-mini", messages=messages, tools=RECIPE_TOOLS,
+                tool_choice="auto", parallel_tool_calls=False, temperature=0.1,
+            )
+        except APIError as exc:
+            logging.getLogger(__name__).warning("LLM API failure: %s", type(exc).__name__)
+            return API_ERROR_RESPONSE
+        failure_reason = response_failure_reason(response)
+        if failure_reason:
+            logging.getLogger(__name__).warning("Invalid LLM response: %s", failure_reason)
+            return INVALID_TOOL_RESPONSE
+        response_message = response.choices[0].message
+        if not response_message.tool_calls:
+            return NO_TOOL_RESPONSE
+        if len(response_message.tool_calls) != 1:
+            return INVALID_TOOL_RESPONSE
+        tool_call = response_message.tool_calls[0]
+        if tool_call.function.name != "get_recommendations":
+            return INVALID_TOOL_RESPONSE
+        try:
+            function_args = parse_recipe_tool_arguments(tool_call.function.arguments)
+        except ToolArgumentsError:
+            logging.getLogger(__name__).warning("Invalid recipe tool arguments")
+            return INVALID_TOOL_RESPONSE
     try:
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=messages,
-            tools=RECIPE_TOOLS,
-            tool_choice="auto",
-            parallel_tool_calls=False,
-            temperature=0.1,
-        )
-    except APIError as exc:
-        logging.getLogger(__name__).warning("LLM API failure: %s", type(exc).__name__)
-        return API_ERROR_RESPONSE
-
-    failure_reason = response_failure_reason(response)
-    if failure_reason:
-        logging.getLogger(__name__).warning("Invalid LLM response: %s", failure_reason)
-        return INVALID_TOOL_RESPONSE
-    response_message = response.choices[0].message
-    if not response_message.tool_calls:
-        return NO_TOOL_RESPONSE
-
-    if len(response_message.tool_calls) != 1:
-        return INVALID_TOOL_RESPONSE
-    tool_call = response_message.tool_calls[0]
-    function_name = tool_call.function.name
-
-    if function_name != "get_recommendations":
-        return INVALID_TOOL_RESPONSE
-    try:
-        function_args = parse_recipe_tool_arguments(tool_call.function.arguments)
-    except ToolArgumentsError:
-        logging.getLogger(__name__).warning("Invalid recipe tool arguments")
-        return INVALID_TOOL_RESPONSE
-    try:
+        if interpretation_mode == "facts_v1":
+            trace["backend_calls"] = 1
         function_result = run_recommendation_tool(function_args)
         return render_recommendations(function_result, brand_name)
     except RecommendationDataError as exc:
+        if interpretation_mode == "facts_v1":
+            trace.update(effective_action="error", failure_stage="dispatch")
         logging.getLogger(__name__).warning(
             'Recommendation data failure: reason=%s recipe=%s concept=%s sku=%s',
             exc.reason, exc.recipe_id, exc.concept_id, exc.sku_id,
         )
         return "Nie udało się przygotować przepisów z powodu niespójnych danych. Spróbuj ponownie później."
     except ResponsePayloadError:
+        if interpretation_mode == "facts_v1":
+            trace.update(effective_action="error", failure_stage="render")
         logging.getLogger(__name__).exception("Invalid recommendation response payload")
         return "Nie udało się wyświetlić przepisów z powodu niespójnych danych. Spróbuj ponownie później."
 

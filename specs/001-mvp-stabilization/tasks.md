@@ -167,12 +167,22 @@ Pozostałe stany: **gotowe do rozpoczęcia**, **w toku**, **oczekuje na zależno
   [Projekt](interpretation-contract.md),
   [dowody](verification.md#t025--projekt-ir-1-zakończony).
 
+- [x] **T026 — implementacja IR-1 offline.** Zakończono 2026-11-18.
+  Walidator korzysta ze schematu T025; czysty kompilator przenosi reguły
+  i defaulty do aplikacji, a adapter wymaga jednego calla interpretacyjnego.
+  Wewnętrzny facts_v1 zachowuje preflight, parser, backend i renderer.
+  33 nowe metody testowe, IRC-01–20, pełna regresja 347/347 bez pominięć;
+  0 rzeczywistych żądań modelu, brak zapisów do katalogu. Zamrożono prompt,
+  konfigurację i źródła kandydata. Domyślny legacy/V0 pozostaje; jakość
+  rozpoznania przez model jest niezmierzona. [Dowody](verification.md#t026--implementacja-ir-1-offline-zakończona).
+
 ## Najbliższe zadanie
 
-**T026 — implementacja IR-1 offline.** Stan: **gotowe do rozpoczęcia**.
-T025 zakończono wybranym projektem. Zaimplementować kontrakt, kompilator
-i adapter z atrapami klienta, zachowując domyślny legacy/V0. Płatna ocena
-jest osobnym T027; nie wynika z wykonania T025 lub T026.
+**T027 — mała diagnostyka warstwy IR-1.** Stan: **gotowe do przygotowania offline**.
+T026 zakończono. Przygotować wykonawcę, przegląd adnotacji, świeże payloady
+V4/IR-1 i kosztorys według IR1-D1. Wykonanie płatne wymaga osobnej zgody
+na konkretny plan; nie wynika z T026. Nie uruchomiono T027 ani nie zmierzono
+skuteczności kandydata. Domyślny tryb pozostaje legacy/V0.
 T020 pozostaje gotowym niezależnym projektem wielu celów. Aktywny V0
 pozostaje. T007 i T011 także są niezależnymi gotowymi zadaniami.
 
@@ -192,15 +202,8 @@ nadal wymaga zamknięcia pozostałych luk; T012 jest wstrzymane.
 
 ## Kolejne zadania
 
-- [ ] **T026 — implementacja IR-1 offline.** Stan: **gotowe do rozpoczęcia**.
-  Podstawa: IR-01–10, DEC-15 i projekt T025. Zaimplementować walidację,
-  czysty kompilator oraz adapter submit_recipe_interpretation. Zachować
-  parser argumentów, backend i renderer; domyślny tryb legacy/V0.
-  Gotowe po IRC-01–20, pełnej regresji bez pominięć, dowodach braku
-  rzeczywistego SDK/zapisów katalogu i zamrożeniu konfiguracji kandydata.
-  Bez automatycznego wdrożenia, zmiany modelu lub płatnego pomiaru.
 - [ ] **T027 — mała diagnostyka warstwy IR-1.**
-  Stan: **oczekuje na T026 i zgodę na konkretny plan**. Przygotować świeże
+  Stan: **gotowe do przygotowania offline; wykonanie czeka na zgodę na konkretny plan**. Przygotować świeże
   V4 kontra IR-1 na 12 ustalonych przypadkach, 3 rundy, do 72 SDK.
   Przejrzeć nowe etykiety faktów, zamrozić payloady i runtime, sprawdzić
   model/cennik i policzyć koszt. Osobna zgoda poprzedza wykonanie.

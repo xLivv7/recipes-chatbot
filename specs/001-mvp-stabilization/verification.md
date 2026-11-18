@@ -4,9 +4,10 @@ Nawigacja: [specyfikacja](spec.md) · [kryteria](acceptance.md) ·
 [plan](plan.md) · [zadania](tasks.md).
 
 Data: 2026-10-22<br>
-Wersja: 0.1<br>
-Status: wstępne mapowanie; aktualne wyniki istniejących kontroli bazowych
-opisuje [raport z 2026-10-22](../../docs/reports/baseline_2026-10-22.md).
+Aktualizacja: 2026-11-18, T026<br>
+Status: mapa dowodów częściowych; ostatnia pełna regresja 347/347,
+bez pomiaru modelu w T026 i bez zaliczenia ACC.
+Punkt odniesienia opisuje [raport bazowy](../../docs/reports/baseline_2026-10-22.md).
 
 ## 1. Cel i sposób odczytu
 
@@ -578,6 +579,79 @@ kontroli fixture'ów jako nowych testów działania aplikacji. Nie ma
 nowego promptu, adaptera, kompilatora, wdrożenia ani zaliczenia ACC.
 T025 zakończone; T026 jest gotowe do implementacji offline. T027 wymaga
 T026, nowego zamrożenia/kosztorysu i osobnej zgody. T009/T012 nadal wstrzymane.
+
+### T026 — implementacja IR-1 offline zakończona
+
+Data: 2026-11-18. Zaimplementowano IR-01–10 według niezmienionego projektu
+T025. Model przekazuje fakty, lokalny kod waliduje cały pakiet i kompiluje
+je do dotychczasowych argumentów albo no_search. To wewnętrzny kandydat
+facts_v1; domyślny tryb aplikacji nadal wynosi legacy/V0.
+
+| Element | Implementacja i granica |
+| --- | --- |
+| Kontrakt | [interpretation_contract.py](../../core/interpretation_contract.py): normatywny schemat T025, zamknięte obiekty, dokładne typy, źródło z bieżącej wiadomości, dodatnie liczby, duplikaty kluczy JSON. Bez SDK/bazy/środowiska. |
+| Kompilator | [interpretation_compiler.py](../../core/interpretation_compiler.py): reguły 1–12 IR-1, required/permitted/waived, konflikty i defaulty; walidacja przez istniejący parser. Bez analizy słów zapytania i naprawiania faktów. |
+| Adapter | [interpretation_adapter.py](../../core/interpretation_adapter.py): metadane T022 przed parserem, dokładnie jeden submit_recipe_interpretation, bez fallbacku z content. Osobne liczniki SDK/calla/dispatch, etap błędu i wynik kompilacji. Bez oceny sukcesu modelu. |
+| Orkiestracja | [main.py](../../main.py): jawny facts_v1, preflight przed klientem, te same MSG i wspólny backend/renderer. Domyślny legacy zachowuje V0 i konfigurację auto. |
+| Instrukcje | [IR1.txt](../../core/prompts/IR1.txt): ekstrakcja faktów bez katalogu, defaultów modelu i pełnych zapytań diagnostycznych. Brak nowego V6. |
+| Konfiguracja IR | gpt-4o-mini, temperature=0.1, ścisłe narzędzie i wymuszony nazwany call, parallel_tool_calls=false, max_completion_tokens=1024; jawny endpoint OpenAI, timeout=30 s i SDK retry=0. Rzeczywisty klient o innej konfiguracji jest odrzucany przed żądaniem. |
+
+Dodano **33 metody testowe** w czterech plikach. Kontrole jednostkowe
+kontraktu i zamrożenia nie importują aplikacji/SDK/bazy; adapter jest testowany
+na atrapach. Testy aplikacji przechodzą przez rzeczywisty preflight,
+walidator i kompilator, z podstawionym modelem oraz backendem.
+
+W tabeli C oznacza [test_interpretation_contract.py](../../tests/test_interpretation_contract.py),
+A — [test_interpretation_adapter.py](../../tests/test_interpretation_adapter.py),
+P — [test_interpretation_application.py](../../tests/test_interpretation_application.py),
+F — [test_interpretation_preparation.py](../../tests/test_interpretation_preparation.py).
+Nazwy metod podano bez prefiksu test_.
+
+| Scenariusz | Konkretny dowód wykonania offline |
+| --- | --- |
+| IRC-01–05 | C: all_35_design_cases_compile_to_existing_expected_without_mutation; P: every_design_case_uses_actual_preflight_compiler_and_dispatch. Pełne oczekiwane argumenty, brak dodatkowego protein, defaulty tylko lokalne. |
+| IRC-06–11 | Te same C/P: wymagane, dopuszczone i cofnięte fish, dieta jawna, wykluczenia i restrykcje. C: fact_order_and_duplicates_do_not_change_compilation sprawdza kolejność i powtórzenia. |
+| IRC-12–13 | Te same C/P: konflikty, wielowartościowość, other/context_dependent i unsupported; C: added_unsupported_requirement_stops_every_otherwise_searchable_case. |
+| IRC-14 | C: every_invalid_design_interpretation_is_rejected_before_compilation, duplicate_keys_non_objects_and_invalid_json_are_rejected, an_invalid_duplicate_is_not_removed_before_validation; A: invalid_facts_are_interpretation_errors_not_defaults_or_model_decisions. |
+| IRC-15 | A: protocol_errors_never_become_business_no_search_or_parse_content; P: invalid_or_missing_interpretations_never_use_content_as_fallback. Brak/legacy/obcy/wielokrotny call nie daje no_search. |
+| IRC-16 | A: T022_metadata_failures_take_priority_even_over_valid_looking_calls, api_errors_have_one_attempt_and_no_exception_text; P: api_error_keeps_safe_message_and_one_attempt. |
+| IRC-17 | P: all_five_released_requests_reach_ir_adapter_and_keep_protocol_errors oraz allergy_priority_and_following_requests_do_not_reuse_diagnostics_or_history. Pięć zapytań dociera do atrapy, brak calla pozostaje błędem; blokada alergii daje 0 prób. |
+| IRC-18 | P: every_design_case_uses_actual_preflight_compiler_and_dispatch (MSG-04), facts_mode_renders_backend_facts_without_model_text_or_second_request, data_and_payload_errors_keep_their_boundaries_after_one_dispatch (MSG-07/08, propagacja błędu programistycznego). |
+| IRC-19 | A: every_valid_interpretation_has_separate_transport_and_business_results, one_request_has_forced_tool_configuration_and_no_labels_or_history, correctly_configured_sdk_client_uses_one_mocked_request; P: owned_facts_client_configuration_is_fixed_and_legacy_client_unused. |
+| IRC-20 | P: default_remains_legacy_and_misconfigured_modes_do_not_call_any_client; pełna istniejąca regresja oraz kontrola hashy dawnych źródeł/etykiet/dowodów i AST buildera V0. |
+| IR-09 — granica walidacji | C: semantic_omissions_and_wrong_labels_are_not_repaired_using_query_keywords. Dwie celowo błędne semantycznie interpretacje pozostają formalnie poprawne; nie ogłaszamy ich naprawienia. |
+| Zamrożenie i konfiguracja | C: missing_malformed_assets_fail_before_request_construction, contract_and_compiler_import_without_sdk_database_or_application; P: missing_schema_stops_before_client_factory_or_backend; F: wszystkie cztery metody. A: real_sdk_client_requires_first_party_endpoint_zero_retry_and_timeout. |
+
+Pełna regresja końcowa: **347 testów, 0 niepowodzeń, 0 błędów, 0 pominięć**.
+[Wynik](../../dokumentacja%20pracy/2026-11-18_t026/final_full.json),
+[log](../../dokumentacja%20pracy/2026-11-18_t026/final_full.log),
+[harness](../../dokumentacja%20pracy/2026-11-18_t026/run_tests.py).
+Wcześniejsze 346/346 uzupełniono o jawną kontrolę pięciu dawnych blokad
+w trybie IR i powtórzono regresję. Rzeczywiste żądania SDK i zapisy do
+katalogu były zablokowane; **0 prób i 0 rzeczywistych wywołań modelu**.
+Końcowy przebieg wykonał 35 SELECT PostgreSQL oraz 8 CREATE, 8 INSERT,
+19 SELECT i 2 UPDATE wyłącznie w izolowanej SQLite w pamięci.
+Nie wykonywano zapytań metadanych OpenAI ani generacji poza harness.
+
+[Przygotowanie offline](../../evals/prepare_interpretation_v1.py) zapisuje
+[manifest kandydata](../../dokumentacja%20pracy/2026-11-18_t026/candidate/manifest.json),
+źródła z hashami, prompt, schemat, konfigurację i szablon żądania.
+Nie importuje SDK/main/bazy, nie czyta sekretów i nie posiada execute.
+execution_enabled=false; nie jest planem T027 ani zgodą na koszt.
+[Kontrola zakresu i integralności](../../dokumentacja%20pracy/2026-11-18_t026/scope_checks.json)
+potwierdza 139 chronionych plików, 132 pliki dawnych pakietów T021/T023
+i wszystkie trzy artefakty T025, bez zmian. Funkcje build_system_prompt
+i run_recommendation_tool zachowały AST; istniejące testy i dane są bez zmian.
+[Kontrola dokumentacji](../../dokumentacja%20pracy/2026-11-18_t026/documentation_checks.json)
+sprawdza odnośniki i stan zadania.
+
+35 dostarczonych interpretacji daje oczekiwane wyniki kompilatora;
+14 błędnych pakietów i błędny JSON są odrzucane przed kompilacją.
+To dowód implementacji kontraktu, nie pomiar rozpoznawania intencji,
+akceptacji schematu przez usługę ani zaliczenie ACC. **Nie wdrożono IR-1
+jako domyślnego trybu i nie rozpoczęto T027.** Następne jest przygotowanie
+osobnej diagnostyki V4/IR-1 i planu do zatwierdzenia. T009/T012 pozostają
+wstrzymane przez autorkę.
 
 ### Audyt instrukcji — część T017, 2026-11-16
 

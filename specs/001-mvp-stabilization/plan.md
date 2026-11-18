@@ -1,7 +1,8 @@
 # Plan — stabilizacja istniejącego MVP
 
-Status: T005, T006, T008 i część offline T009 wykonane.
-Płatny etap T009 wstrzymany na decyzję autorki z 2026-11-03.
+Status na 2026-11-18: T026 zakończone offline, domyślny tryb legacy/V0.
+Następne: przygotowanie T027; płatne wykonanie wymaga osobnej zgody.
+T009 i T012 pozostają wstrzymane przez autorkę.
 Zakres i decyzje: [spec.md](spec.md). Warunki ukończenia: [acceptance.md](acceptance.md).
 Szczegółowe zadania i ich stan: [tasks.md](tasks.md).
 
@@ -896,9 +897,12 @@ kodu i dowodów. To nie test kompilatora ani nowe 314/314. Ostatni pełny
 wynik kodu pozostaje z T024. API/baza w T025: 0. Nie wdrożono IR-1,
 nie napisano nowego promptu, nie zmieniono modelu. [Dowody](verification.md#t025--projekt-ir-1-zakończony).
 
-## 18. Następne wykonanie IR-1
+## 18. T026 — implementacja IR-1 offline
 
-**T026 — implementacja offline, gotowa do rozpoczęcia.**
+**Zakończono 2026-11-18.** Walidację, czysty kompilator i adapter dodano
+w osobnych modułach; main udostępnia wewnętrzny tryb facts_v1. Model ma
+przekazywać fakty, a aplikacja wyznacza argumenty i search/no_search.
+Domyślny tryb pozostaje legacy/V0. Poniżej zachowano zakres wykonania.
 
 1. Zaimplementować czytanie schematu/walidację IR, czysty kompilator
    i oddzielny adapter odpowiedzi. Nie rozszerzać parsera get_recommendations
@@ -912,7 +916,19 @@ nie napisano nowego promptu, nie zmieniono modelu. [Dowody](verification.md#t025
    uznać fixture'ów za dowód poprawy. Zakończyć dowodami implementacji,
    zablokowanych wywołań i niezmienionego trybu aktywnego.
 
-**T027 — przyszła diagnostyka, zależna od T026 i osobnej zgody.**
+Wynik: 33 nowe metody testowe, IRC-01–20 i pełna regresja **347/347**,
+bez pominięć. Rzeczywiste żądania modelu i zapisy do katalogu zablokowano;
+integracja czytała PostgreSQL, a testy curation używały SQLite w pamięci.
+Zamrożono prompt IR1, ścisły schemat, konfigurację i źródła przez
+[przygotowanie offline](../../evals/prepare_interpretation_v1.py).
+Nie zmieniono trzech artefaktów T025, dawnych etykiet ani raportów.
+[Wyniki, pokrycie i manifest](verification.md#t026--implementacja-ir-1-offline-zakończona).
+
+Fixture'y potwierdzają reguły dla dostarczonych faktów, a nie zdolność
+modelu do ich rozpoznawania. Dwa znane ograniczenia walidacji pozostają:
+pominięcie faktu i semantycznie błędny fakt z dosłownym źródłem.
+
+**T027 — przyszła diagnostyka, gotowa do przygotowania offline.**
 
 Pełny protokół i IR1-D1 są w rozdziale 8 IR-1. Świeże legacy/V4 kontra
 IR-1, 12 ustalonych zapytań, trzy rundy — 72 SDK, bez dublowania żądań
@@ -925,4 +941,4 @@ Przed pomiarem przygotować dokładne payloady i kosztorys nowych żądań,
 zamrozić źródła/runtime oraz uzyskać zgodę. T027 wymaga kompletnego raportu
 i decyzji także przy wyniku negatywnym. Nie wdraża automatycznie kandydata.
 Pełna kwalifikacja wymaga T010/T013 i świeżej kontroli aktywnego V0;
-T009/T012 pozostają wstrzymane. Nie ma zgody na 72 wywołania w ramach T025.
+T009/T012 pozostają wstrzymane. T025/T026 nie obejmują zgody na 72 wywołania.

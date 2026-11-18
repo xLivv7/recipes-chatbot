@@ -90,6 +90,36 @@ aplikacji. Starych raportów i przygotowania T021 nie przeliczano. Po zmianie
 aplikacji/runnera trzeba utworzyć nowy manifest; starego pakietu T021 nie
 wykonywać na nowym kodzie. [Dowody T022](../specs/001-mvp-stabilization/verification.md#t022--wdrożenie-no_tool-zakończone).
 
+## Kandydat IR-1 po T026 — przygotowanie offline
+
+`prepare_interpretation_v1.py` zamraża lokalne źródła, prompt IR1, schemat,
+konfigurację klienta/modelu i szablon żądania w nowym katalogu:
+
+```powershell
+venv\Scripts\python.exe evals\prepare_interpretation_v1.py --output "dokumentacja pracy\NOWY_KANDYDAT_IR1"
+```
+
+Polecenie nie importuje SDK, aplikacji ani katalogu, nie wymaga klucza API
+i nie wykonuje sieci. Istniejącego katalogu nie nadpisuje. Manifest zawiera
+hashe źródeł i artefaktów, wersje runtime, commit oraz stan zmian. Funkcja
+`validate_preparation` sprawdza kompletność i zgodność hashy kopii oraz
+bieżących źródeł. Pakiet ma `execution_enabled=false`, nie jest planem
+płatnej kampanii i nie ma trybu `--execute`.
+
+Kandydat jest dostępny wewnętrznie jako
+`chat_with_bot(..., interpretation_mode="facts_v1", interpretation_client=fake, diagnostics=trace)`.
+W T026 klient jest atrapą; bez niej jawny wybór facts_v1 użyłby prawdziwego
+SDK. Domyślny tryb aplikacji nadal wynosi legacy/V0. Diagnostyka odróżnia
+żądania SDK, calls interpretacyjne i wywołania backendu. Jedna interpretacja
+może zakończyć się no_search i zerem dispatch; wymuszony call nie dowodzi
+poprawności semantycznej. Przykłady T025 i testy nie są pomiarem LLM.
+
+Wyniki 347/347, zamrożony kandydat i pokrycie IRC:
+[T026](../specs/001-mvp-stabilization/verification.md#t026--implementacja-ir-1-offline-zakończona).
+Istniejące runnery V4/V5 nie wykonują trybu IR-1. T027 wymaga osobnego
+wykonawcy i świeżego planu V4/IR-1, przeglądu adnotacji, payloadów,
+kosztorysu oraz zgody przed płatnym pomiarem. Samo T026 nie uruchamia T027.
+
 ## Płatne pomiary i zachowanie raportów
 
 Po T024 gramatyka preflight przepuszcza pięć dawnych fałszywych blokad.
