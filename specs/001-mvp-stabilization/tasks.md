@@ -208,31 +208,34 @@ Pozostałe stany: **gotowe do rozpoczęcia**, **w toku**, **oczekuje na zależno
   oczekiwane wyniki. Implementację zaplanowano po MVP.
   [Projekt i scenariusze](nutrition-goals.md).
 
+- [x] **T007 — przegląd używanych konceptów z ostrzeżeniami kcal.**
+  Potwierdzono cztery korekty w PostgreSQL i ich odtworzenie. Kolumna
+  węglowodanów dla tych rekordów odpowiada pozycji „Węglowodany” z Fitatu.
+  [Raport T007](../../docs/reports/t007_nutrition_2026-11-18.md).
+
+- [x] **T010 — końcowe zestawy oceny.** Autorka 2026-11-18 zatwierdziła
+  40 przypadków holdoutu v2 i 12 scenariuszy ręcznych. Zweryfikowano skróty
+  i zamrożono oba zestawy do T013. [Zapis decyzji](verification.md#t010--przygotowanie-zestawów).
+
 ## Najbliższe zadanie
 
-**T007 — przegląd czterech konceptów z ostrzeżeniami kcal.** Dotyczy
-C012, C338, C357 i C367. T011 (odtworzenie środowiska) jest również gotowe.
+**T011 — odtworzenie środowiska i katalogu** zaplanowano po wyborze wersji kandydującej, przed oceną T013.
 
 **T009P zakończone po zatwierdzeniu płatnego pilotażu przez autorkę.**
 V2: 57/60, ale 15/18 poprawnych no_tool; V0: 42/60 i 18/18 no_tool.
 Zgodnie z regułą pozostaje V0. [Raport](../../docs/reports/routing_pilot_2026-11-03.md).
-Nie uruchamiamy automatycznie kolejnego pomiaru. T007 i T011 są niezależnymi
-zadaniami gotowymi do rozpoczęcia; pełna kampania nadal jest wstrzymana.
+Pełna kampania pozostaje wstrzymana.
 
 T009: instrumentacja, testy i manifest przygotowane. Płatna kampania
 jest **wstrzymana na decyzję autorki z 2026-11-03: tylko przygotowanie offline**.
 Nie uruchamiać pełnej kampanii API ani ponawiać prośby bez wznowienia jej przez autorkę.
 Wyniki offline i szacunek kosztu:
 [raport przygotowania](../../docs/reports/t009_preparation_2026-11-03.md).
-T007 i T011 także pozostają gotowe do rozpoczęcia. Końcowa akceptacja
+Końcowa akceptacja
 nadal wymaga zamknięcia pozostałych luk; T012 jest wstrzymane.
 
 ## Kolejne zadania
 
-- [ ] **T007 — przegląd używanych konceptów z ostrzeżeniami kcal.**
-  Stan: **gotowe do rozpoczęcia**. Sprawdzić źródła C012/C338/C357/C367;
-  zapisać uzasadnioną akceptację albo propozycję korekty. Nie zmieniać kcal
-  automatycznie według 4/9/4. Zadanie nie obejmuje pięciu SKU.
 - [ ] **T009 — eksperyment routingu.** Stan: **offline gotowe; płatny etap wstrzymany przez autorkę**.
   Instrumentacja w `a1f7583`; 240 testów bez błędów i pominięć. Manifest
   kampanii `_01` przygotowany, 0 faktycznych wywołań API. Uruchomienie
@@ -243,9 +246,6 @@ nadal wymaga zamknięcia pozostałych luk; T012 jest wstrzymane.
   odrębne raporty i wybór według ustalonej reguły. Nie używać holdoutu
   ani nie wykonywać tekstowego JSON-a jako fallbacku. Gotowe po raporcie
   porównania i decyzji; sama instrumentacja nie kończy T009.
-- [ ] **T010 — końcowe zestawy oceny.** Stan: **oczekuje na specyfikacje ocenianych
-  zachowań**. Holdout i scenariusze ręczne według `acceptance.md`, z przeglądem
-  etykiet przez autorkę. Zawartość zamrozić przed kampanią.
 - [ ] **T011 — odtworzenie i instrukcja.** Stan: **gotowe do rozpoczęcia**.
   Uzupełnić przygotowanie środowiska i katalogu. Odtworzenie sprawdzić
   w odrębnym środowisku i bazie, bez nadpisywania bieżącej. Zapisać wynik.

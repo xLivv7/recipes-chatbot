@@ -302,8 +302,22 @@ raportu jako trwałego archiwum. Zachowuj również niepełne przebiegi i błęd
 API, opisując przyczynę powtórzenia. Surowe lokalne raporty są ignorowane
 przez Git; ich lokalizację i wersję dokumentuj w raporcie kampanii.
 
-Holdout v1 jest ujawniony i służy historii lub regresji. Końcowa niezależna
-ocena wymaga nowego, zamrożonego zbioru zgodnie z kryteriami akceptacji.
+### Końcowe zestawy T010
+
+Regresja obejmuje 76 dotychczasowych przypadków. Flaga `--holdout` zachowuje
+historyczny v1. Flaga `--holdout-v2` wybiera wyłącznie 40 nowych przypadków.
+Plan trzech powtórzeń można sprawdzić lokalnie z katalogu projektu.
+
+```powershell
+venv\Scripts\python.exe evals\run_routing_eval.py --holdout-v2 --mode raw --repeats 3 --dry-run
+venv\Scripts\python.exe evals\run_routing_eval.py --holdout-v2 --mode application --repeats 3 --dry-run
+```
+
+W każdym trybie wypada 120 ocen holdoutu. Regresja ma osobne 228 ocen
+w każdym trybie. Stan przeglądu etykiet i identyfikatory wersji są
+w [mapie weryfikacji](../specs/001-mvp-stabilization/verification.md#t010--przygotowanie-zestawów).
+[Tabela przeglądowa i 12 scenariuszy ręcznych](../specs/001-mvp-stabilization/final-evaluation-cases.md).
+
 `run_llm_eval.py` pozostaje narzędziem zgodnościowym;
 `run_final_answer_eval.py` dotyczy historycznej architektury z drugim
 wywołaniem LLM i bez `--dry-run` także generuje płatne wywołania API.

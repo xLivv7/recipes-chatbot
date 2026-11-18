@@ -37,6 +37,16 @@ class RoutingRepeatsHoldoutTests(unittest.TestCase):
                 self.assertEqual(len(report["dataset_files"]), 1 if holdout else 3)
                 api.assert_not_called()
 
+    def test_v2_dry_run_uses_only_acceptance_cases_in_both_modes(self):
+        for mode in ("raw", "application"):
+            with self.subTest(mode=mode), patch("evals.run_routing_eval.OpenAI") as api:
+                report = run_eval(self.args(holdout_v2=True, mode=mode))
+                self.assertEqual(report["dataset_role"], "holdout_v2")
+                self.assertEqual([Path(f["path"]).name for f in report["dataset_files"]], ["holdout_cases_v2.json"])
+                self.assertEqual(report["summary"]["total"], 120)
+                self.assertEqual(report["results"], [])
+                api.assert_not_called()
+
     def test_stability_separates_stable_intermittent_and_persistent(self):
         client = Mock()
         client.chat.completions.create.return_value = response()

@@ -3,7 +3,8 @@
 Data: 2026-10-22<br>
 Wersja: 0.2<br>
 Status: progi zaakceptowane przez autorkę projektu 2026-10-22;
-szczegółowy skład zbiorów i scenariuszy wymaga przygotowania przed pomiarem.
+autorka zatwierdziła przypadki i scenariusze T010 2026-11-18. [Materiał i oczekiwania](final-evaluation-cases.md)
+oraz [stan przeglądu autorki](verification.md#t010--przygotowanie-zestawów).
 
 Nawigacja: [specyfikacja](spec.md) · [plan](plan.md) ·
 [zadania](tasks.md) · [weryfikacja](verification.md).

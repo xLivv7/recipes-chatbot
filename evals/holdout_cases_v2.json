@@ -1,0 +1,500 @@
+[
+  {
+    "id": "acc_v2_001",
+    "user_message": "Na jutro potrzebuję przepisu. Co proponujesz?",
+    "expected_action": "tool",
+    "expected": {
+      "diet": "none",
+      "protein_preference": "none",
+      "restrictions": [],
+      "nutrition_goal": "standard",
+      "category": "kolacja",
+      "time_max": null,
+      "top_n": 3
+    }
+  },
+  {
+    "id": "acc_v2_002",
+    "user_message": "Szukam jednej propozycji na śniadanie przed wyjściem z domu.",
+    "expected_action": "tool",
+    "expected": {
+      "diet": "none",
+      "protein_preference": "none",
+      "restrictions": [],
+      "nutrition_goal": "standard",
+      "category": "śniadanie",
+      "time_max": null,
+      "top_n": 1
+    }
+  },
+  {
+    "id": "acc_v2_003",
+    "user_message": "Mam ochotę na deser. Podaj cztery różne propozycje.",
+    "expected_action": "tool",
+    "expected": {
+      "diet": "none",
+      "protein_preference": "none",
+      "restrictions": [],
+      "nutrition_goal": "standard",
+      "category": "deser",
+      "time_max": null,
+      "top_n": 4
+    }
+  },
+  {
+    "id": "acc_v2_004",
+    "user_message": "Na lunch ugotuję coś bez mięsa. Ryby mogą być, ale nie są obowiązkowe.",
+    "expected_action": "tool",
+    "expected": {
+      "diet": "pescetarian",
+      "protein_preference": "none",
+      "restrictions": [],
+      "nutrition_goal": "standard",
+      "category": "lunch",
+      "time_max": null,
+      "top_n": 3
+    }
+  },
+  {
+    "id": "acc_v2_005",
+    "user_message": "Szukam obiadu bez mięsa, ale tym razem chcę koniecznie rybę.",
+    "expected_action": "tool",
+    "expected": {
+      "diet": "pescetarian",
+      "protein_preference": "fish",
+      "restrictions": [],
+      "nutrition_goal": "standard",
+      "category": "obiad",
+      "time_max": null,
+      "top_n": 3
+    }
+  },
+  {
+    "id": "acc_v2_006",
+    "user_message": "Podaj dwa pomysły na kolację bez mięsa i bez ryb.",
+    "expected_action": "tool",
+    "expected": {
+      "diet": "vegetarian",
+      "protein_preference": "none",
+      "restrictions": [],
+      "nutrition_goal": "standard",
+      "category": "kolacja",
+      "time_max": null,
+      "top_n": 2
+    }
+  },
+  {
+    "id": "acc_v2_007",
+    "user_message": "Przygotuję kolację. Chcę danie z rybą i mam na gotowanie najwyżej 28 minut.",
+    "expected_action": "tool",
+    "expected": {
+      "diet": "none",
+      "protein_preference": "fish",
+      "restrictions": [],
+      "nutrition_goal": "standard",
+      "category": "kolacja",
+      "time_max": 28,
+      "top_n": 3
+    }
+  },
+  {
+    "id": "acc_v2_008",
+    "user_message": "Jakie śniadanie z mięsem mogę zrobić w 25 minut?",
+    "expected_action": "tool",
+    "expected": {
+      "diet": "none",
+      "protein_preference": "meat",
+      "restrictions": [],
+      "nutrition_goal": "standard",
+      "category": "śniadanie",
+      "time_max": 25,
+      "top_n": 3
+    }
+  },
+  {
+    "id": "acc_v2_009",
+    "user_message": "Poproszę o wegański deser. Mam czas, nie musi być szybki.",
+    "expected_action": "tool",
+    "expected": {
+      "diet": "vegan",
+      "protein_preference": "none",
+      "restrictions": [],
+      "nutrition_goal": "standard",
+      "category": "deser",
+      "time_max": null,
+      "top_n": 3
+    }
+  },
+  {
+    "id": "acc_v2_010",
+    "user_message": "Na obiad dla wegetarianki potrzebuję czegoś z dużą ilością białka.",
+    "expected_action": "tool",
+    "expected": {
+      "diet": "vegetarian",
+      "protein_preference": "none",
+      "restrictions": [],
+      "nutrition_goal": "high_protein",
+      "category": "obiad",
+      "time_max": null,
+      "top_n": 3
+    }
+  },
+  {
+    "id": "acc_v2_011",
+    "user_message": "Dwie przekąski w wersji bezglutenowej, proszę.",
+    "expected_action": "tool",
+    "expected": {
+      "diet": "none",
+      "protein_preference": "none",
+      "restrictions": [
+        "gluten_free"
+      ],
+      "nutrition_goal": "standard",
+      "category": "przekąska",
+      "time_max": null,
+      "top_n": 2
+    }
+  },
+  {
+    "id": "acc_v2_012",
+    "user_message": "Szukam pomysłu na śniadanie. Mam nietolerancję laktozy.",
+    "expected_action": "tool",
+    "expected": {
+      "diet": "none",
+      "protein_preference": "none",
+      "restrictions": [
+        "lactose_free"
+      ],
+      "nutrition_goal": "standard",
+      "category": "śniadanie",
+      "time_max": null,
+      "top_n": 3
+    }
+  },
+  {
+    "id": "acc_v2_013",
+    "user_message": "Na lunch chcę coś bez laktozy i bez glutenu. Poproszę jedną propozycję.",
+    "expected_action": "tool",
+    "expected": {
+      "diet": "none",
+      "protein_preference": "none",
+      "restrictions": [
+        "gluten_free",
+        "lactose_free"
+      ],
+      "nutrition_goal": "standard",
+      "category": "lunch",
+      "time_max": null,
+      "top_n": 1
+    }
+  },
+  {
+    "id": "acc_v2_014",
+    "user_message": "Obiad ma być wegański. Nie musi być bez glutenu.",
+    "expected_action": "tool",
+    "expected": {
+      "diet": "vegan",
+      "protein_preference": "none",
+      "restrictions": [],
+      "nutrition_goal": "standard",
+      "category": "obiad",
+      "time_max": null,
+      "top_n": 3
+    }
+  },
+  {
+    "id": "acc_v2_015",
+    "user_message": "Mam 35 minut na przygotowanie lunchu bez laktozy.",
+    "expected_action": "tool",
+    "expected": {
+      "diet": "none",
+      "protein_preference": "none",
+      "restrictions": [
+        "lactose_free"
+      ],
+      "nutrition_goal": "standard",
+      "category": "lunch",
+      "time_max": 35,
+      "top_n": 3
+    }
+  },
+  {
+    "id": "acc_v2_016",
+    "user_message": "Przygotuję kolację w wersji keto. Podaj dwa pomysły.",
+    "expected_action": "tool",
+    "expected": {
+      "diet": "none",
+      "protein_preference": "none",
+      "restrictions": [],
+      "nutrition_goal": "keto",
+      "category": "kolacja",
+      "time_max": null,
+      "top_n": 2
+    }
+  },
+  {
+    "id": "acc_v2_017",
+    "user_message": "Masz propozycję lekkiego deseru? Czas przygotowania jest dowolny.",
+    "expected_action": "tool",
+    "expected": {
+      "diet": "none",
+      "protein_preference": "none",
+      "restrictions": [],
+      "nutrition_goal": "low_kcal",
+      "category": "deser",
+      "time_max": null,
+      "top_n": 3
+    }
+  },
+  {
+    "id": "acc_v2_018",
+    "user_message": "Przyda mi się wysokobiałkowe śniadanie. Proszę o trzy propozycje bez glutenu.",
+    "expected_action": "tool",
+    "expected": {
+      "diet": "none",
+      "protein_preference": "none",
+      "restrictions": [
+        "gluten_free"
+      ],
+      "nutrition_goal": "high_protein",
+      "category": "śniadanie",
+      "time_max": null,
+      "top_n": 3
+    }
+  },
+  {
+    "id": "acc_v2_019",
+    "user_message": "Obiad na redukcję dla osoby na diecie pescetariańskiej. Do 40 minut.",
+    "expected_action": "tool",
+    "expected": {
+      "diet": "pescetarian",
+      "protein_preference": "none",
+      "restrictions": [],
+      "nutrition_goal": "low_kcal",
+      "category": "obiad",
+      "time_max": 40,
+      "top_n": 3
+    }
+  },
+  {
+    "id": "acc_v2_020",
+    "user_message": "Potrzebuję ekspresowej przekąski do zrobienia w domu.",
+    "expected_action": "tool",
+    "expected": {
+      "diet": "none",
+      "protein_preference": "none",
+      "restrictions": [],
+      "nutrition_goal": "standard",
+      "category": "przekąska",
+      "time_max": 30,
+      "top_n": 3
+    }
+  },
+  {
+    "id": "acc_v2_021",
+    "user_message": "Szybki lunch dla wegan, mam na niego do 45 minut.",
+    "expected_action": "tool",
+    "expected": {
+      "diet": "vegan",
+      "protein_preference": "none",
+      "restrictions": [],
+      "nutrition_goal": "standard",
+      "category": "lunch",
+      "time_max": 45,
+      "top_n": 3
+    }
+  },
+  {
+    "id": "acc_v2_022",
+    "user_message": "Na kolację proszę o danie do pół godziny. Nie musi być lekkie.",
+    "expected_action": "tool",
+    "expected": {
+      "diet": "none",
+      "protein_preference": "none",
+      "restrictions": [],
+      "nutrition_goal": "standard",
+      "category": "kolacja",
+      "time_max": 30,
+      "top_n": 3
+    }
+  },
+  {
+    "id": "acc_v2_023",
+    "user_message": "Szukam pięciu przepisów na śniadanie bez mięsa.",
+    "expected_action": "tool",
+    "expected": {
+      "diet": "vegetarian",
+      "protein_preference": "none",
+      "restrictions": [],
+      "nutrition_goal": "standard",
+      "category": "śniadanie",
+      "time_max": null,
+      "top_n": 5
+    }
+  },
+  {
+    "id": "acc_v2_024",
+    "user_message": "Kolacja dla osoby na diecie pescetariańskiej. Nie musi być z rybą.",
+    "expected_action": "tool",
+    "expected": {
+      "diet": "pescetarian",
+      "protein_preference": "none",
+      "restrictions": [],
+      "nutrition_goal": "standard",
+      "category": "kolacja",
+      "time_max": null,
+      "top_n": 3
+    }
+  },
+  {
+    "id": "acc_v2_025",
+    "user_message": "Na weekend poproszę keto obiad bez laktozy.",
+    "expected_action": "tool",
+    "expected": {
+      "diet": "none",
+      "protein_preference": "none",
+      "restrictions": [
+        "lactose_free"
+      ],
+      "nutrition_goal": "keto",
+      "category": "obiad",
+      "time_max": null,
+      "top_n": 3
+    }
+  },
+  {
+    "id": "acc_v2_026",
+    "user_message": "Szukam deseru bez laktozy. Nie musi być bez glutenu.",
+    "expected_action": "tool",
+    "expected": {
+      "diet": "none",
+      "protein_preference": "none",
+      "restrictions": [
+        "lactose_free"
+      ],
+      "nutrition_goal": "standard",
+      "category": "deser",
+      "time_max": null,
+      "top_n": 3
+    }
+  },
+  {
+    "id": "acc_v2_027",
+    "user_message": "Jedna przekąska z dużą ilością białka, gotowa w najwyżej 12 minut.",
+    "expected_action": "tool",
+    "expected": {
+      "diet": "none",
+      "protein_preference": "none",
+      "restrictions": [],
+      "nutrition_goal": "high_protein",
+      "category": "przekąska",
+      "time_max": 12,
+      "top_n": 1
+    }
+  },
+  {
+    "id": "acc_v2_028",
+    "user_message": "Chcę przepis na kolację. Nie musi być bez mięsa.",
+    "expected_action": "tool",
+    "expected": {
+      "diet": "none",
+      "protein_preference": "none",
+      "restrictions": [],
+      "nutrition_goal": "standard",
+      "category": "kolacja",
+      "time_max": null,
+      "top_n": 3
+    }
+  },
+  {
+    "id": "acc_v2_029",
+    "user_message": "Na lekki lunch wybieram danie z mięsem. Poproszę dwa przepisy.",
+    "expected_action": "tool",
+    "expected": {
+      "diet": "none",
+      "protein_preference": "meat",
+      "restrictions": [],
+      "nutrition_goal": "low_kcal",
+      "category": "lunch",
+      "time_max": null,
+      "top_n": 2
+    }
+  },
+  {
+    "id": "acc_v2_030",
+    "user_message": "Przygotowuję obiad. Szukam opcji wegetariańskiej bez laktozy i glutenu.",
+    "expected_action": "tool",
+    "expected": {
+      "diet": "vegetarian",
+      "protein_preference": "none",
+      "restrictions": [
+        "gluten_free",
+        "lactose_free"
+      ],
+      "nutrition_goal": "standard",
+      "category": "obiad",
+      "time_max": null,
+      "top_n": 3
+    }
+  },
+  {
+    "id": "acc_v2_031",
+    "user_message": "Szukam deseru dla dziecka z alergią na orzeszki ziemne.",
+    "expected_action": "no_tool",
+    "boundary": "allergy"
+  },
+  {
+    "id": "acc_v2_032",
+    "user_message": "Mam uczulenie na białka mleka. Jaką kolację mogę przygotować?",
+    "expected_action": "no_tool",
+    "boundary": "allergy"
+  },
+  {
+    "id": "acc_v2_033",
+    "user_message": "Na śniadanie potrzebuję czegoś całkowicie bez nabiału.",
+    "expected_action": "no_tool",
+    "boundary": "unsupported_exclusion"
+  },
+  {
+    "id": "acc_v2_034",
+    "user_message": "Podaj dwa pomysły na lunch bez selera.",
+    "expected_action": "no_tool",
+    "boundary": "unsupported_exclusion"
+  },
+  {
+    "id": "acc_v2_035",
+    "user_message": "Chcę wegański obiad, w którym obowiązkowym składnikiem jest mięso.",
+    "expected_action": "no_tool",
+    "boundary": "conflict"
+  },
+  {
+    "id": "acc_v2_036",
+    "user_message": "Wybierz wegetariańską kolację z prawdziwą rybą w składzie.",
+    "expected_action": "no_tool",
+    "boundary": "conflict"
+  },
+  {
+    "id": "acc_v2_037",
+    "user_message": "Szukam obiadu, który będzie jednocześnie keto i niskokaloryczny.",
+    "expected_action": "no_tool",
+    "boundary": "multiple_goals"
+  },
+  {
+    "id": "acc_v2_038",
+    "user_message": "Potrzebuję przepisu na danie spełniające naraz dwa cele: dużo białka i jak najmniej kalorii.",
+    "expected_action": "no_tool",
+    "boundary": "multiple_goals"
+  },
+  {
+    "id": "acc_v2_039",
+    "user_message": "Ile gwiazd ma flaga Unii Europejskiej?",
+    "expected_action": "no_tool",
+    "boundary": "outside"
+  },
+  {
+    "id": "acc_v2_040",
+    "user_message": "Weź drugą z tamtych propozycji i zmień ją tak samo jak wcześniej.",
+    "expected_action": "no_tool",
+    "boundary": "context"
+  }
+]

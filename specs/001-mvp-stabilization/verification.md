@@ -4,12 +4,63 @@ Nawigacja: [specyfikacja](spec.md) · [kryteria](acceptance.md) ·
 [plan](plan.md) · [zadania](tasks.md).
 
 Data: 2026-10-22<br>
-Aktualizacja: 2026-11-18, T020<br>
-Status: mapa dowodów częściowych. Ostatnia pełna regresja 372/372.
+Aktualizacja: 2026-11-18, T010<br>
+Status: mapa dowodów częściowych. Ostatnia pełna regresja 375/375.
+T007 potwierdziło korektę czterech rekordów, makro na porcję w 19 przepisach
+i usunięcie czterech ostrzeżeń. [Źródła i weryfikacja](../../docs/reports/t007_nutrition_2026-11-18.md).
 T029 potwierdziło działanie CMP-1 na zapisanych odpowiedziach w trybie wewnętrznym.
-T020 zakończyło projekt po MVP. Ostatni wynik testów pochodzi z T029.
+T020 zakończyło projekt po MVP.
 T027 pozostaje negatywnym pomiarem 72 SDK; brak zaliczenia ACC.
 Punkt odniesienia opisuje [raport bazowy](../../docs/reports/baseline_2026-10-22.md).
+
+## T010 — przygotowanie zestawów
+
+Wersja przekazana do przeglądu obejmuje [40 zapytań z etykietami](../../evals/holdout_cases_v2.json)
+i [12 scenariuszy z kartą ręczną](final-evaluation-cases.md). Oczekiwania oparto
+na obecnym zakresie MVP. Domyślny wariant to legacy/V0, wiele celów pozostaje poza zakresem.
+T010 nie stanowi pomiaru ACC ani zgody na wykonanie kampanii.
+
+| Artefakt zatwierdzony przez autorkę 2026-11-18 | SHA-256 tekstu UTF-8 z końcami linii LF |
+| --- | --- |
+| holdout_cases_v2.json | `efd2f61e34ca0932462314d535a29efb5d14c6497cd40288c0c04e4eb85bc00c` |
+| final-evaluation-cases.md | `d0325181e1fdbbaa4e7b22171b150a6a6364e600512e04a541e0abcdd661ece8` |
+
+Kontrola offline sprawdziła schemat wszystkich etykiet: 30 pełnych zestawów
+argumentów i 10 decyzji bez wyszukania. Po normalizacji tekstu brak duplikatów
+względem 173 różnych wiadomości z wcześniejszych plików przypadków i przykładów
+kontraktowych. Sprawdzono również rozłączność z M01–M12 i brak pełnych zapytań
+v2 w źródłach promptów i testach. Kontrola dotyczy dosłownych powtórzeń.
+Na rzeczywistym katalogu potwierdzono warunki początkowe M01–M08, m.in.
+pięć zgodnych kolacji rybnych przy żądanych dziesięciu oraz brak deseru do jednej minuty.
+Liczba wywołań modelu w T010 wynosi zero.
+W próbie `--dry-run` oba tryby wyznaczyły po 120 ocen. W raw zaplanowano
+120 żądań, w application 108 po uwzględnieniu preflight. Pełna regresja
+przeszła 375/375 bez pominięć, rzeczywistych żądań SDK i zapisów do katalogu.
+[Raport testów](../../dokumentacja%20pracy/2026-11-18_t010/full.json).
+
+**T010 zakończone 2026-11-18.** Po przeglądzie autorka zatwierdziła
+oczekiwania dla przypadków 001–040 i scenariuszy M01–M12 w przekazanej wersji.
+Oba skróty zweryfikowano ponownie przy zamknięciu zadania. Tabela powyżej
+identyfikuje zamrożone pliki. W T013 oceny ręczne zapisuje się w kopii karty.
+
+### Próba diagnostyczna M10–M12 offline, 2026-11-18
+
+**Wynik 3/3** w roboczej wersji projektu na bazie `3189f77`. Każde zapytanie
+przekazano osobno do `chat_with_bot` z marką Winiary w domyślnym trybie legacy.
+Klient modelu i wyszukiwarka były atrapami. W każdym scenariuszu aplikacja
+wywołała atrapę klienta dokładnie raz. Liczba rzeczywistych żądań do OpenAI wyniosła 0.
+
+| Scenariusz i zapytanie | Wymuszony błąd | Wywołania wyszukiwarki / renderera | Pełna odpowiedź zwrócona użytkownikowi |
+| --- | --- | --- | --- |
+| M10 · Podaj pomysł na przekąskę. | Pierwsze wywołanie klienta zgłosiło `APIConnectionError` z tekstem kontrolnym `M10_OFFLINE_MARKER`. | 0 / 0 | Usługa interpretacji zapytań jest obecnie niedostępna. Spróbuj ponownie później. |
+| M11 · Podaj pomysł na kolację. | Klient zwrócił jedno wywołanie `get_recommendations` z argumentami o surowej treści `{`. | 0 / 0 | Nie udało się odczytać parametrów zapytania. Doprecyzuj wymagania i spróbuj ponownie. |
+| M12 · Zaproponuj jeden lunch. | Poprawne argumenty dotarły do atrapy wyszukiwarki. Po normalizacji, na wejściu do rzeczywistego renderera, listę `recommendations` zastąpiono liczbą `7`. | 1 / 1 | Nie udało się wyświetlić przepisów z powodu niespójnych danych. Spróbuj ponownie później. |
+
+Asercje potwierdziły dokładną zgodność tekstów z MSG-05, MSG-06 i MSG-08 oraz
+liczby wywołań. W M12 wyszukiwarka otrzymała kategorię `lunch`, `top_n=1`,
+domyślne wartości diety, źródła białka, ograniczeń i celu oraz `time_max=None`.
+Szczegóły wyjątku renderera trafiły do logu aplikacji. Wynik stanowi częściowy
+dowód diagnostyczny dla ACC-12. Końcowa ocena zestawu pozostaje w T013.
 
 ## 1. Cel i sposób odczytu
 

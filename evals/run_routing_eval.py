@@ -28,6 +28,7 @@ from evals.run_llm_eval import (DEFAULT_CASES_PATH, DEFAULT_ROUTING_CASES_PATH,
 
 GUARD_CASES_PATH = Path(__file__).with_name("application_routing_cases.json")
 HOLDOUT_CASES_PATH = Path(__file__).with_name("holdout_cases_v1.json")
+HOLDOUT_V2_PATH = Path(__file__).with_name("holdout_cases_v2.json")
 
 
 def empty_observation():
@@ -200,7 +201,12 @@ def summarize(results):
 
 
 def run_eval(args):
-    paths = [HOLDOUT_CASES_PATH] if getattr(args, "holdout", False) else [args.cases, args.routing_cases, args.guard_cases]
+    if getattr(args, "holdout_v2", False):
+        paths, dataset_role = [HOLDOUT_V2_PATH], "holdout_v2"
+    elif getattr(args, "holdout", False):
+        paths, dataset_role = [HOLDOUT_CASES_PATH], "holdout_v1"
+    else:
+        paths, dataset_role = [args.cases, args.routing_cases, args.guard_cases], "regression"
     repeats = getattr(args, "repeats", 1)
     if repeats < 1:
         raise ValueError("Repeats must be positive.")
@@ -213,7 +219,7 @@ def run_eval(args):
     if args.mode == "application" and args.model != "gpt-4o-mini":
         raise ValueError("Application mode requires its configured model gpt-4o-mini.")
     report = {"schema_version": 3, "evaluation_kind": f"separated_{args.mode}_routing",
-              "dataset_role": "holdout_v1" if getattr(args, "holdout", False) else "regression",
+              "dataset_role": dataset_role,
               "repeats": repeats,
               "scope": "routing_only_with_stubbed_recommendation_tool",
               "mode": args.mode, "dry_run": args.dry_run,
@@ -272,7 +278,9 @@ def main():
     parser.add_argument("--cases", type=Path, default=DEFAULT_CASES_PATH)
     parser.add_argument("--routing-cases", type=Path, default=DEFAULT_ROUTING_CASES_PATH)
     parser.add_argument("--guard-cases", type=Path, default=GUARD_CASES_PATH)
-    parser.add_argument("--holdout", action="store_true", help="Use only frozen holdout v1, without development cases.")
+    datasets = parser.add_mutually_exclusive_group()
+    datasets.add_argument("--holdout", action="store_true", help="Use only historical holdout v1.")
+    datasets.add_argument("--holdout-v2", action="store_true", help="Use only the T010 acceptance set.")
     parser.add_argument("--repeats", type=positive_int, default=1)
     parser.add_argument("--model", default="gpt-4o-mini")
     parser.add_argument("--brand-name", default="Winiary")
@@ -282,6 +290,8 @@ def main():
     args = parser.parse_args()
     if args.output is None:
         suffix = "holdout" if args.holdout else "routing"
+        if args.holdout_v2:
+            suffix = "holdout_v2"
         args.output = Path(__file__).with_name(f"{args.mode}_{suffix}_eval_report.json")
     report = run_eval(args)
     print(f"Routing eval mode: {args.mode}")

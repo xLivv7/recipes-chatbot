@@ -15,5 +15,7 @@ evals/raw_routing_eval_report.json
 evals/application_routing_eval_report.json
 evals/raw_holdout_eval_report.json
 evals/application_holdout_eval_report.json
+evals/raw_holdout_v2_eval_report.json
+evals/application_holdout_v2_eval_report.json
 ABSTRAKT_PROJEKTU_CHATBOTA.txt
 dokumentacja pracy/
