@@ -15,6 +15,51 @@ from core.database import Client, ClientSku, DietPolicy, Ingredient, Nutrient, R
 
 
 CLIENT_NAME = "Winiary"
+# Authored volumes for the two-serving recipes reviewed in T030.
+# The original gram amount is retained for the generic or other gram-based variant.
+RECIPE_VOLUMES_ML = {
+    "C001": {30: ("R024", "R109"), 50: ("R064", "R065", "R081", "R090", "R104", "R118", "R161", "R176"),
+             80: ("R113",), 100: ("R013", "R022", "R025", "R029", "R061", "R096", "R119", "R136"),
+             150: ("R130",), 200: ("R060",)},
+    "C004": {30: ("R069",), 50: ("R018", "R078", "R158", "R169"), 100: ("R062", "R099", "R152", "R173")},
+    "C007": {200: ("R047",), 500: ("R036", "R037", "R041", "R045", "R053", "R057", "R069", "R097", "R108", "R110"),
+             1000: ("R080",)},
+}
+
+
+def curate_recipe_volumes(db):
+    targets = {}
+    for concept, portions in RECIPE_VOLUMES_ML.items():
+        for ml, recipe_ids in portions.items():
+            for recipe_id in recipe_ids:
+                targets.setdefault(recipe_id, {})[concept] = ml
+    recipes = db.query(Recipe).filter(Recipe.id.in_(targets)).order_by(Recipe.id).with_for_update().all()
+    if len(recipes) != len(targets):
+        raise ValueError("Missing recipes for volume curation.")
+    changes = []
+    for recipe in recipes:
+        amounts = targets[recipe.id]
+        ingredients = [dict(item) for item in recipe.ingredients_data]
+        found = set()
+        for item in ingredients:
+            concept = item["concept_id"]
+            if concept not in amounts:
+                continue
+            ml = amounts[concept]
+            if (recipe.servings != 2 or concept in found or item.get("grams") != ml
+                    or ("sku_ml" in item and item["sku_ml"] != ml)):
+                raise ValueError(f"Review volume variant for {recipe.id}/{concept} before applying curation.")
+            item["sku_ml"] = ml
+            found.add(concept)
+        if found != amounts.keys():
+            raise ValueError(f"Missing volume ingredient in {recipe.id}.")
+        if ingredients != recipe.ingredients_data:
+            changes.append((recipe, ingredients))
+    for recipe, ingredients in changes:
+        recipe.ingredients_data = ingredients
+    return len(changes)
+
+
 BROTH_CONCEPT_ID = "C007"
 VEGETABLE_BROTH_SKU_ID = "WINIARY_BULION_WARZYWNY_SLOIK_160G"
 CURATION_DIR = Path(__file__).resolve().parent / "curation"
@@ -365,6 +410,7 @@ def apply_curation():
         deduplicate_supported_preference_rules(db)
         curate_r120_steps(db)
         curate_concept_nutrition(db)
+        curate_recipe_volumes(db)
 
         db.commit()
         print("Applied preference rules, diet policies, recipe and nutrient corrections.")
@@ -381,8 +427,13 @@ if __name__ == "__main__":
     mode.add_argument("--lactose-only", action="store_true", help="Import only lactose policies.")
     mode.add_argument("--recipes-only", action="store_true", help="Apply only recipe instruction corrections.")
     mode.add_argument("--nutrition-only", action="store_true", help="Replay the four T007 nutrient corrections.")
+    mode.add_argument("--volumes-only", action="store_true", help="Apply T030 recipe volume variants.")
     args = parser.parse_args()
-    if args.lactose_only:
+    if args.volumes_only:
+        with SessionLocal.begin() as db:
+            changed = curate_recipe_volumes(db)
+        print(f"T030: updated volume variants in {changed} recipes.")
+    elif args.lactose_only:
         apply_lactose_curation()
     elif args.recipes_only:
         apply_recipe_curation()

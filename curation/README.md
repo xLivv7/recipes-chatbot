@@ -71,3 +71,11 @@ This MVP flag describes compatibility according to the catalog data. It is not
 a medical guarantee, product certification, or assurance against
 cross-contamination. Commercial use requires verified manufacturer data and a
 defined review process.
+
+## Recipe volume variants (T030)
+
+Run `venv\Scripts\python.exe apply_data_curation.py --volumes-only` after restoring
+the demo catalog to replay the volume edits for 41 recipes. Full curation also applies
+them. The operation checks the recipe, serving count, ingredient and original amount
+before adding `sku_ml` alongside `grams` in one transaction. A repeated run accepts
+the same amounts. The volume is the authored amount for the branded variant.

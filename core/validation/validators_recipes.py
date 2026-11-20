@@ -57,6 +57,9 @@ def _validate_ingredients_data(ingredients_data, record_id: str) -> list[Validat
 
         concept_id = item.get("concept_id")
         grams = item.get("grams")
+        if "sku_ml" in item and (not is_number(item["sku_ml"]) or item["sku_ml"] <= 0):
+            issues.append(issue(Severity.ERROR, "recipes", record_id, f"{prefix}.sku_ml",
+                                "SKU volume must be a positive finite number in ml."))
 
         if is_blank(concept_id):
             issues.append(issue(Severity.ERROR, "recipes", record_id, f"{prefix}.concept_id", "Missing concept_id."))
