@@ -230,7 +230,7 @@ Pozostałe stany: **gotowe do rozpoczęcia**, **w toku**, **oczekuje na zależno
 
 ## Najbliższe zadanie
 
-**T011 — odtworzenie środowiska i katalogu** zaplanowano po wyborze wersji kandydującej, przed oceną T013.
+**T013 — finalna ocena MVP** na wersji kandydującej odtworzonej w T011.
 
 **T009P zakończone po zatwierdzeniu płatnego pilotażu przez autorkę.**
 V2: 57/60, ale 15/18 poprawnych no_tool; V0: 42/60 i 18/18 no_tool.
@@ -256,11 +256,11 @@ Końcowa akceptacja wymaga oceny kryteriów na wersji kandydującej.
   odrębne raporty i wybór według ustalonej reguły. Nie używać holdoutu
   ani nie wykonywać tekstowego JSON-a jako fallbacku. Gotowe po raporcie
   porównania i decyzji; sama instrumentacja nie kończy T009.
-- [ ] **T011 — odtworzenie i instrukcja.** Stan: **gotowe do rozpoczęcia**.
-  Uzupełnić przygotowanie środowiska i katalogu. Odtworzenie sprawdzić
-  w odrębnym środowisku i bazie, bez nadpisywania bieżącej. Zapisać wynik.
-- [ ] **T013 — finalna ocena ACC-01–14.** Stan: **oczekuje na wersję kandydującą
-  i odtworzenie w T011**. Jedna wersja kandydująca,
+- [x] **T011 — odtworzenie i instrukcja.** Odtworzono backend i katalog
+  w osobnym środowisku i bazie. Walidacja przeszła, wyniki M01 są identyczne.
+  [Dowody T011](verification.md#t011--odtworzenie-backendu).
+- [ ] **T013 — finalna ocena ACC-01–14.** Wersja kandydująca i katalog gotowe
+  po T011. Jedna wersja kandydująca,
   jawne wyniki kryteriów, ograniczenia i decyzja o gotowości MVP.
 
 ## Aktualizacja

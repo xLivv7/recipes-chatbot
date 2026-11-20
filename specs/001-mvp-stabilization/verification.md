@@ -4,7 +4,7 @@ Nawigacja: [specyfikacja](spec.md) · [kryteria](acceptance.md) ·
 [plan](plan.md) · [zadania](tasks.md).
 
 Data: 2026-10-22<br>
-Aktualizacja: 2026-11-20, T030<br>
+Aktualizacja: 2026-11-20, T011<br>
 Status: mapa dowodów częściowych. Ostatnia pełna regresja 380/380.
 T007 potwierdziło korektę czterech rekordów, makro na porcję w 19 przepisach
 i usunięcie czterech ostrzeżeń. [Źródła i weryfikacja](../../docs/reports/t007_nutrition_2026-11-18.md).
@@ -25,6 +25,18 @@ T012 zakończone. Pełna ocena ACC-03 pozostaje w T013. [Raport T012](../../docs
 W T030 utrwalono ilości dla wariantów w ml oraz zweryfikowano obliczenia
 i prezentację w odpowiedzi chatbota. Dla M01 po tej zmianie wszystkie pięć
 lunchów ma przypisane produkty Winiary. [Wyniki T030](../../docs/reports/t012_sku_nutrition_basis.md#wdrożenie-t030-z-20-listopada-2026-r).
+
+## T011 — odtworzenie backendu
+
+20 listopada 2026 r. autorka odtworzyła katalog do osobnej bazy
+na PostgreSQL 18.3 i uruchomiła backend w nowym środowisku Python 3.14.0.
+Commit kandydujący: `27ed9dac9572a6552e3e25ff5ed0a06390a10580`.
+SHA-256 archiwum `catalog.dump`: `29073AEBFA66799AAE1315EBBEF9A2A9E64E734453668F9F984D048BCAEB20DD`.
+Walidator zwrócił 0 błędów, 16 ostrzeżeń i 9 informacji, zgodnych z logiem T007.
+Pełne wyniki backendu M01 z obu baz są identyczne. Próba obejmowała walidację
+katalogu i odtworzenie rekomendacji offline. Ocena rozmowy M01 należy do T013.
+[Instrukcja](../../README.md#odtworzenie-backendu-z-kopii-katalogu-t011) ·
+[Raport i lokalizacja prywatnych artefaktów](../../dokumentacja%20pracy/T011_20261120_221423/wynik.md).
 
 ## T010 — przygotowanie zestawów
 
@@ -103,7 +115,7 @@ asercji i jawnego wskazania scenariuszy pozytywnych, negatywnych i brzegowych.
 | ACC-10 — stabilność | [Runner](../../evals/run_routing_eval.py), [testy powtórzeń i holdoutu](../../tests/test_routing_repeats_holdout.py). | Trzy powtórzenia regresji i nowego holdoutu; próg dotyczy przypadków poprawnych we wszystkich powtórzeniach, nie średniej z przebiegów. |
 | ACC-11 — granice obsługi | [Reguły alergii](../../tests/test_request_safety.py), [wykluczenia](../../tests/test_unsupported_exclusions.py), [rozdzielony routing](../../tests/test_separated_routing_eval.py). | Uzgodnić semantyczne etykiety przypadków, także negacji i obsługiwanych próśb błędnie blokowanych przez reguły. W kampanii sprawdzać rzeczywistą decyzję aplikacji; mocki nie zastępują pomiaru LLM. |
 | ACC-12 — czytelność | [Przypadki renderera](../../evals/renderer_cases.json) i checklista w kryteriach. | Brak zatwierdzonego zestawu ręcznego oraz formularza z oceną każdej odpowiedzi. Porównanie tekstu w teście nie jest oceną czytelności. |
-| ACC-13 — odtwarzalność | [Zależności](../../requirements.txt), [instrukcje](../../evals/README.md), [baseline](../../docs/reports/baseline_2026-10-22.md). | Wersje i kopia danych zapisane, README zaktualizowane. Otwarte: instrukcja przygotowania od zera i próba odtworzenia w odrębnym środowisku (T011). |
+| ACC-13 — odtwarzalność | [Instrukcja T011](../../README.md#odtworzenie-backendu-z-kopii-katalogu-t011), [dowody](#t011--odtworzenie-backendu). | Odtworzono backend i katalog, potwierdzono zgodność wyniku M01. W T013 powiązać raport końcowy z tą wersją. |
 | ACC-14 — pełny przepływ | [Integracja z rzeczywistym katalogiem](../../tests/test_recommendations_integration.py), [renderowanie rzeczywistych wyników](../../tests/test_chat_response_protection.py). | Testy częściowe nie stanowią pełnej demonstracji od polskiego zapytania przez rzeczywisty LLM i backend do odpowiedzi. Wybrać scenariusze i rozdzielić żywe próby od kontrolowanych awarii. |
 
 ## 3. Weryfikacja wymagań T005 — wykonana w T006 (2026-11-03)

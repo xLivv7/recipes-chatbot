@@ -1011,7 +1011,7 @@ legacy/V0. T027 zakończyło zatwierdzony pomiar i przegląd z wynikiem
 negatywnym (DEC-16). T029 zakończyło implementację i lokalną weryfikację
 kontroli CMP-1 (DEC-17). T020 zakończyło projekt wielu celów po MVP.
 T007 zakończyło przegląd i korektę wartości odżywczych czterech konceptów.
-T011 pozostaje gotowe do rozpoczęcia. [Raport T007](../../docs/reports/t007_nutrition_2026-11-18.md).
+T011 potwierdziło odtworzenie wersji kandydującej i jej katalogu. [Raport T007](../../docs/reports/t007_nutrition_2026-11-18.md) · [Wynik T011](verification.md#t011--odtworzenie-backendu).
 Kolejność opisuje [plan](plan.md), a stan prac
 [zadania](tasks.md). Nie uruchamiamy ponownie wykonanych etapów na podstawie
 dawnych notatek.

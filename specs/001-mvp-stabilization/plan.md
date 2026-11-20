@@ -1,16 +1,15 @@
 # Plan — stabilizacja istniejącego MVP
 
-Status na 2026-11-18: T026 i pomiar/przegląd T027 zakończone.
+Status na 2026-11-20: T026 i pomiar/przegląd T027 zakończone.
 DEC-16 odrzuca IR-1. T029 zakończyło implementację CMP-1 i replay offline
 w trybie wewnętrznym. Domyślny tryb pozostaje legacy/V0.
 T020 zakończyło projekt łączenia celów dla etapu po MVP.
-T007 zakończyło korektę danych czterech konceptów. Odtworzenie całego
-środowiska pozostaje w T011. [Raport T007](../../docs/reports/t007_nutrition_2026-11-18.md).
+T007 zakończyło korektę danych czterech konceptów. [Raport T007](../../docs/reports/t007_nutrition_2026-11-18.md).
 T009 pozostaje wstrzymane. T012 zakończono po wdrożeniu DEC-04.
 T030 wprowadziło objętości dla czterech wariantów SKU i zachowało odrębne ilości masowe w recepturach.
 W T010 przygotowano holdout v2 i scenariusze ręczne dla zakresu jednego celu.
 Autorka zatwierdziła oba zestawy 2026-11-18. [Wersje zamrożone do T013](verification.md#t010--przygotowanie-zestawów).
-T011 zaplanowano na wersji kandydującej przed T013. [Materiał T010](final-evaluation-cases.md).
+T011 potwierdziło odtworzenie backendu i katalogu na wersji kandydującej do T013. [Wynik T011](verification.md#t011--odtworzenie-backendu).
 Zakres i decyzje: [spec.md](spec.md). Warunki ukończenia: [acceptance.md](acceptance.md).
 Szczegółowe zadania i ich stan: [tasks.md](tasks.md).
 
