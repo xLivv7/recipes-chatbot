@@ -170,6 +170,26 @@ class RecommendationTests(unittest.TestCase):
     def setUp(self):
         self.catalog = build_catalog()
 
+    def test_volume_variant_and_generic_fallback_have_independent_amounts(self):
+        sku = "WINIARY_BULION_DROBIOWY_160G"
+        self.catalog.skus_by_id[sku] = self.catalog.skus_by_id.pop("CHICKEN_BROTH")
+        self.catalog.rules_by_concept["C007"][-1]["preferred_sku_id"] = sku
+        ingredient = self.catalog.recipes[0]["ingredients"][0]
+        for ml, expected_kcal in [(None, 5), (250, 7.5)]:
+            with self.subTest(ml=ml):
+                if ml is not None:
+                    ingredient["sku_ml"] = ml
+                result = orchestrate_recipe("R_TEST", catalog=self.catalog)
+                self.assertEqual(result["nutrition_per_serving"]["kcal"], expected_kcal)
+                item = result["brandified_ingredients"][0]
+                if ml is None:
+                    self.assertEqual(item, {"concept_id": "C007", "grams": 100})
+                else:
+                    self.assertEqual(item, {"concept_id": "C007", "sku_id": sku, "ml": ml})
+        restricted = orchestrate_recipe("R_TEST", restrictions=["gluten_free"], catalog=self.catalog)
+        self.assertEqual(restricted["brandified_ingredients"], [{"concept_id": "C007", "grams": 100}])
+        self.assertEqual(restricted["steps_pl"], ["Podgrzej bulion."])
+
     def test_supported_preferences_match_tool_contract(self):
         properties = RECIPE_TOOLS[0]["function"]["parameters"]["properties"]
 

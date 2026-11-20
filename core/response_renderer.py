@@ -59,7 +59,10 @@ def _validate_recipe(recipe):
             raise ResponsePayloadError("Expected ingredient object.")
         _text(ingredient.get("concept_id"))
         _text(ingredient.get("name_pl"))
-        _number(ingredient.get("grams_total"), positive=True)
+        volume = "ml_total" in ingredient or "ml_per_serving" in ingredient
+        if volume and ("grams_total" in ingredient or "grams_per_serving" in ingredient):
+            raise ResponsePayloadError("Ambiguous ingredient unit.")
+        _number(ingredient.get("ml_total" if volume else "grams_total"), positive=True)
         sku_id = ingredient.get("client_sku_id")
         if sku_id is not None:
             _text(sku_id)
@@ -107,7 +110,10 @@ def render_recommendations(data, brand_name="Winiary"):
                 if ingredient.get("client_sku_id") is not None:
                     sku = next(s for s in recipe["used_skus"] if s["client_sku_id"] == ingredient["client_sku_id"])
                     name += f" - {brand} {_text(sku['name_pl'])}"
-                lines.append(f"- {name}: {_number(ingredient['grams_total'], True)} g")
+                if "ml_total" in ingredient:
+                    lines.append(f"- {name}: {_number(ingredient['ml_total'], True)} ml")
+                else:
+                    lines.append(f"- {name}: {_number(ingredient['grams_total'], True)} g")
         if recipe["steps_pl"]:
             lines.extend(["", "#### Przygotowanie"])
             lines.extend(f"{index}. {_text(step)}" for index, step in enumerate(recipe["steps_pl"], 1))

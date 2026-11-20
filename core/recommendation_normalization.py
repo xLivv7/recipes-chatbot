@@ -13,9 +13,12 @@ def normalize_ingredient(ingredient: dict) -> dict:
     result = {
         "concept_id": ingredient.get("concept_id"),
         "name_pl": safe_str(ingredient.get("name_pl")),
-        "grams_total": safe_round(ingredient.get("grams_total"), 0),
-        "grams_per_serving": safe_round(ingredient.get("grams_per_serving"), 0),
     }
+    for measure in ("grams", "ml"):
+        if f"{measure}_total" in ingredient or f"{measure}_per_serving" in ingredient:
+            for suffix in ("total", "per_serving"):
+                field = f"{measure}_{suffix}"
+                result[field] = (ingredient.get(field) if measure == "ml" else safe_round(ingredient.get(field), 0))
     for field in ("client_sku_id", "client_sku_name_pl"):
         if field in ingredient:
             result[field] = ingredient[field]

@@ -2,9 +2,6 @@ import importlib
 import unittest
 
 
-VEGETABLE_BROTH_SKU_ID = "WINIARY_BULION_WARZYWNY_SLOIK_160G"
-
-
 class RealDatabaseRecommendationTests(unittest.TestCase):
     """Integration tests for recommendation logic running on the real database.
 
@@ -80,22 +77,14 @@ class RealDatabaseRecommendationTests(unittest.TestCase):
         self.assertLessEqual(len(recommendations), 2)
         self.assertTrue(all(recipe["time_min"] <= 30 for recipe in recommendations))
 
-    def test_vegan_broth_rule_uses_vegetable_broth_sku(self):
-        """Input: real C007 broth concept with diet=vegan.
-
-        Output: Winiary vegetable broth SKU id.
-        Behavior: protects the curated FMCG branding rule that prevents vegan
-        requests from falling back to chicken broth.
-        """
-        selected_sku = self.recommendations.choose_sku(
-            "C007",
-            diet="vegan",
-            protein_preference="none",
-            restrictions=[],
-            nutrition_goal="standard",
-        )
-
-        self.assertEqual(selected_sku, VEGETABLE_BROTH_SKU_ID)
+    def test_r069_uses_prepared_broth_and_sauce_volumes_in_per_serving_macros(self):
+        result = self.recommendations.orchestrate_recipe("R069")
+        volumes = {item["sku_id"]: item["ml"] for item in result["brandified_ingredients"] if "ml" in item}
+        self.assertEqual(volumes, {"WINIARY_BULION_DROBIOWY_160G": 500,
+                                   "WINIARY_SOS_CZOSNKOWY_BUTELKA_300ML": 30})
+        self.assertIn("500 ml gotowego wywaru", result["steps_pl"][0])
+        for field, expected in {"kcal": 353.75, "protein": 9.884, "fat": 12.003, "carbs": 52.418}.items():
+            self.assertAlmostEqual(result["nutrition_per_serving"][field], expected, places=6)
 
     def test_vegan_recommendations_use_only_vegan_allowed_concepts(self):
         """Input: real vegan dinner query.

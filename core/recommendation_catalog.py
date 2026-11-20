@@ -5,6 +5,14 @@ from dataclasses import dataclass
 from core.database import ClientSku, DietPolicy, Ingredient, Nutrient, Recipe, SessionLocal, SkuSelectionRule
 
 
+# The reviewed generic garlic sauce contains dairy and the generic broth contains meat.
+# These restrictions apply when a recipe uses the generic ingredient (DEC-04).
+GENERIC_DIET_EXCLUSIONS = {
+    "C004": frozenset({"vegan"}),
+    "C007": frozenset({"vegetarian", "vegan", "pescetarian"}),
+}
+
+
 @dataclass(frozen=True)
 class RecipeCatalog:
     recipes: list[dict]
@@ -43,6 +51,7 @@ def load_recipe_catalog() -> RecipeCatalog:
                 "is_keto_ok": policy.is_keto_ok,
                 "is_gluten_free": policy.is_gluten_free,
                 "is_lactose_free": policy.is_lactose_free,
+                "generic_excluded_diets": GENERIC_DIET_EXCLUSIONS.get(policy.ingredient_id, ()),
             }
             for policy in db.query(DietPolicy).all()
         }

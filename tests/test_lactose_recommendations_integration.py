@@ -30,15 +30,17 @@ class RealDatabaseLactoseRecommendationTests(unittest.TestCase):
                         for restriction in restrictions:
                             self.assertEqual(self.catalog.skus_by_id[sku_id]["is_" + restriction], 1)
 
-    def test_vegan_broth_remains_generic_when_sku_is_unverified(self):
+    def test_vegan_recipe_cannot_use_generic_meat_broth_when_sku_lactose_status_is_unknown(self):
         self.assertIsNone(choose_sku("C007", "vegan", "none", ["lactose_free"], "standard", self.catalog))
         recipes = [r for r in self.catalog.recipes if any(i["concept_id"] == "C007" for i in r["ingredients"])
                    and all(self.catalog.diet_policy_by_concept[i["concept_id"]]["is_lactose_free"] == 1
                            and self.catalog.diet_policy_by_concept[i["concept_id"]]["is_vegan_ok"] == 1
                            for i in r["ingredients"])]
         self.assertTrue(recipes)
-        result = orchestrate_recipe(recipes[0]["recipe_id"], diet="vegan", restrictions=["lactose_free"], catalog=self.catalog)
-        self.assertTrue(all("sku_id" not in i for i in result["brandified_ingredients"] if i["concept_id"] == "C007"))
+        for recipe in recipes:
+            self.assertFalse(recipe_matches_preferences(recipe, diet="vegan", restrictions=["lactose_free"], catalog=self.catalog))
+            with self.assertRaises(ValueError):
+                orchestrate_recipe(recipe["recipe_id"], diet="vegan", restrictions=["lactose_free"], catalog=self.catalog)
 
     def test_final_nutrition_uses_only_selected_skus_or_generic_concepts(self):
         result = get_recommendations(category="", top_n=len(self.catalog.recipes),
@@ -51,7 +53,8 @@ class RealDatabaseLactoseRecommendationTests(unittest.TestCase):
                 row = self.catalog.skus_by_id[sku_id] if sku_id else self.catalog.nutrients_by_concept[ingredient["concept_id"]]
                 fields = {"kcal": "energy_kcal", "protein": "protein_g", "fat": "fat_g", "carbs": "carbs_g"}
                 for key, field in fields.items():
-                    expected[key] += row[field + ("_100" if sku_id else "_100g")] * ingredient["grams_total"] / 100
+                    amount = ingredient.get("ml_total", ingredient.get("grams_total"))
+                    expected[key] += row[field + ("_100" if sku_id else "_100g")] * amount / 100
             for key, value in expected.items():
                 self.assertAlmostEqual(recipe["nutrition_total"][key], value)
                 self.assertAlmostEqual(recipe["nutrition_per_serving"][key], value / recipe["servings"])

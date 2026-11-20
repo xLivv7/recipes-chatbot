@@ -85,6 +85,16 @@ class ResponseRendererTests(unittest.TestCase):
         self.assertIn("242.125 kcal", render_recommendations(data))
         self.assertIn("ryż: 100 g", render_recommendations(data))
 
+    def test_volume_is_rendered_in_ml_and_mixed_units_are_rejected(self):
+        data = payload()
+        ingredient = data["recommendations"][0]["ingredients"][0]
+        ingredient["ml_total"] = 15
+        with self.assertRaises(ResponsePayloadError):
+            render_recommendations(data)
+        del ingredient["grams_total"]
+        ingredient["name_pl"] = "sos"
+        self.assertIn("sos: 15 ml", render_recommendations(data))
+
     def test_invalid_numbers_fail_closed(self):
         for value in (True, "300", -1, float("nan"), float("inf"), None):
             data = payload()

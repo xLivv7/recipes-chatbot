@@ -7,6 +7,21 @@ from core.recommendation_errors import RecommendationDataError
 from core.recommendation_preferences import validate_preference_contract
 
 
+PREPARED_BROTH_SKUS = frozenset({
+    "WINIARY_BULION_DROBIOWY_160G",
+    "WINIARY_BULION_WARZYWNY_SLOIK_160G",
+})
+VOLUME_SKUS = PREPARED_BROTH_SKUS | {
+    "WINIARY_MAJONEZ_WEGANSKI_300ML",
+    "WINIARY_SOS_CZOSNKOWY_BUTELKA_300ML",
+}
+SKU_EXCLUDED_DIETS = {
+    "WINIARY_BULION_DROBIOWY_160G": {"vegan", "vegetarian", "pescetarian"},
+    "WINIARY_SOS_CZOSNKOWY_BUTELKA_300ML": {"vegan"},
+    "WINIARY_MAJONEZ_DEKORACYJNY_400ML": {"vegan"},
+}
+
+
 def require_policy(concept_id, catalog, recipe_id=None):
     policy = catalog.diet_policy_by_concept.get(concept_id)
     if policy is None:
@@ -87,6 +102,8 @@ def recipe_matches_preferences(
     protein_preference: str = "none",
     restrictions: list[str] | None = None,
     catalog: RecipeCatalog = CATALOG,
+    *,
+    nutrition_goal: str = "standard",
 ) -> bool:
     normalized_restrictions = validate_preference_contract(diet, protein_preference, restrictions)
     require_recipe_policies(recipe, catalog)
@@ -113,6 +130,13 @@ def recipe_matches_preferences(
     ):
         return False
 
+    for item in recipe["ingredients"]:
+        concept_id = item["concept_id"]
+        if diet in catalog.diet_policy_by_concept[concept_id].get("generic_excluded_diets", ()):
+            if choose_sku(concept_id, diet, protein_preference, normalized_restrictions, nutrition_goal, catalog,
+                          has_volume="sku_ml" in item) is None:
+                return False
+
     if protein_preference == "meat":
         return any(
             int(catalog.diet_policy_by_concept.get(item["concept_id"], {}).get("is_meat", 0)) == 1
@@ -135,6 +159,8 @@ def choose_sku(
     restrictions: list[str] | None,
     nutrition_goal: str,
     catalog: RecipeCatalog = CATALOG,
+    *,
+    has_volume: bool = True,
 ) -> str | None:
     normalized_restrictions = validate_preference_contract(diet, protein_preference, restrictions)
 
@@ -163,12 +189,19 @@ def choose_sku(
             raise RecommendationDataError('sku_concept_mismatch', concept_id=concept_id, sku_id=sku_id)
         if 'client_id' in sku and sku['client_id'] != rule.get('client_id'):
             raise RecommendationDataError('sku_client_mismatch', concept_id=concept_id, sku_id=sku_id)
+        if sku_id in VOLUME_SKUS and not has_volume:
+            return None
+        if diet in SKU_EXCLUDED_DIETS.get(sku_id, ()):
+            continue
         if sku_allows_restrictions(
             sku_id,
             normalized_restrictions,
             catalog=catalog,
         ):
             return sku_id
+        if sku_id in VOLUME_SKUS and condition_type == "diet":
+            # A rejected diet-specific product must not become a default animal-based product.
+            return None
 
     return None
 
@@ -186,21 +219,24 @@ def orchestrate_recipe(
     if recipe is None:
         raise ValueError(f"Recipe not found: {recipe_id}")
 
-    require_recipe_policies(recipe, catalog)
-    if not all(concept_allows_restrictions(item["concept_id"], normalized_restrictions, catalog)
-               for item in recipe["ingredients"]):
-        raise ValueError(f"Recipe {recipe_id} does not satisfy active restrictions.")
+    if not recipe_matches_preferences(recipe, diet, protein_preference, normalized_restrictions, catalog,
+                                      nutrition_goal=nutrition_goal):
+        raise ValueError(f"Recipe {recipe_id} does not satisfy active preferences.")
 
     total = {"kcal": 0.0, "protein": 0.0, "fat": 0.0, "carbs": 0.0}
     servings = catalog_number(recipe.get('servings'), 'invalid_servings',
                               positive=True, recipe_id=recipe_id)
     brandified_ingredients = []
     used_skus = []
+    preparation_steps = []
 
     for ingredient in recipe["ingredients"]:
         concept_id = ingredient["concept_id"]
         context = dict(recipe_id=recipe_id, concept_id=concept_id)
         grams = catalog_number(ingredient.get('grams'), 'invalid_grams', positive=True, **context)
+        ml = None
+        if "sku_ml" in ingredient:
+            ml = catalog_number(ingredient["sku_ml"], "invalid_volume", positive=True, **context)
         sku_id = None
 
         # Rules must also be checked when a broken target left no SKU mapping.
@@ -208,18 +244,27 @@ def orchestrate_recipe(
             sku_id = choose_sku(
                 concept_id, diet=diet, protein_preference=protein_preference,
                 restrictions=normalized_restrictions, nutrition_goal=nutrition_goal,
-                catalog=catalog,
+                catalog=catalog, has_volume=ml is not None,
             )
         except RecommendationDataError as exc:
             exc.recipe_id = recipe_id
             raise
 
+        final_item = {"concept_id": concept_id, "grams": grams}
+        amount = grams
         if sku_id is not None:
             sku_row = catalog.skus_by_id[sku_id]
             values = sku_row
             suffix = '100'
             context['sku_id'] = sku_id
-            brandified_ingredients.append({"concept_id": concept_id, "sku_id": sku_id, "grams": grams})
+            if sku_id in VOLUME_SKUS:
+                amount = ml
+                final_item = {"concept_id": concept_id, "ml": ml}
+                if sku_id in PREPARED_BROTH_SKUS:
+                    preparation_steps.append(
+                        f"Przygotuj bulion według instrukcji na opakowaniu i odmierz {ml:g} ml gotowego wywaru."
+                    )
+            final_item["sku_id"] = sku_id
             used_skus.append(sku_id)
         else:
             nutrient = catalog.nutrients_by_concept.get(concept_id)
@@ -227,9 +272,9 @@ def orchestrate_recipe(
                 raise RecommendationDataError('missing_nutrients', **context)
             values = nutrient
             suffix = '100g'
-            brandified_ingredients.append({"concept_id": concept_id, "grams": grams})
 
-        multiplier = grams / 100.0
+        brandified_ingredients.append(final_item)
+        multiplier = amount / 100.0
         for label, prefix in [('kcal', 'energy_kcal_'), ('protein', 'protein_g_'),
                               ('fat', 'fat_g_'), ('carbs', 'carbs_g_')]:
             value = catalog_number(values.get(prefix + suffix), 'invalid_' + label, **context)
@@ -251,7 +296,7 @@ def orchestrate_recipe(
         "used_skus": sorted(set(used_skus)),
         "nutrition_total": total,
         "nutrition_per_serving": per_serving,
-        "steps_pl": recipe["steps_pl"],
+        "steps_pl": preparation_steps + recipe["steps_pl"],
     }
 
 
@@ -296,6 +341,7 @@ def orchestrate_top_n(
             protein_preference=protein_preference,
             restrictions=normalized_restrictions,
             catalog=catalog,
+            nutrition_goal=nutrition_goal,
         ):
             continue
 
@@ -367,16 +413,19 @@ def get_recommendations(
         ingredients = []
         for ingredient in result.get("brandified_ingredients", []):
             concept_id = ingredient["concept_id"]
-            grams_total = float(ingredient["grams"])
+            measure = "ml" if "ml" in ingredient else "grams"
+            amount = ingredient[measure]
             item = {
                 "concept_id": concept_id,
                 "name_pl": catalog.concept_name.get(concept_id, concept_id),
-                "grams_total": grams_total,
-                "grams_per_serving": grams_total / servings,
+                f"{measure}_total": amount,
+                f"{measure}_per_serving": amount / servings,
             }
             if "sku_id" in ingredient:
                 item["client_sku_id"] = ingredient["sku_id"]
                 item["client_sku_name_pl"] = catalog.sku_name.get(ingredient["sku_id"], ingredient["sku_id"])
+                if ingredient["sku_id"] in PREPARED_BROTH_SKUS:
+                    item["name_pl"] = "gotowy wywar po przygotowaniu"
             ingredients.append(item)
 
         recommendations.append(
