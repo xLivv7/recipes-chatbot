@@ -4,14 +4,27 @@ Nawigacja: [specyfikacja](spec.md) · [kryteria](acceptance.md) ·
 [plan](plan.md) · [zadania](tasks.md).
 
 Data: 2026-10-22<br>
-Aktualizacja: 2026-11-18, T010<br>
-Status: mapa dowodów częściowych. Ostatnia pełna regresja 375/375.
+Aktualizacja: 2026-11-20, T030<br>
+Status: mapa dowodów częściowych. Ostatnia pełna regresja 380/380.
 T007 potwierdziło korektę czterech rekordów, makro na porcję w 19 przepisach
 i usunięcie czterech ostrzeżeń. [Źródła i weryfikacja](../../docs/reports/t007_nutrition_2026-11-18.md).
 T029 potwierdziło działanie CMP-1 na zapisanych odpowiedziach w trybie wewnętrznym.
 T020 zakończyło projekt po MVP.
 T027 pozostaje negatywnym pomiarem 72 SDK; brak zaliczenia ACC.
 Punkt odniesienia opisuje [raport bazowy](../../docs/reports/baseline_2026-10-22.md).
+
+W T012 sprawdzono pięć SKU, jednostki źródłowe, reguły i postać składnika
+w recepturach. Po decyzji autorki wdrożono czasowe pominięcie produktów.
+Na 64 kombinacjach zapytań sprawdzono końcowe przypisania produktów, diety
+i cztery wartości na porcję. Po przywróceniu Majonezu Dekoracyjnego 400 ml
+19 listopada sprawdzono dobór i makro w 21 przepisach z majonezem.
+W M01 19 listopada cztery z pięciu lunchów miały produkt marki.
+[Pełna regresja](../../dokumentacja%20pracy/2026-11-18_t012/full_2026-11-19.json).
+T012 zakończone. Pełna ocena ACC-03 pozostaje w T013. [Raport T012](../../docs/reports/t012_sku_nutrition_basis.md).
+
+W T030 utrwalono ilości dla wariantów w ml oraz zweryfikowano obliczenia
+i prezentację w odpowiedzi chatbota. Dla M01 po tej zmianie wszystkie pięć
+lunchów ma przypisane produkty Winiary. [Wyniki T030](../../docs/reports/t012_sku_nutrition_basis.md#wdrożenie-t030-z-20-listopada-2026-r).
 
 ## T010 — przygotowanie zestawów
 
@@ -85,7 +98,7 @@ asercji i jawnego wskazania scenariuszy pozytywnych, negatywnych i brzegowych.
 | ACC-05 — brak wyników i brak wyszukiwania | [Ochrona odpowiedzi](../../tests/test_chat_response_protection.py), [renderer](../../tests/test_response_renderer.py). | Sprawdzić jawnie odrębne komunikaty, zachowanie aktywnych ograniczeń i brak zastępczych wyników. |
 | ACC-06 — granica narzędzia | [Walidacja wywołań](../../tests/test_tool_call_validation.py), [pojedyncze wywołanie](../../tests/test_single_recommendation_call.py), [brak tool calla](../../tests/test_chat_response_protection.py). | Powiązać wszystkie wymienione niepoprawne wejścia z asercją braku wywołania backendu; zwykły JSON pozostaje niepoprawnym kanałem. |
 | ACC-07 — awarie | [Błędy API i argumentów](../../tests/test_tool_call_validation.py), [błędy payloadu](../../tests/test_chat_response_protection.py). | DEC-03 wdrożona i zweryfikowana w T006; dowody w sekcji 3. Inne awarie pozostają w ogólnym zakresie ACC-07. |
-| ACC-08 — katalog | [Walidator bazy](../../validate_db.py), [walidacja flag](../../tests/test_lactose_catalog_validation.py), [curation](../../curation/README.md). | Snapshot i raport zapisano w baseline. Ostrzeżenia wymagają oceny; DEC-02 wdrożona i zweryfikowana w T006. Pięć SKU pozostaje wstrzymane, DEC-01 utrzymuje nieznane statusy laktozy. |
+| ACC-08 — katalog | [Walidator bazy](../../validate_db.py), [walidacja flag](../../tests/test_lactose_catalog_validation.py), [curation](../../curation/README.md). | Snapshot i raport zapisano w baseline. Ostrzeżenia wymagają oceny; DEC-02 wdrożona i zweryfikowana w T006. T012 dotyczy podstawy makro pięciu SKU. DEC-01 utrzymuje nieznane statusy laktozy. |
 | ACC-09 — jakość routingu | [Runner raw/application](../../evals/run_routing_eval.py), [przypadki intencji](../../evals/intent_cases.json), [przypadki aplikacji](../../evals/application_routing_cases.json). | Przygotować nowy holdout, sprawdzić etykiety i zamrozić kampanię; pokazać osobno łączny wynik i obsługiwane prośby. Historyczne wyniki nie zaliczają progu. |
 | ACC-10 — stabilność | [Runner](../../evals/run_routing_eval.py), [testy powtórzeń i holdoutu](../../tests/test_routing_repeats_holdout.py). | Trzy powtórzenia regresji i nowego holdoutu; próg dotyczy przypadków poprawnych we wszystkich powtórzeniach, nie średniej z przebiegów. |
 | ACC-11 — granice obsługi | [Reguły alergii](../../tests/test_request_safety.py), [wykluczenia](../../tests/test_unsupported_exclusions.py), [rozdzielony routing](../../tests/test_separated_routing_eval.py). | Uzgodnić semantyczne etykiety przypadków, także negacji i obsługiwanych próśb błędnie blokowanych przez reguły. W kampanii sprawdzać rzeczywistą decyzję aplikacji; mocki nie zastępują pomiaru LLM. |

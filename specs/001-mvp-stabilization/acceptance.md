@@ -177,6 +177,8 @@ wstecznie oceny wcześniejszego pomiaru.
 
 Wstępne powiązania kryteriów i luki opisuje [mapa](verification.md).
 Kontrola bazowa jest zapisana; kolejne czynności prowadzi [lista zadań](tasks.md).
-Przegląd pięciu SKU pozostaje wstrzymany. Nie oznacza to zaliczenia ACC-03.
+T012 i T030 rozstrzygnęły podstawę makro pięciu SKU. Cztery warianty
+receptur korzystają z tabel na 100 ml, a Majonez Dekoracyjny 400 ml z tabeli na 100 g.
+Końcową ocenę całego ACC-03 zapisuje się dla wersji kandydującej w T013.
 Nowe pomiary i poprawki mają własne raporty; samo zatwierdzenie progów
 nie uruchamia kampanii API.

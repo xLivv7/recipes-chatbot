@@ -6,7 +6,8 @@ w trybie wewnętrznym. Domyślny tryb pozostaje legacy/V0.
 T020 zakończyło projekt łączenia celów dla etapu po MVP.
 T007 zakończyło korektę danych czterech konceptów. Odtworzenie całego
 środowiska pozostaje w T011. [Raport T007](../../docs/reports/t007_nutrition_2026-11-18.md).
-T009 i T012 pozostają wstrzymane przez autorkę.
+T009 pozostaje wstrzymane. T012 zakończono po wdrożeniu DEC-04.
+T030 wprowadziło objętości dla czterech wariantów SKU i zachowało odrębne ilości masowe w recepturach.
 W T010 przygotowano holdout v2 i scenariusze ręczne dla zakresu jednego celu.
 Autorka zatwierdziła oba zestawy 2026-11-18. [Wersje zamrożone do T013](verification.md#t010--przygotowanie-zestawów).
 T011 zaplanowano na wersji kandydującej przed T013. [Materiał T010](final-evaluation-cases.md).
@@ -30,9 +31,9 @@ bez dodawania funkcji użytkowych. Wynik kontroli sprzed zmian pozostaje
 | Routing — protokół gotowy | ROU-01–ROU-06 i warianty V0/V1/V2 opisane; przygotowanie i pomiar oczekują w T009. |
 | Ocena i odtwarzalność | Zestaw ręczny, instrukcja odtworzenia i niezależna ocena po zamrożeniu wariantu. |
 
-Przegląd źródeł pięciu SKU i decyzja o ich podstawie makro są wstrzymane.
-Nie podejmujemy zależnych zmian tych produktów. Pozostałe obszary mogą
-postępować, ale ACC-03 nie jest przez to uznane za spełnione.
+W T012 sprawdzono źródła pięciu SKU, wdrożono ich czasowe pominięcie
+i sprawdzono makro oraz wpływ na dobór produktów. 19 listopada przywrócono
+Majonez Dekoracyjny 400 ml. [Raport T012](../../docs/reports/t012_sku_nutrition_basis.md).
 
 ## 3. Zrealizowana zmiana T006: integralność i błędy
 

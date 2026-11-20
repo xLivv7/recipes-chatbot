@@ -1,9 +1,9 @@
 # Specyfikacja — stabilizacja istniejącego MVP
 
 Data: 2026-10-22<br>
-Wersja dokumentu: 0.30; T007 zakończone: 2026-11-18<br>
+Wersja dokumentu: 0.34; warianty receptur w ml (T030): 2026-11-20<br>
 Status: zakres, progi i DEC-01–03 zatwierdzone; wymagania integralności
-i błędów wdrożone w T006; protokół T008 opracowany. Pięć SKU pozostaje wstrzymanych.
+i błędów wdrożone w T006; protokół T008 opracowany. W T012 zweryfikowano źródła pięciu SKU.
 
 Nawigacja: [kryteria](acceptance.md) · [plan](plan.md) ·
 [zadania](tasks.md) · [weryfikacja](verification.md) · [projekt IR-1](interpretation-contract.md).
@@ -65,7 +65,7 @@ ale nie zastępują jej ani stanów w `tasks.md`.
 | DEC-01 | Zatwierdzona | Nieznane statusy laktozy pozostają. Takie SKU są pomijane przy `lactose_free`. Dodawanie produktów i dopuszczanie kolejnych SKU do tej polityki pozostaje poza MVP. |
 | DEC-02 | Zatwierdzona; wdrożona w T006 | Brak wymaganej polityki składnika nie oznacza zgodności. Szczegóły opisują INT-01–INT-04. |
 | DEC-03 | Zatwierdzona; wdrożona w T006 | Błąd przygotowania przepisu przerywa zapytanie; nie zwracamy częściowego sukcesu ani pozornego braku wyników. Błędy programistyczne nie są maskowane jako poprawna odpowiedź. |
-| DEC-04 | Wstrzymana przez autorkę | Nie prowadzimy obecnie przeglądu źródeł pięciu SKU ani zależnych korekt czy wyłączeń. Luka podstawy makro pozostaje otwarta. |
+| DEC-04 | Wdrożona, aktualizacja T030 z 2026-11-20 | Majonez Dekoracyjny 400 ml korzysta z tabeli na 100 g. Dla Majonezu Wegańskiego, Sosu Czosnkowego 300 ml i obu bulionów w słoiku używać zapisanej w recepturze objętości oraz tabeli na 100 ml. Dla bulionów odmierza się gotowy wywar po przygotowaniu według opakowania. Przy braku objętości lub zgodnego SKU stosować dozwolony wariant generyczny w gramach albo wykluczyć przepis według jego polityki. [Kontrakt wartości odżywczych](../../docs/reference/data-contract/06_nutrition_contract.md). |
 | DEC-05 | Zatwierdzona 2026-11-03 | T009 pozostaje wyłącznie przygotowaniem offline. Płatna kampania API jest wstrzymana; wznowienie wymaga jawnej decyzji autorki. Nie oceniono progów jakości modelu. |
 | DEC-06 | Pilotaż zatwierdzony i wykonany 2026-11-03 | Po jednoznacznej zgodzie wykonano 120 wywołań V0/V2 na 20 przypadkach. Wybór pozostawia V0: V2 poprawił kanał, ale nie spełnił warunku wszystkich no_tool. Duża kampania pozostaje wstrzymana; wynik nie zalicza MVP ani nie podmienia promptu. |
 | DEC-07 | Decyzja przeglądu T014.4, 2026-11-03 | Pozostawić aktywny V0; V3 zachowuje kwalifikację kandydata T014.3, ale wymaga dalszego dopracowania. W application pomija dietę w intent_004, błędnie odmawia obsługi intent_010 i ma niestabilną regresję intent_032. Nie wdrażać V3 na podstawie tego pomiaru. Uzasadnienie i dowody w sekcji T014.4 mapy weryfikacji; ACC i reguła wyboru pozostają bez zmian. |

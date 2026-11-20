@@ -217,6 +217,17 @@ Pozostałe stany: **gotowe do rozpoczęcia**, **w toku**, **oczekuje na zależno
   40 przypadków holdoutu v2 i 12 scenariuszy ręcznych. Zweryfikowano skróty
   i zamrożono oba zestawy do T013. [Zapis decyzji](verification.md#t010--przygotowanie-zestawów).
 
+- [x] **T012 — podstawa makro pięciu SKU, DEC-04.** Autorka zdecydowała o czasowym
+  pominięciu pięciu produktów. Sprawdzono zgodność zamienników generycznych,
+  makro oraz wpływ na demonstrację. Autorka zweryfikuje produkty przed ich
+  indywidualnym przywróceniem. 19 listopada przywrócono Majonez Dekoracyjny
+  400 ml po przyjęciu tabeli producenta. [Raport T012](../../docs/reports/t012_sku_nutrition_basis.md).
+
+- [x] **T030 — ilości w ml dla wybranych wariantów receptur.** Wdrożono
+  objętość dla Majonezu Wegańskiego, Sosu Czosnkowego 300 ml i dwóch gotowych
+  wywarów. Sprawdzono rachunek na porcję, zachowanie przy braku objętości,
+  ograniczenia dietetyczne i tekst odpowiedzi. [Wyniki i zakres pomiaru](../../docs/reports/t012_sku_nutrition_basis.md).
+
 ## Najbliższe zadanie
 
 **T011 — odtworzenie środowiska i katalogu** zaplanowano po wyborze wersji kandydującej, przed oceną T013.
@@ -231,8 +242,7 @@ jest **wstrzymana na decyzję autorki z 2026-11-03: tylko przygotowanie offline*
 Nie uruchamiać pełnej kampanii API ani ponawiać prośby bez wznowienia jej przez autorkę.
 Wyniki offline i szacunek kosztu:
 [raport przygotowania](../../docs/reports/t009_preparation_2026-11-03.md).
-Końcowa akceptacja
-nadal wymaga zamknięcia pozostałych luk; T012 jest wstrzymane.
+Końcowa akceptacja wymaga oceny kryteriów na wersji kandydującej.
 
 ## Kolejne zadania
 
@@ -249,11 +259,8 @@ nadal wymaga zamknięcia pozostałych luk; T012 jest wstrzymane.
 - [ ] **T011 — odtworzenie i instrukcja.** Stan: **gotowe do rozpoczęcia**.
   Uzupełnić przygotowanie środowiska i katalogu. Odtworzenie sprawdzić
   w odrębnym środowisku i bazie, bez nadpisywania bieżącej. Zapisać wynik.
-- [ ] **T012 — podstawa makro pięciu SKU, DEC-04.** Stan: **wstrzymane przez autorkę**.
-  Nie sprawdzać źródeł, nie korygować danych i nie wyłączać SKU, dopóki
-  autorka nie wznowi zadania. Luka ACC-03 pozostaje otwarta.
-- [ ] **T013 — finalna ocena ACC-01–14.** Stan: **oczekuje na wymagane poprawki,
-  zestawy oceny i zamknięcie luk, w tym T012**. Jedna wersja kandydująca,
+- [ ] **T013 — finalna ocena ACC-01–14.** Stan: **oczekuje na wersję kandydującą
+  i odtworzenie w T011**. Jedna wersja kandydująca,
   jawne wyniki kryteriów, ograniczenia i decyzja o gotowości MVP.
 
 ## Aktualizacja
@@ -269,5 +276,4 @@ pomiar i przegląd: DEC-13 odrzuca V5 według T017-v1, pozostawiając V0.
 Wynik nie zamyka problemów routingu; kolejna iteracja wymaga osobnego zadania.
 
 Nowa istotna czynność otrzymuje ID i warunek ukończenia. Wykonane zadanie
-wskazuje dowód. Wznowienie T012 wymaga decyzji autorki; nie wynika
-z odczytu starego raportu.
+wskazuje dowód. Autorka wznowiła T012 18 listopada 2026 r.

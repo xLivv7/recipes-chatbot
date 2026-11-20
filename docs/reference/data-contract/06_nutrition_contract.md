@@ -8,7 +8,7 @@ Dla kazdego skladnika:
 
 - jezeli zostal wybrany SKU, uzywane sa wartosci odzywcze SKU,
 - jezeli nie zostal wybrany SKU, uzywane sa wartosci odzywcze generycznego konceptu,
-- wartosci sa liczone proporcjonalnie do `grams / 100`,
+- ilość z wybranego wariantu receptury dzielimy przez 100 i mnożymy przez wartości na 100 g lub 100 ml odpowiedniej postaci produktu,
 - suma przepisu jest dzielona przez `servings`, aby uzyskac wartosc na porcje.
 
 ## Reguly
@@ -36,6 +36,18 @@ Walidator powinien raportowac `WARNING`, gdy:
 
 Ostrzezenie o niespojnosci kcal z makro nie oznacza automatycznie bledu danych. Formula `4/9/4` jest sanity checkiem, ale moze zawyzac kcal dla skladnikow bogatych w blonnik, przypraw, kakao albo slodzikow poliolowych, np. ksylitolu i erytrytolu. Takie rekordy trzeba przejrzec recznie przed poprawianiem danych.
 
-## Znane uproszczenie MVP
+## Warianty receptur w gramach i mililitrach
 
-W CSV SKU wystepuje `nutrition_basis`, np. `per 100 g` lub `per 100 ml`, ale obecny model zapisuje wartosci do pol `*_100`. Dla precyzyjnego systemu trzeba rozroznic jednostke bazowa albo jawnie przyjac uproszczenie MVP.
+CSV SKU zawiera `nutrition_basis`. W PostgreSQL liczby SKU są zapisane w polach `*_100`.
+Majonez Dekoracyjny 400 ml jest rozliczany na 100 g. Dla czterech produktów z tabelą na 100 ml
+ilość dla całej receptury określa opcjonalne pole `sku_ml` w `ingredients_data`.
+Pole `grams` opisuje osobny wariant masowy. Wybór jednostki zależy od ostatecznie dobranego produktu.
+Gdy starsza receptura ma tylko `grams`, aplikacja pomija produkt objętościowy
+i sprawdza zgodność wariantu generycznego. Warunki diety i ograniczeń obowiązują przed podaniem przepisu.
+
+W odpowiedzi ilość składnika ma jedną parę pól, `grams_total` i `grams_per_serving`
+albo `ml_total` i `ml_per_serving`. Lista składników pokazuje ilość łączną.
+Kcal i B/T/W na porcję wynikają z podzielenia sumy przez liczbę porcji.
+Dla SKU bulionu lista składników nazywa gotowy wywar, a pierwszy krok poleca
+przygotowanie według instrukcji na opakowaniu i odmierzenie objętości z receptury.
+[Decyzja katalogowa i sprawdzenie](../../docs/reports/t012_sku_nutrition_basis.md).
