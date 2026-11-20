@@ -4,8 +4,10 @@ Nawigacja: [specyfikacja](spec.md) · [kryteria](acceptance.md) ·
 [plan](plan.md) · [zadania](tasks.md).
 
 Data: 2026-10-22<br>
-Aktualizacja: 2026-11-20, T011<br>
-Status: mapa dowodów częściowych. Ostatnia pełna regresja 380/380.
+Aktualizacja: 2026-11-21, zakończenie T013<br>
+Status: ocena wersji `27ed9da` zakończona. Autorka nie przyjęła tej wersji jako gotowego MVP.
+[Raport z decyzją i oceną 14 kryteriów](../../docs/reports/t013_mvp_acceptance_2026-11-21.md).
+Ostatnia pełna regresja 380/380.
 T007 potwierdziło korektę czterech rekordów, makro na porcję w 19 przepisach
 i usunięcie czterech ostrzeżeń. [Źródła i weryfikacja](../../docs/reports/t007_nutrition_2026-11-18.md).
 T029 potwierdziło działanie CMP-1 na zapisanych odpowiedziach w trybie wewnętrznym.
@@ -25,6 +27,66 @@ T012 zakończone. Pełna ocena ACC-03 pozostaje w T013. [Raport T012](../../docs
 W T030 utrwalono ilości dla wariantów w ml oraz zweryfikowano obliczenia
 i prezentację w odpowiedzi chatbota. Dla M01 po tej zmianie wszystkie pięć
 lunchów ma przypisane produkty Winiary. [Wyniki T030](../../docs/reports/t012_sku_nutrition_basis.md#wdrożenie-t030-z-20-listopada-2026-r).
+
+## T013 — wynik pomiaru routingu
+
+Oceniono domyślną konfigurację legacy dla Winiary na commicie
+`27ed9dac9572a6552e3e25ff5ed0a06390a10580`. Regresja obejmowała 76 zapytań,
+a zatwierdzony holdout v2 obejmował 40. Każdy przypadek oceniono trzy razy
+w każdym trybie. Wyszukiwarkę zastąpiono kontrolowanym wynikiem. Rejestrowano
+faktyczne wywołanie narzędzia przez aplikację i pełne argumenty.
+Model zwrócił identyfikator `gpt-4o-mini-2024-07-18`. Uzyskano wszystkie 696 ocen
+przy 660 wywołaniach API, bez błędów API i ponowień. Pozostałe 36 ocen zakończyły
+lokalne reguły aplikacji. Szacunkowy koszt według pełnych stawek wyniósł
+0,25325640 USD za 1 578 840 tokenów wejścia i 27 384 tokeny wyjścia.
+Zatwierdzony lokalny próg wynosił 0,50 USD.
+
+| Zbiór i tryb | Poprawne w rundach 1 / 2 / 3 | Poprawne łącznie | Poprawne obsługiwane prośby | Przypadki poprawne 3/3 |
+| --- | --- | --- | --- | --- |
+| Regresja, raw | 46 / 44 / 44 z 76 | 134/228 | 104/198 | 40/76 |
+| Regresja, application | 45 / 47 / 43 z 76 | 135/228 | 105/198 | 41/76 |
+| Holdout v2, raw | 26 / 27 / 27 z 40 | 80/120 | 53/90 | 26/40 |
+| Holdout v2, application | 25 / 26 / 28 z 40 | 79/120 | 52/90 | 25/40 |
+
+- **ACC-09 niespełnione.** W trybie application oba zbiory uzyskały poniżej 90%
+  zarówno ogółem (59,21% i 65,83%), jak i dla obsługiwanych próśb (53,03% i 57,78%).
+- **ACC-10 niespełnione.** Odsetek przypadków poprawnych we wszystkich trzech
+  powtórzeniach wyniósł 53,95% na regresji i 62,50% na holdoucie przy progu 85%.
+- **ACC-11 spełnione dla ustalonej próbki.** W trybie application liczba ocen
+  z zerem wywołań wyszukiwarki wyniosła 27/27 na regresji i 18/18 na holdoucie
+  w podzbiorach zamrożonych przed pomiarem. Na holdoucie trzy błędne
+  wyszukania dla jednego przypadku spoza podzbioru ACC-11 obniżyły ACC-09 i ACC-10.
+
+W trybie application 120 obsługiwanych próśb zakończyło się bez wyszukania
+(89 na regresji, 31 na holdoucie). W 117 z tych 120 odpowiedzi treść wiadomości
+była obiektem JSON, również po usunięciu ewentualnego ogrodzenia Markdown.
+Na przykład przy „obiad bez glutenu i bez laktozy” (`intent_054`) model
+trzykrotnie zapisał oba ograniczenia w tekście i ani razu nie wywołał narzędzia.
+Dodatkowo w 11 ocenach aplikacja uruchomiła wyszukiwanie z błędami semantycznymi
+w argumentach (4 na regresji, 7 na holdoucie).
+
+Dowody obejmują [zatwierdzony plan](../../dokumentacja%20pracy/T013_20261120_224518/routing_campaign_01/plan.json),
+[wynik kontroli kompletności i kryteriów](../../dokumentacja%20pracy/T013_20261120_224518/routing_campaign_01/acceptance_results.json)
+oraz cztery pełne raporty w tym samym folderze. W części offline T013 zarejestrowano
+[380/380 testów](../../dokumentacja%20pracy/T013_20261120_224518/regresja_02.json),
+[walidację katalogu](../../dokumentacja%20pracy/T013_20261120_224518/walidacja.txt)
+i [6/6 przypadków renderera](../../dokumentacja%20pracy/T013_20261120_224518/renderer.json).
+
+### T013 — przegląd M01–M12
+
+21 listopada autorka zatwierdziła korekty ocen A–H dla odpowiedzi z 20 listopada.
+**ACC-12 niespełnione.** W M03, M04 i M06 składniki potrzebne w instrukcji nie występują na liście.
+Autorka sprawdziła R030 w PostgreSQL. Receptura na grahamkę z masłem orzechowym i dżemem
+wskazuje 100 g C002. W tabeli `ingredients` ten identyfikator oznacza ketchup. Dla tego konceptu
+backend dobrał Winiary Ketchup Łagodny i taką nazwę wyświetlił renderer. Błędne powiązanie
+składnika z recepturą pozwoliło zwrócić danie opisujące grahamkę na prośbę o śniadanie bez glutenu.
+**ACC-14 niespełnione.** W M01, M02, M05, M07 i M08 pominięto wymagane wyszukanie.
+W tych przypadkach komunikat trafnie opisywał brak wyszukania (kolumna G).
+M10–M12 przeszły próbę obsługi kontrolowanych awarii. W M12 wyszukiwarka zwróciła R069,
+a po wstrzyknięciu błędu renderer zgłosił niespójność, którą aplikacja zakomunikowała użytkownikowi.
+[Karta autorki i ślady M01–M12](../../dokumentacja%20pracy/T013_20261120_224518/M01-M12_20261120_231852_451311/karta-oceny.md).
+Raport końcowy ujmuje skutek R030 również w ACC-01. Zawiera ocenę wszystkich kryteriów
+i decyzję autorki z 21 listopada. [Raport T013](../../docs/reports/t013_mvp_acceptance_2026-11-21.md).
 
 ## T011 — odtworzenie backendu
 
@@ -99,7 +161,7 @@ w raporcie, lecz nie jest dowodem pełnego pokrycia ACC. Żadne ACC nie otrzymuj
 zestawem wymaganych przypadków. Pokrycie wymaga przeglądu poszczególnych
 asercji i jawnego wskazania scenariuszy pozytywnych, negatywnych i brzegowych.
 
-## 2. Powiązania i luki
+## 2. Powiązania i luki odnotowane przed T013
 
 | Kryterium | Istniejące testy lub narzędzia | Co trzeba doprecyzować lub uzupełnić |
 | --- | --- | --- |

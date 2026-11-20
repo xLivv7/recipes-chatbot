@@ -1,6 +1,10 @@
 # Plan — stabilizacja istniejącego MVP
 
-Status na 2026-11-20: T026 i pomiar/przegląd T027 zakończone.
+Status na 2026-11-21: T013 zakończono. Autorka odrzuciła `27ed9da` jako gotowe MVP.
+Następne prace obejmują korektę receptur (T032) i poprawę routingu (T031).
+[Raport oceny](../../docs/reports/t013_mvp_acceptance_2026-11-21.md).
+
+Wcześniej zakończono T026 oraz pomiar i przegląd T027.
 DEC-16 odrzuca IR-1. T029 zakończyło implementację CMP-1 i replay offline
 w trybie wewnętrznym. Domyślny tryb pozostaje legacy/V0.
 T020 zakończyło projekt łączenia celów dla etapu po MVP.
@@ -27,8 +31,9 @@ bez dodawania funkcji użytkowych. Wynik kontroli sprzed zmian pozostaje
 | Punkt wyjścia — wykonany | Zakres, progi, zapis stanu zastanego, mapa dowodów i kontrola bazowa. |
 | Organizacja — wykonana | Jeden aktywny pakiet specyfikacji i indeksy dokumentacji. |
 | Integralność i błędy — wykonane | INT/ERR wdrożone i sprawdzone; [raport T006](../../docs/reports/t006_2026-11-03.md). |
-| Routing — protokół gotowy | ROU-01–ROU-06 i warianty V0/V1/V2 opisane; przygotowanie i pomiar oczekują w T009. |
-| Ocena i odtwarzalność | Zestaw ręczny, instrukcja odtworzenia i niezależna ocena po zamrożeniu wariantu. |
+| Ocena i odtwarzalność — wykonane | Zestawy T010, odtworzenie T011 oraz ocena wersji `27ed9da` w T013. |
+| Poprawki po ocenie | T032 sprawdza składniki, jednostki i kroki receptur. T031 sprawdza decyzje modelu i walidację przed wyszukiwaniem. |
+| Ponowna ocena | Po poprawkach ustalić wersję kodu i danych, powtórzyć kontrole zmienionych kryteriów oraz zapisać decyzję dla nowej wersji. |
 
 W T012 sprawdzono źródła pięciu SKU, wdrożono ich czasowe pominięcie
 i sprawdzono makro oraz wpływ na dobór produktów. 19 listopada przywrócono

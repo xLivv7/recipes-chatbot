@@ -8,12 +8,65 @@ Dowody i luki: [verification.md](verification.md).
 Pozostałe stany: **gotowe do rozpoczęcia**, **w toku**, **oczekuje na zależność**,
 **wstrzymane przez autorkę**.
 
+## Teraz — poprawki po ocenie MVP
+
+- [ ] **T032 — korekta danych receptur.** Gotowe do rozpoczęcia offline.
+  Zacząć od R030 (M03): ustalić właściwy koncept pieczywa, ilość i politykę glutenu.
+  Następnie sprawdzić R029 (4 g jajka), R118 (2 g kajzerki w przepisie na grahamki),
+  R079 (brak papieru ryżowego i cukinii) i R081 (brak awokado, 2 g jajka).
+  Każdą poprawkę powiązać ze źródłem receptury i zapisać tak, aby można ją było odtworzyć.
+  Gotowe, gdy składniki, kroki i jednostki zweryfikowanych receptur są spójne,
+  R030 kwalifikuje się zgodnie z rzeczywistym składem, a testy na poprawionym
+  katalogu potwierdzają filtry, dobór SKU, makro oraz odpowiedzi dla M03, M04 i M06.
+  Można podać zatwierdzone argumenty prosto do backendu na etapie sprawdzania
+  danych. Końcowa demonstracja nadal obejmuje rzeczywiste kierowanie zapytań.
+  [Ślady i karta M01–M12](../../dokumentacja%20pracy/T013_20261120_224518/M01-M12_20261120_231852_451311/karta-oceny.md).
+
+- [ ] **T031 — poprawa kierowania zapytań do wyszukiwarki.** Gotowe do rozpoczęcia.
+  T013 wykazało 120 obsługiwanych próśb bez wyszukania, w tym 117 odpowiedzi z JSON-em
+  w treści wiadomości. Zacząć od zapisanego przypadku regresji `intent_054`.
+  Określić kontrakt decyzji i argumentów, przygotować małą próbę porównawczą
+  na danych rozwojowych i sprawdzić, czy obsługiwana prośba prowadzi do jednego
+  wyszukania z poprawnymi parametrami. Granice ACC-06 i ACC-11 obowiązują także
+  po zmianie. JSON z treści wiadomości pozostaje niewykonywalny.
+  Gotowe, gdy poprawka przechodzi regresję i uzgodnioną próbę porównawczą,
+  a jej zakres i sposób ponownego pomiaru ACC-09–11 są udokumentowane.
+  Jeśli holdout v2 posłuży do strojenia, przygotować nowy holdout do niezależnej oceny.
+  [Wynik routingu T013](verification.md#t013--wynik-pomiaru-routingu).
+
+Po poprawkach zamrozić nową parę kodu i katalogu oraz powtórzyć pomiary
+i scenariusze potrzebne do ponownej oceny zmienionych kryteriów.
+
 ## Wykonane
+
+- [x] **T013 — finalna ocena ACC-01–14.** Zakończono 21 listopada 2026 r.
+  Autorka odrzuciła wersję `27ed9da` jako gotowe MVP.
+  [Raport z decyzją i oceną wszystkich kryteriów](../../docs/reports/t013_mvp_acceptance_2026-11-21.md).
+  Oceniany katalog pochodzi z próby T011. Obowiązują [kryteria akceptacji](acceptance.md)
+  i [zestaw scenariuszy zatwierdzony w T010](final-evaluation-cases.md).
+  - [x] **Kontrole offline.** Pełna regresja 380/380 bez pominięć, renderer 6/6,
+    walidator katalogu 0 błędów, 16 ostrzeżeń i 9 informacji. [Dowody T013](verification.md#t013--wynik-pomiaru-routingu).
+  - [x] **Ocena routingu ACC-09–11.** Zakończono wszystkie 696 ocen w obu trybach
+    na regresji i holdoucie v2, przy 660 wywołaniach API. ACC-09 (poprawność)
+    i ACC-10 (stabilność) są niespełnione. ACC-11 (granice obsługi) jest spełnione
+    dla ustalonej próbki. [Wyniki i progi](verification.md#t013--wynik-pomiaru-routingu).
+  - [x] **Wykonać końcową demonstrację M01–M12.** Zapisano 12 odpowiedzi i śladów.
+    W M01–M09 wykonano 9 wywołań modelu. W M01, M02, M05, M07 i M08 zabrakło
+    wymaganego wyszukania, więc demonstracja nie spełnia ACC-14. W M03, M04 i M06
+    backend zwrócił przepisy. M09 zakończył się oczekiwanym brakiem wyszukania.
+    W M10–M12 aplikacja obsłużyła trzy kontrolowane awarie offline.
+    [Odpowiedzi z demonstracji](../../dokumentacja%20pracy/T013_20261120_224518/M01-M12_20261120_231852_451311/odpowiedzi.md).
+  - [x] **Ocena odpowiedzi (ACC-12).** Autorka oceniła M01–M12 i zatwierdziła korekty.
+    ACC-12 niespełnione: w M03, M04 i M06 listy składników są niekompletne i sprzeczne z instrukcjami.
+    W R030 autorka potwierdziła w bazie błędne przypisanie 100 g konceptu C002 (ketchup).
+    [Karta A–H z uzasadnieniami i śladami](../../dokumentacja%20pracy/T013_20261120_224518/M01-M12_20261120_231852_451311/karta-oceny.md).
+  - [x] **Raport T013.** Zapisano dowody i status dla każdego kryterium, ograniczenia pomiaru
+    i decyzję autorki. Przegląd R030 wykazał dodatkowo niespełnienie ACC-01.
 
 - [x] **T001 — zakres i decyzje.** Ustalono brak nowych funkcji, jedną markę,
   samodzielne zapytania oraz DEC-01–03. Szczegóły wymagają rozwinięcia przed kodowaniem.
 - [x] **T002 — kryteria i progi.** Zapisano ACC-01–14, zaakceptowane progi
-  90%/85% i pełne przejście uzgodnionych testów. Zbiory nie są jeszcze zamrożone.
+  90%/85% i pełne przejście uzgodnionych testów. Zestawy do końcowej oceny zamrożono później w T010.
 - [x] **T003 — punkt odniesienia.** Zapisano środowisko, kopię danych i
   [raport bazowy](../../docs/reports/baseline_2026-10-22.md): 216 testów,
   brak pominięć, renderer 6/6, walidator 0 ERROR / 20 WARNING / 9 INFO.
@@ -146,7 +199,7 @@ Pozostałe stany: **gotowe do rozpoczęcia**, **w toku**, **oczekuje na zależno
     V5 application 78/96 wobec V4 86/96, sześć regresji per-case i 13
     błędnych dispatch. Niezamówione fish 4 → 0 w obu trybach, ale intent_004
     i diag_004 nadal 0/3. DEC-13: pozostawić V0. Pięć fałszywych blokad
-    pozostaje błędami osobnego audytu. T009/T012 nadal wstrzymane.
+    pozostaje błędami osobnego audytu. W chwili zakończenia T023 zadania T009 i T012 były wstrzymane.
 
 - [x] **T024 — poprawa fałszywych blokad preflight.** Zakończono 2026-11-17.
   PFL-01–07 i DEC-14: pięć znanych przypadków przechodzi preflight,
@@ -217,34 +270,22 @@ Pozostałe stany: **gotowe do rozpoczęcia**, **w toku**, **oczekuje na zależno
   40 przypadków holdoutu v2 i 12 scenariuszy ręcznych. Zweryfikowano skróty
   i zamrożono oba zestawy do T013. [Zapis decyzji](verification.md#t010--przygotowanie-zestawów).
 
+- [x] **T011 — odtworzenie i instrukcja.** Odtworzono backend i katalog
+  w osobnym środowisku i bazie. Walidacja przeszła, wyniki M01 są identyczne.
+  [Dowody T011](verification.md#t011--odtworzenie-backendu).
+
 - [x] **T012 — podstawa makro pięciu SKU, DEC-04.** Autorka zdecydowała o czasowym
   pominięciu pięciu produktów. Sprawdzono zgodność zamienników generycznych,
-  makro oraz wpływ na demonstrację. Autorka zweryfikuje produkty przed ich
-  indywidualnym przywróceniem. 19 listopada przywrócono Majonez Dekoracyjny
-  400 ml po przyjęciu tabeli producenta. [Raport T012](../../docs/reports/t012_sku_nutrition_basis.md).
+  makro oraz wpływ na demonstrację. 19 listopada przywrócono Majonez Dekoracyjny
+  400 ml po przyjęciu tabeli producenta na 100 g. Obsługę czterech wariantów
+  na 100 ml wdrożono w T030. [Raport T012](../../docs/reports/t012_sku_nutrition_basis.md).
 
 - [x] **T030 — ilości w ml dla wybranych wariantów receptur.** Wdrożono
   objętość dla Majonezu Wegańskiego, Sosu Czosnkowego 300 ml i dwóch gotowych
   wywarów. Sprawdzono rachunek na porcję, zachowanie przy braku objętości,
   ograniczenia dietetyczne i tekst odpowiedzi. [Wyniki i zakres pomiaru](../../docs/reports/t012_sku_nutrition_basis.md).
 
-## Najbliższe zadanie
-
-**T013 — finalna ocena MVP** na wersji kandydującej odtworzonej w T011.
-
-**T009P zakończone po zatwierdzeniu płatnego pilotażu przez autorkę.**
-V2: 57/60, ale 15/18 poprawnych no_tool; V0: 42/60 i 18/18 no_tool.
-Zgodnie z regułą pozostaje V0. [Raport](../../docs/reports/routing_pilot_2026-11-03.md).
-Pełna kampania pozostaje wstrzymana.
-
-T009: instrumentacja, testy i manifest przygotowane. Płatna kampania
-jest **wstrzymana na decyzję autorki z 2026-11-03: tylko przygotowanie offline**.
-Nie uruchamiać pełnej kampanii API ani ponawiać prośby bez wznowienia jej przez autorkę.
-Wyniki offline i szacunek kosztu:
-[raport przygotowania](../../docs/reports/t009_preparation_2026-11-03.md).
-Końcowa akceptacja wymaga oceny kryteriów na wersji kandydującej.
-
-## Kolejne zadania
+## Wstrzymane
 
 - [ ] **T009 — eksperyment routingu.** Stan: **offline gotowe; płatny etap wstrzymany przez autorkę**.
   Instrumentacja w `a1f7583`; 240 testów bez błędów i pominięć. Manifest
@@ -255,13 +296,8 @@ Końcowa akceptacja wymaga oceny kryteriów na wersji kandydującej.
   3 rundy raw/application na regresji,
   odrębne raporty i wybór według ustalonej reguły. Nie używać holdoutu
   ani nie wykonywać tekstowego JSON-a jako fallbacku. Gotowe po raporcie
-  porównania i decyzji; sama instrumentacja nie kończy T009.
-- [x] **T011 — odtworzenie i instrukcja.** Odtworzono backend i katalog
-  w osobnym środowisku i bazie. Walidacja przeszła, wyniki M01 są identyczne.
-  [Dowody T011](verification.md#t011--odtworzenie-backendu).
-- [ ] **T013 — finalna ocena ACC-01–14.** Wersja kandydująca i katalog gotowe
-  po T011. Jedna wersja kandydująca,
-  jawne wyniki kryteriów, ograniczenia i decyzja o gotowości MVP.
+  porównania i decyzji. [Przygotowanie T009](../../docs/reports/t009_preparation_2026-11-03.md)
+  · [raport ukończonego pilotażu T009P](../../docs/reports/routing_pilot_2026-11-03.md).
 
 ## Aktualizacja
 
